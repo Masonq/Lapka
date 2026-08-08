@@ -8,7 +8,7 @@ from app.core.security import (
 )
 from app.models.models import AuthProvider, User
 from app.schemas.schemas import (
-    ChangePassword, DeleteAccount, LoginEmail, RegisterEmail, TelegramAuth, Token, UserOut
+    ChangePassword, DeleteAccount, LoginEmail, MeOut, RegisterEmail, TelegramAuth, Token, UserOut
 )
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 account_action_limiter = RateLimiter(max_actions=5, window_seconds=600)
 
 
-@router.get("/me", response_model=UserOut)
+@router.get("/me", response_model=MeOut)
 def me(user: User = Depends(get_current_user)):
     return user
 

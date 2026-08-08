@@ -53,6 +53,7 @@ class User(Base):
 
     city = Column(String(80), default="Beograd")
     is_service_provider = Column(Boolean, default=False)
+    is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     pets = relationship("Pet", back_populates="owner", cascade="all, delete-orphan")
@@ -172,9 +173,29 @@ class Report(Base):
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
     reporter_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
+    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id", ondelete="SET NULL"), nullable=True)
     reason = Column(String(500), nullable=True)
+    is_resolved = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    reporter = relationship("User")
+    post = relationship("Post")
+
+
+class AuditLog(Base):
+    """Журнал действий модерации — раздел 24 блюпринта. Кто, что и над чем сделал."""
+
+    __tablename__ = "audit_logs"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    admin_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    action = Column(String(50), nullable=False)   # resolve_report / delete_post / dismiss_report
+    target_type = Column(String(30), nullable=False)  # post / report / user
+    target_id = Column(String(64), nullable=True)  # не FK — цель может быть уже удалена к моменту чтения лога
+    note = Column(String(500), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    admin = relationship("User")
 
 
 class Notification(Base):

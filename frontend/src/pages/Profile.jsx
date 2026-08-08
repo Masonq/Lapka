@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, UserCircle, PawPrint, Bookmark, Settings as SettingsIcon, ChevronRight } from "lucide-react";
+import { LogOut, UserCircle, PawPrint, Bookmark, Settings as SettingsIcon, ShieldAlert, ChevronRight } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -88,6 +88,12 @@ export default function Profile() {
         <Link to="/settings" className="btn btn-ghost btn-block">
           <SettingsIcon size={16} /> Настройки
         </Link>
+
+        {me?.is_admin && (
+          <Link to="/admin" className="btn btn-ghost btn-block" style={{ marginTop: 10 }}>
+            <ShieldAlert size={16} /> Админка
+          </Link>
+        )}
       </div>
     );
   }

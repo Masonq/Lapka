@@ -78,3 +78,28 @@ def register_user_with_id(client):
         return {"Authorization": f"Bearer {token}"}, decode_user_id(token)
 
     return _register
+
+
+@pytest.fixture
+def register_admin(register_user_with_id):
+    """Регистрирует пользователя и сразу назначает is_admin=True напрямую в базе — так же,
+    как это делалось бы вручную при первом деплое (через psql/скрипт): отдельного эндпоинта
+    для самоназначения администратором нет и не должно быть."""
+
+    def _register(display_name="Админ", password="password123"):
+        headers, user_id = register_user_with_id(display_name, password)
+
+        from app.core.db import SessionLocal
+        from app.models.models import User
+
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.id == user_id).first()
+            user.is_admin = True
+            db.commit()
+        finally:
+            db.close()
+
+        return headers, user_id
+
+    return _register

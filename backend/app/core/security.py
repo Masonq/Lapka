@@ -92,3 +92,10 @@ def get_current_user_optional(
     except JWTError:
         return None
     return db.query(User).filter(User.id == user_id).first()
+
+
+def get_current_admin(user: User = Depends(get_current_user)) -> User:
+    """Требует не только вход, но и флаг is_admin — для эндпоинтов админки."""
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Нужны права администратора")
+    return user

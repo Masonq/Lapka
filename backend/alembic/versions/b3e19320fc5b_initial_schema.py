@@ -33,6 +33,7 @@ def upgrade() -> None:
     sa.Column('password_hash', sa.String(length=255), nullable=True),
     sa.Column('city', sa.String(length=80), nullable=True),
     sa.Column('is_service_provider', sa.Boolean(), nullable=True),
+    sa.Column('is_admin', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )

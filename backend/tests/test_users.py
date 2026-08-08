@@ -23,6 +23,18 @@ def test_me_returns_current_user(client, register_user_with_id):
     assert r.json()["display_name"] == "Марко"
 
 
+def test_is_admin_not_leaked_in_public_user_schema(client, register_admin):
+    headers_admin, admin_id = register_admin()
+
+    # сам себе через /me — is_admin виден
+    r = client.get("/api/auth/me", headers=headers_admin)
+    assert r.json()["is_admin"] is True
+
+    # но в публичном профиле (общая UserOut) поля is_admin вообще нет
+    r = client.get(f"/api/users/{admin_id}")
+    assert "is_admin" not in r.json()
+
+
 def test_filter_posts_by_author(client, register_user):
     headers_a = register_user()
     headers_b = register_user()

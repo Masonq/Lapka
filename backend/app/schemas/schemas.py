@@ -54,6 +54,13 @@ class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class MeOut(UserOut):
+    """Расширенная версия UserOut только для собственного /auth/me — is_admin не должен
+    светиться в общей UserOut, которая отдаётся везде (автор поста/комментария и т.д.)."""
+
+    is_admin: bool
+
+
 # ---------- Pet ----------
 
 class PetCreate(BaseModel):
@@ -171,3 +178,40 @@ class NotificationOut(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- Admin ----------
+
+class ReportQueueItem(BaseModel):
+    id: str
+    reason: Optional[str] = None
+    is_resolved: bool
+    created_at: datetime
+    reporter: UserOut
+    post: Optional[PostOut] = None  # None, если пост уже удалён
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AdminActionResult(BaseModel):
+    ok: bool = True
+
+
+class AuditLogOut(BaseModel):
+    id: str
+    admin: Optional[UserOut] = None
+    action: str
+    target_type: str
+    target_id: Optional[str] = None
+    note: Optional[str] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AdminOverview(BaseModel):
+    users_count: int
+    posts_count: int
+    pets_count: int
+    unresolved_reports_count: int
+    service_providers_count: int

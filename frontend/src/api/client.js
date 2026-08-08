@@ -113,5 +113,11 @@ export const api = {
   markAllNotificationsRead: () => request("/notifications/read-all", { method: "PATCH", auth: true }),
   markNotificationRead: (id) => request(`/notifications/${id}/read`, { method: "PATCH", auth: true }),
 
+  adminOverview: () => request("/admin/overview", { auth: true }),
+  adminReports: (resolved) => request(`/admin/reports${resolved !== undefined ? `?resolved=${resolved}` : ""}`, { auth: true }),
+  adminDismissReport: (id) => request(`/admin/reports/${id}/dismiss`, { method: "PATCH", auth: true }),
+  adminDeletePost: (id) => request(`/admin/posts/${id}`, { method: "DELETE", auth: true }),
+  adminAuditLog: () => request("/admin/audit-log", { auth: true }),
+
   uploadImage,
 };
