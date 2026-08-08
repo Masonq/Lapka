@@ -1,17 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { Rss, PawPrint, Heart, User } from "lucide-react";
-
-const tabs = [
-  { to: "/", label: "Лента", icon: Rss, end: true },
-  { to: "/pets", label: "Питомцы", icon: PawPrint },
-  { to: "/services", label: "Услуги", icon: Heart },
-  { to: "/profile", label: "Профиль", icon: User },
-];
+import { NAV_ITEMS } from "../navConfig";
 
 export default function TabBar() {
   return (
     <nav className="tab-bar card-strong">
-      {tabs.map(({ to, label, icon: Icon, end }) => (
+      {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
         <NavLink
           key={to}
           to={to}

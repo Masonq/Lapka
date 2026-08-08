@@ -65,66 +65,68 @@ export default function PostDetail() {
         <span style={{ width: 44 }} />
       </div>
 
-      <div className="post-card card" style={{ marginBottom: 20 }}>
-        <span className={`post-badge ${post.type}`}>
-          {post.is_resolved && <CheckCircle2 size={12} />}
-          {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
-        </span>
-        <h2 className="post-title">{post.title}</h2>
-        <p className="post-body">{post.body}</p>
-        {post.last_seen_location && (
-          <div className="post-meta" style={{ marginBottom: 8 }}>
-            <span className="post-meta-item"><MapPin size={13} /> {post.last_seen_location}</span>
+      <div className="detail-shell">
+        <div className="post-card card" style={{ marginBottom: 20 }}>
+          <span className={`post-badge ${post.type}`}>
+            {post.is_resolved && <CheckCircle2 size={12} />}
+            {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
+          </span>
+          <h2 className="post-title">{post.title}</h2>
+          <p className="post-body">{post.body}</p>
+          {post.last_seen_location && (
+            <div className="post-meta" style={{ marginBottom: 8 }}>
+              <span className="post-meta-item"><MapPin size={13} /> {post.last_seen_location}</span>
+            </div>
+          )}
+          <div className="post-meta">
+            <span>{post.author.display_name}</span>
           </div>
-        )}
-        <div className="post-meta">
-          <span>{post.author.display_name}</span>
+
+          {isAuthed && !post.is_resolved && (post.type === "lost" || post.type === "found") && (
+            <button className="btn btn-ghost" style={{ marginTop: 12 }} onClick={markResolved}>
+              <CheckCircle2 size={16} /> Отметить решённым
+            </button>
+          )}
         </div>
 
-        {isAuthed && !post.is_resolved && (post.type === "lost" || post.type === "found") && (
-          <button className="btn btn-ghost" style={{ marginTop: 12 }} onClick={markResolved}>
-            <CheckCircle2 size={16} /> Отметить решённым
-          </button>
+        <h3 className="subhead" style={{ marginBottom: 10 }}>
+          Комментарии ({comments.length})
+        </h3>
+
+        {comments.length === 0 && (
+          <p style={{ fontSize: 13, color: "var(--text-faint)", marginBottom: 12 }}>
+            Пока нет комментариев — можешь стать первым
+          </p>
+        )}
+
+        {comments.map((c) => (
+          <div key={c.id} className="card" style={{ borderRadius: 16, padding: "10px 14px", marginBottom: 8 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--black)" }}>
+              {c.author.display_name}
+            </div>
+            <div style={{ fontSize: 14 }}>{c.body}</div>
+          </div>
+        ))}
+
+        {isAuthed ? (
+          <form onSubmit={submitComment} style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <input
+              style={{
+                flex: 1, border: "1px solid var(--border)", borderRadius: 999,
+                padding: "10px 16px", fontSize: 14, background: "var(--surface)",
+              }}
+              placeholder="Написать комментарий…"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+            <button className="btn btn-primary">Отправить</button>
+          </form>
+        ) : (
+          <p style={{ fontSize: 13, color: "var(--text-faint)", marginTop: 12 }}>
+            Войди, чтобы оставить комментарий
+          </p>
         )}
       </div>
-
-      <h3 className="subhead" style={{ marginBottom: 10 }}>
-        Комментарии ({comments.length})
-      </h3>
-
-      {comments.length === 0 && (
-        <p style={{ fontSize: 13, color: "var(--text-faint)", marginBottom: 12 }}>
-          Пока нет комментариев — можешь стать первым
-        </p>
-      )}
-
-      {comments.map((c) => (
-        <div key={c.id} className="card" style={{ borderRadius: 16, padding: "10px 14px", marginBottom: 8 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--black)" }}>
-            {c.author.display_name}
-          </div>
-          <div style={{ fontSize: 14 }}>{c.body}</div>
-        </div>
-      ))}
-
-      {isAuthed ? (
-        <form onSubmit={submitComment} style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          <input
-            style={{
-              flex: 1, border: "1px solid var(--border)", borderRadius: 999,
-              padding: "10px 16px", fontSize: 14, background: "var(--surface)",
-            }}
-            placeholder="Написать комментарий…"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-          <button className="btn btn-primary">Отправить</button>
-        </form>
-      ) : (
-        <p style={{ fontSize: 13, color: "var(--text-faint)", marginTop: 12 }}>
-          Войди, чтобы оставить комментарий
-        </p>
-      )}
     </div>
   );
 }

@@ -68,11 +68,11 @@ export default function Feed() {
       </div>
 
       {loading && (
-        <>
+        <div className="card-grid">
           <PostCardSkeleton />
           <PostCardSkeleton />
           <PostCardSkeleton />
-        </>
+        </div>
       )}
 
       {!loading && posts.length === 0 && (
@@ -82,9 +82,13 @@ export default function Feed() {
         </div>
       )}
 
-      {!loading && posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
+      {!loading && posts.length > 0 && (
+        <div className="card-grid">
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
+      )}
 
       <Link to="/new-post" className="fab" aria-label="Новый пост">
         <Plus size={22} strokeWidth={2.4} />

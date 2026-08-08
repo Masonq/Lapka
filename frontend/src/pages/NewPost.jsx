@@ -71,23 +71,24 @@ export default function NewPost() {
         <span style={{ width: 44 }} />
       </div>
 
-      <div className="field">
-        <label id="post-type-label">Тип поста</label>
-        <div className="chip-row" role="group" aria-labelledby="post-type-label" style={{ paddingBottom: 2 }}>
-          {TYPES.map((t) => (
-            <button
-              key={t.value}
-              type="button"
-              className={`chip${type === t.value ? " active" : ""}`}
-              onClick={() => setType(t.value)}
-            >
-              {t.label}
-            </button>
-          ))}
+      <div className="detail-shell">
+        <div className="field">
+          <label id="post-type-label">Тип поста</label>
+          <div className="chip-row" role="group" aria-labelledby="post-type-label" style={{ paddingBottom: 2 }}>
+            {TYPES.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                className={`chip${type === t.value ? " active" : ""}`}
+                onClick={() => setType(t.value)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <form onSubmit={handleSubmit} className="card" style={{ borderRadius: 20, padding: 18 }}>
+        <form onSubmit={handleSubmit} className="card" style={{ borderRadius: 20, padding: 18 }}>
         <div className="field">
           <label htmlFor="post-title">Заголовок</label>
           <input
@@ -124,7 +125,8 @@ export default function NewPost() {
         <button className="btn btn-primary btn-block" disabled={submitting}>
           {submitting ? "Публикуем…" : "Опубликовать"}
         </button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

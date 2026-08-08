@@ -113,10 +113,10 @@ export default function Services() {
       </div>
 
       {loading && (
-        <>
+        <div className="card-grid">
           <ServiceCardSkeleton />
           <ServiceCardSkeleton />
-        </>
+        </div>
       )}
 
       {!loading && providers.length === 0 && (
@@ -126,8 +126,10 @@ export default function Services() {
         </div>
       )}
 
-      {!loading && providers.map((p) => (
-        <div key={p.id} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 10 }}>
+      {!loading && providers.length > 0 && (
+        <div className="card-grid">
+          {providers.map((p) => (
+            <div key={p.id} className="card" style={{ borderRadius: 20, padding: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
               <span className="post-badge general">{TYPE_RU[p.service_type]}</span>
@@ -146,8 +148,10 @@ export default function Services() {
               <span className="post-meta-item"><Phone size={13} /> {p.contact}</span>
             )}
           </div>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }

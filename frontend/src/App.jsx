@@ -1,5 +1,5 @@
-import { Routes, Route, Link } from "react-router-dom";
-import { MapPin, User } from "lucide-react";
+import { Routes, Route, Link, NavLink } from "react-router-dom";
+import { MapPin, User, Plus } from "lucide-react";
 import TabBar from "./components/TabBar";
 import Feed from "./pages/Feed";
 import NewPost from "./pages/NewPost";
@@ -7,6 +7,7 @@ import PostDetail from "./pages/PostDetail";
 import Pets from "./pages/Pets";
 import Services from "./pages/Services";
 import Profile from "./pages/Profile";
+import { NAV_ITEMS } from "./navConfig";
 
 export default function App() {
   return (
@@ -18,9 +19,28 @@ export default function App() {
             <MapPin size={10} strokeWidth={2.5} /> beograd
           </span>
         </div>
-        <Link to="/profile" className="header-avatar" aria-label="Профиль">
-          <User size={16} strokeWidth={2.2} />
-        </Link>
+
+        <nav className="desktop-nav">
+          {NAV_ITEMS.map(({ to, label, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) => `desktop-nav-item${isActive ? " active" : ""}`}
+            >
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Link to="/new-post" className="btn btn-primary desktop-only" style={{ padding: "9px 16px" }}>
+            <Plus size={16} strokeWidth={2.4} /> Новый пост
+          </Link>
+          <Link to="/profile" className="header-avatar" aria-label="Профиль">
+            <User size={16} strokeWidth={2.2} />
+          </Link>
+        </div>
       </div>
 
       <Routes>

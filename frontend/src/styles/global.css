@@ -242,8 +242,13 @@ a {
   position: relative;
   border-radius: var(--radius-lg);
   padding: 16px;
-  margin-bottom: 12px;
   display: block;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
 
 .post-badge {
@@ -545,5 +550,80 @@ a {
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+  }
+}
+
+/* --- Десктоп --- */
+
+.desktop-nav {
+  display: none;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 860px) {
+  .app-shell {
+    max-width: 900px;
+    padding: 0 24px 56px;
+  }
+
+  .top-header {
+    margin: 0 -24px 20px;
+    padding: 14px 20px;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .desktop-nav-item {
+    padding: 9px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .desktop-nav-item:hover {
+    background: var(--gray-tint);
+    color: var(--black);
+  }
+
+  .desktop-nav-item.active {
+    background: var(--yellow-tint);
+    color: var(--black);
+  }
+
+  .desktop-only {
+    display: inline-flex;
+  }
+
+  /* Капсульная навигация и плавающая кнопка — паттерны для тач-экрана, на десктопе их заменяет верхнее меню */
+  .tab-bar,
+  .fab {
+    display: none;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    align-items: start;
+  }
+
+  /* Формы читаются лучше в узкой колонке даже на широком экране */
+  form.card {
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .detail-shell {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
