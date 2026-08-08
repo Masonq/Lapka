@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
@@ -8,6 +10,22 @@ from app.models.models import Pet, User
 from app.schemas.schemas import PetCreate, PetOut
 
 router = APIRouter(prefix="/api/pets", tags=["pets"])
+
+
+@router.get("", response_model=list[PetOut])
+def list_pets(
+    city: Optional[str] = None,
+    limit: int = Query(30, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+):
+    """Публичный список питомцев — раздел 11 блюпринта (Nearby). Фильтр только по городу,
+    не по точным координатам: их у питомцев и пользователей нет и не будет — блюпринт
+    прямо запрещает показывать точное местоположение."""
+    query = db.query(Pet)
+    if city:
+        query = query.filter(Pet.city == city)
+    return query.order_by(Pet.created_at.desc()).offset(offset).limit(limit).all()
 
 
 @router.get("/mine", response_model=list[PetOut])

@@ -19,7 +19,6 @@ const SERVICE_TYPES = [
 ];
 
 const UPCOMING = [
-  { icon: MapPin, label: "Рядом", desc: "Питомцы и заведения на карте поблизости" },
   { icon: CalendarDays, label: "События и прогулки", desc: "Совместные выгулы и встречи" },
   { icon: Heart, label: "Приюты и пристройство", desc: "Питомцы, которым ищут дом" },
   { icon: ShoppingBag, label: "Барахолка", desc: "Купить/продать/отдать даром" },
@@ -127,6 +126,22 @@ export default function Explore() {
         </>
       ) : (
         <>
+          <Link to="/nearby" className="card" style={{
+            borderRadius: 20, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", gap: 12,
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: "50%", background: "var(--blue-tint)", color: "var(--blue)",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <MapPin size={17} strokeWidth={2.2} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div className="subhead" style={{ fontSize: 14 }}>Рядом</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Питомцы в твоём городе</div>
+            </div>
+            <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
+          </Link>
+
           {communities.length > 0 && (
             <>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>

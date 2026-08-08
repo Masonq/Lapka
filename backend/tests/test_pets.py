@@ -78,3 +78,22 @@ def test_pet_extended_fields_are_optional(client, register_user):
     assert pet["gender"] is None
     assert pet["city"] is None
     assert pet["activity_level"] is None
+
+
+def test_list_pets_public_no_auth_required(client, register_user):
+    headers = register_user()
+    client.post("/api/pets", json={"name": "Бела", "species": "Собака", "city": "Белград"}, headers=headers)
+
+    r = client.get("/api/pets")
+    assert r.status_code == 200
+    assert len(r.json()) == 1
+    assert r.json()[0]["name"] == "Бела"
+
+
+def test_list_pets_filter_by_city(client, register_user):
+    headers = register_user()
+    client.post("/api/pets", json={"name": "Бела", "species": "Собака", "city": "Белград"}, headers=headers)
+    client.post("/api/pets", json={"name": "Луна", "species": "Кошка", "city": "Нови-Сад"}, headers=headers)
+
+    r = client.get("/api/pets", params={"city": "Белград"})
+    assert [p["name"] for p in r.json()] == ["Бела"]
