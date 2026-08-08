@@ -75,8 +75,8 @@ export default function UserProfile() {
         <div className="card" style={{ borderRadius: 20, padding: 18, marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{
-              width: 56, height: 56, borderRadius: "50%", background: "var(--yellow-tint)",
-              color: "#8A6A00", display: "flex", alignItems: "center", justifyContent: "center",
+              width: 56, height: 56, borderRadius: "50%", background: "var(--primary-tint)",
+              color: "#95491B", display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 22, fontWeight: 800, flexShrink: 0, overflow: "hidden",
             }}>
               {user.avatar_url ? (

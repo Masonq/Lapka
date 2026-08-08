@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Plus, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { api } from "../api/client";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
@@ -123,10 +122,6 @@ export default function Feed() {
           {loadingMore ? "Загружаем…" : "Показать ещё"}
         </button>
       )}
-
-      <Link to="/create" className="fab" aria-label="Создать">
-        <Plus size={22} strokeWidth={2.4} />
-      </Link>
     </div>
   );
 }

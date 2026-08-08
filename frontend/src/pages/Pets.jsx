@@ -120,8 +120,8 @@ export default function Pets() {
       {pets.length > 0 && (
         <div className="card-grid">
           {pets.map((pet) => {
-            const avatarTint = pet.species === "Собака" ? "var(--blue-tint)" : pet.species === "Кошка" ? "var(--yellow-tint)" : "var(--gray-tint)";
-            const avatarColor = pet.species === "Собака" ? "var(--blue)" : pet.species === "Кошка" ? "#8A6A00" : "var(--text-muted)";
+            const avatarTint = pet.species === "Собака" ? "var(--blue-tint)" : pet.species === "Кошка" ? "var(--primary-tint)" : "var(--gray-tint)";
+            const avatarColor = pet.species === "Собака" ? "var(--blue)" : pet.species === "Кошка" ? "#95491B" : "var(--text-muted)";
             return (
               <div key={pet.id} className="card" style={{
                 borderRadius: 20, padding: "14px 16px",

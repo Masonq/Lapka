@@ -68,8 +68,8 @@ export default function ProviderCard({ provider, onReviewed }) {
           </div>
         </div>
         {provider.rating_count > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "var(--yellow-strong)" }}>
-            <Star size={14} fill="var(--yellow-strong)" strokeWidth={0} /> {provider.rating_avg}
+          <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "var(--black)" }}>
+            <Star size={14} fill="var(--star)" strokeWidth={0} /> {provider.rating_avg}
           </div>
         )}
       </div>
@@ -114,7 +114,7 @@ export default function ProviderCard({ provider, onReviewed }) {
                     <Star
                       key={i}
                       size={11}
-                      fill={i < r.rating ? "var(--yellow-strong)" : "var(--gray-tint)"}
+                      fill={i < r.rating ? "var(--star)" : "var(--gray-tint)"}
                       stroke="none"
                     />
                   ))}
@@ -142,7 +142,7 @@ export default function ProviderCard({ provider, onReviewed }) {
                     aria-label={`${i + 1} из 5`}
                     style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}
                   >
-                    <Star size={22} fill={i < rating ? "var(--yellow-strong)" : "var(--gray-tint)"} stroke="none" />
+                    <Star size={22} fill={i < rating ? "var(--star)" : "var(--gray-tint)"} stroke="none" />
                   </button>
                 ))}
               </div>

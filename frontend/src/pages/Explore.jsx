@@ -26,7 +26,7 @@ const UPCOMING = [
 ];
 
 export default function Explore() {
-  useDocumentTitle("Обзор");
+  useDocumentTitle("Поиск");
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
 

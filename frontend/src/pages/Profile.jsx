@@ -32,7 +32,7 @@ export default function Profile() {
 
         <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
           <div style={{
-            width: 52, height: 52, borderRadius: "50%", background: "var(--yellow-tint)", color: "#8A6A00",
+            width: 52, height: 52, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
             display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, flexShrink: 0, overflow: "hidden",
           }}>
             {me?.avatar_url ? (

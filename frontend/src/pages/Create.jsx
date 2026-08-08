@@ -10,7 +10,7 @@ import { useDocumentTitle } from "../useDocumentTitle";
 const TYPES = [
   { value: "lost", label: "Потерялся питомец", desc: "Срочный пост с приметами и местом", icon: AlertTriangle, tint: "var(--red-tint)", color: "var(--red)" },
   { value: "found", label: "Нашёлся питомец", desc: "Кто-то потерял — сообщи, где видел", icon: MapPinCheck, tint: "var(--green-tint)", color: "var(--green)" },
-  { value: "adopt", label: "Ищет дом", desc: "Пристройство питомца в добрые руки", icon: Heart, tint: "var(--yellow-tint)", color: "#8A6A00" },
+  { value: "adopt", label: "Ищет дом", desc: "Пристройство питомца в добрые руки", icon: Heart, tint: "var(--primary-tint)", color: "#95491B" },
   { value: "question", label: "Вопрос соседям", desc: "Спросить совета у сообщества", icon: HelpCircle, tint: "var(--blue-tint)", color: "var(--blue)" },
   { value: "general", label: "Обычный пост", desc: "Поделиться чем угодно про питомца", icon: MessageSquarePlus, tint: "var(--gray-tint)", color: "var(--text-muted)" },
 ];

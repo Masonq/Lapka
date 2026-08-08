@@ -39,7 +39,7 @@ export default function App() {
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Link to="/create" className="btn btn-primary desktop-only" style={{ padding: "9px 16px" }}>
-            <PlusCircle size={16} strokeWidth={2.4} /> Создать
+            <PlusCircle size={16} strokeWidth={2.4} /> Добавить
           </Link>
           <Link to="/profile" className="header-avatar" aria-label="Профиль">
             <User size={16} strokeWidth={2.2} />
