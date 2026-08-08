@@ -26,7 +26,7 @@ export default function PostCard({ post }) {
     <div className="post-card card">
       <Link to={`/posts/${post.id}`} className="post-card-link">
         {post.photo_url && (
-          <img src={post.photo_url} alt="" className="post-card-photo" />
+          <img src={post.photo_url} alt={post.title} className="post-card-photo" />
         )}
         <span className={`post-badge ${post.type}`}>
           {post.is_resolved && <CheckCircle2 size={12} />}

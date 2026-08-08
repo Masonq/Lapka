@@ -48,7 +48,7 @@ export default function PhotoPicker({ value, onChange, label = "Фото" }) {
       <label>{label}</label>
       {preview ? (
         <div className="photo-preview">
-          <img src={preview} alt="" />
+          <img src={preview} alt="Предпросмотр фото" />
           {uploading && (
             <div className="photo-preview-overlay">
               <Loader2 size={20} className="spin" />

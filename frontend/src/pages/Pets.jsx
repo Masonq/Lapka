@@ -127,7 +127,7 @@ export default function Pets() {
                   display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden",
                 }}>
                   {pet.avatar_url ? (
-                    <img src={pet.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <img src={pet.avatar_url} alt={`Фото ${pet.name}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
                     <PawPrint size={20} strokeWidth={2.2} />
                   )}

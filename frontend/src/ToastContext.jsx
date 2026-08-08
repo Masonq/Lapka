@@ -20,7 +20,11 @@ export function ToastProvider({ children }) {
       {children}
       <div className="toast-stack">
         {toasts.map((t) => (
-          <div key={t.id} className={`toast${t.type === "error" ? " error" : ""}`}>
+          <div
+            key={t.id}
+            className={`toast${t.type === "error" ? " error" : ""}`}
+            role={t.type === "error" ? "alert" : "status"}
+          >
             {t.type === "error" ? <AlertCircle size={15} /> : <CheckCircle2 size={15} />}
             {t.message}
           </div>

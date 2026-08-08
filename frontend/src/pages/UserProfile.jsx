@@ -80,7 +80,7 @@ export default function UserProfile() {
               fontSize: 22, fontWeight: 800, flexShrink: 0, overflow: "hidden",
             }}>
               {user.avatar_url ? (
-                <img src={user.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src={user.avatar_url} alt={user.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
                 user.display_name[0]?.toUpperCase()
               )}
@@ -119,7 +119,7 @@ export default function UserProfile() {
                     display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden",
                   }}>
                     {pet.avatar_url ? (
-                      <img src={pet.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={pet.avatar_url} alt={`Фото ${pet.name}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     ) : (
                       <PawPrint size={18} strokeWidth={2.2} />
                     )}

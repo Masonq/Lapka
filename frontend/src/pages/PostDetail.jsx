@@ -85,7 +85,7 @@ export default function PostDetail() {
       <div className="detail-shell">
         <div className="post-card card" style={{ marginBottom: 20 }}>
           {post.photo_url && (
-            <img src={post.photo_url} alt="" className="post-card-photo" />
+            <img src={post.photo_url} alt={post.title} className="post-card-photo" />
           )}
           <span className={`post-badge ${post.type}`}>
             {post.is_resolved && <CheckCircle2 size={12} />}
