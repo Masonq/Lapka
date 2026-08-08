@@ -11,7 +11,7 @@
 | 4 | Pet Hub | 🟡 | Список питомцев в профиле есть (`/pets`). Нет: карточка-хаб с Today/Health/Walk shortcuts/Friends/Documents |
 | 5 | Создание питомца | ✅ | Есть: фото, имя, вид, порода, пол, возраст, город, активность, характер/интересы (текстом в about). Нет: дата рождения (только целый возраст) — сочли достаточным |
 | 6 | Pet Profile | ✅ | Публичная страница `/pets/:id`: аватар, факты, город/активность, характер, карточка владельца. Нет: Stats (posts/friends/followers у питомца), Tabs (Photos/Friends/Health), QR Pet ID, Follow/Message — питомец пока не самостоятельный социальный объект (нет подписок/сообщений на питомца, только на владельца) |
-| 7 | Feed / Post Detail | 🟡 | Есть свой URL, автор, медиа (одно фото), caption, локация, комментарии, save нет, report нет, edit/delete есть (только delete) |
+| 7 | Feed / Post Detail | ✅ | Есть свой URL, автор, медиа (одно фото), caption, локация, комментарии, save (закладка + страница "Сохранённое"), report (жалоба сохраняется в БД, очереди разбора пока нет — см. раздел 24-25), delete. Нет: карусель медиа (только 1 фото), reactions (только комментарии), edit поста, mute/hide |
 | 8 | Create Center | ✅ | Сделано — типы скрываются, а не блокируются. Реализовано: lost/found/adopt/question/general. Нет: Story/Poll/Walk/Event/Listing/Review |
 | 9 | Explore | 🟡 | Поиск + услуги реально работают. Nearby/Communities/Events/Adoption/Marketplace — честные заглушки "скоро" |
 | 10 | Search | 🟡 | Есть autocomplete-подобный debounce-поиск по постам. Нет: вкладок People/Pets/Communities/Events, фильтров, recent/saved searches |

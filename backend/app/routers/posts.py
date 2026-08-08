@@ -2,20 +2,22 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import desc, or_
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
-from app.core.rate_limit import post_limiter, comment_limiter
+from app.core.rate_limit import post_limiter, comment_limiter, report_limiter
 from app.core.security import get_current_user, get_current_user_optional
-from app.models.models import Comment, Follow, Post, PostType, User
-from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut
+from app.models.models import Comment, Follow, Post, Report, SavedPost, PostType, User
+from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, ReportCreate
 
 router = APIRouter(prefix="/api/posts", tags=["posts"])
 
 
-def _to_out(post: Post) -> PostOut:
+def _to_out(post: Post, saved_ids: set[str] | None = None) -> PostOut:
     out = PostOut.model_validate(post)
     out.comments_count = len(post.comments)
+    out.is_saved = post.id in saved_ids if saved_ids is not None else False
     return out
 
 
@@ -52,7 +54,17 @@ def list_posts(
         pattern = f"%{q.strip()}%"
         query = query.filter(or_(Post.title.ilike(pattern), Post.body.ilike(pattern)))
     posts = query.order_by(desc(Post.created_at)).offset(offset).limit(limit).all()
-    return [_to_out(p) for p in posts]
+
+    saved_ids = set()
+    if user and posts:
+        post_ids = [p.id for p in posts]
+        saved_ids = {
+            row.post_id
+            for row in db.query(SavedPost.post_id)
+            .filter(SavedPost.user_id == user.id, SavedPost.post_id.in_(post_ids))
+            .all()
+        }
+    return [_to_out(p, saved_ids) for p in posts]
 
 
 @router.post("", response_model=PostOut)
@@ -83,12 +95,35 @@ def create_post(data: PostCreate, db: Session = Depends(get_db), user: User = De
     return _to_out(post)
 
 
+@router.get("/saved", response_model=list[PostOut])
+def list_saved_posts(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    saved_post_ids = [
+        row.post_id
+        for row in db.query(SavedPost.post_id)
+        .filter(SavedPost.user_id == user.id)
+        .order_by(desc(SavedPost.created_at))
+        .all()
+    ]
+    if not saved_post_ids:
+        return []
+    posts_by_id = {p.id: p for p in db.query(Post).filter(Post.id.in_(saved_post_ids)).all()}
+    saved_set = set(saved_post_ids)
+    # сохраняем порядок "сохранено недавно — выше", а не порядок публикации
+    ordered = [posts_by_id[pid] for pid in saved_post_ids if pid in posts_by_id]
+    return [_to_out(p, saved_set) for p in ordered]
+
+
 @router.get("/{post_id}", response_model=PostOut)
-def get_post(post_id: str, db: Session = Depends(get_db)):
+def get_post(post_id: str, db: Session = Depends(get_db), user: Optional[User] = Depends(get_current_user_optional)):
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Пост не найден")
-    return _to_out(post)
+    saved_ids = set()
+    if user:
+        exists = db.query(SavedPost).filter(SavedPost.user_id == user.id, SavedPost.post_id == post_id).first()
+        if exists:
+            saved_ids.add(post_id)
+    return _to_out(post, saved_ids)
 
 
 @router.patch("/{post_id}/resolve", response_model=PostOut)
@@ -141,3 +176,47 @@ def add_comment(
     db.commit()
     db.refresh(comment)
     return comment
+
+
+@router.post("/{post_id}/save")
+def save_post(post_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Пост не найден")
+
+    exists = db.query(SavedPost).filter(SavedPost.user_id == user.id, SavedPost.post_id == post_id).first()
+    if exists:
+        return {"ok": True}
+
+    db.add(SavedPost(user_id=user.id, post_id=post_id))
+    try:
+        db.commit()
+    except IntegrityError:
+        # параллельный запрос успел сохранить между проверкой и коммитом — не ошибка
+        db.rollback()
+    return {"ok": True}
+
+
+@router.delete("/{post_id}/save")
+def unsave_post(post_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    db.query(SavedPost).filter(SavedPost.user_id == user.id, SavedPost.post_id == post_id).delete()
+    db.commit()
+    return {"ok": True}
+
+
+@router.post("/{post_id}/report")
+def report_post(
+    post_id: str,
+    data: ReportCreate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    report_limiter.check(user.id)
+
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Пост не найден")
+
+    db.add(Report(reporter_id=user.id, post_id=post_id, reason=data.reason))
+    db.commit()
+    return {"ok": True}

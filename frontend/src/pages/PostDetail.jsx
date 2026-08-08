@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, CheckCircle2, Trash2 } from "lucide-react";
+import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -24,6 +24,9 @@ export default function PostDetail() {
   const [text, setText] = useState("");
   const [notFound, setNotFound] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reported, setReported] = useState(false);
   useDocumentTitle(post ? post.title : "Пост");
 
   function load() {
@@ -59,6 +62,28 @@ export default function PostDetail() {
     await api.deletePost(id);
     showToast("Пост удалён");
     navigate("/");
+  }
+
+  async function toggleSave() {
+    try {
+      if (post.is_saved) await api.unsavePost(id);
+      else await api.savePost(id);
+      setPost((p) => ({ ...p, is_saved: !p.is_saved }));
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  async function submitReport(e) {
+    e.preventDefault();
+    try {
+      await api.reportPost(id, reportReason.trim() || undefined);
+      setReported(true);
+      setShowReportForm(false);
+      showToast("Жалоба отправлена");
+    } catch (err) {
+      showToast(err.message, "error");
+    }
   }
 
   if (notFound) {
@@ -108,6 +133,12 @@ export default function PostDetail() {
                 <CheckCircle2 size={16} /> Отметить решённым
               </button>
             )}
+            {isAuthed && (
+              <button className="btn btn-ghost" onClick={toggleSave}>
+                <Bookmark size={16} fill={post.is_saved ? "currentColor" : "none"} />
+                {post.is_saved ? "Сохранено" : "Сохранить"}
+              </button>
+            )}
             {post.author.id === userId && (
               <button
                 className="btn btn-ghost"
@@ -118,7 +149,36 @@ export default function PostDetail() {
                 <Trash2 size={16} /> {confirmingDelete ? "Точно удалить?" : "Удалить пост"}
               </button>
             )}
+            {isAuthed && post.author.id !== userId && !reported && (
+              <button className="btn btn-ghost" onClick={() => setShowReportForm((v) => !v)}>
+                <Flag size={16} /> Пожаловаться
+              </button>
+            )}
+            {reported && (
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-faint)" }}>
+                <Flag size={14} /> Жалоба отправлена
+              </span>
+            )}
           </div>
+
+          {showReportForm && (
+            <form onSubmit={submitReport} style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+              <textarea
+                rows={2}
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                placeholder="Что не так с постом? (необязательно)"
+                style={{
+                  width: "100%", border: "1px solid var(--border)", borderRadius: 12,
+                  padding: "8px 12px", fontSize: 13, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
+                }}
+              />
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="btn btn-primary">Отправить жалобу</button>
+                <button type="button" className="btn btn-ghost" onClick={() => setShowReportForm(false)}>Отмена</button>
+              </div>
+            </form>
+          )}
         </div>
 
         <h3 className="subhead" style={{ marginBottom: 10 }}>

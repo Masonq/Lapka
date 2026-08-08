@@ -91,12 +91,17 @@ class PostOut(BaseModel):
     is_resolved: bool
     created_at: datetime
     comments_count: int = 0
+    is_saved: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class CommentCreate(BaseModel):
     body: str = Field(..., max_length=1000)
+
+
+class ReportCreate(BaseModel):
+    reason: Optional[str] = Field(None, max_length=500)
 
 
 class CommentOut(BaseModel):

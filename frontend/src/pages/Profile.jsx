@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, UserCircle, PawPrint, ChevronRight } from "lucide-react";
+import { LogOut, UserCircle, PawPrint, Bookmark, ChevronRight } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -62,6 +62,21 @@ export default function Profile() {
           <div style={{ flex: 1 }}>
             <div className="subhead" style={{ fontSize: 14 }}>Мои питомцы</div>
             <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{petsCount === null ? "…" : petsCount === 0 ? "Пока нет ни одного" : `${petsCount}`}</div>
+          </div>
+          <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
+        </Link>
+
+        <Link to="/saved" className="card" style={{
+          borderRadius: 20, padding: 16, marginBottom: 10, display: "flex", alignItems: "center", gap: 12,
+        }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            <Bookmark size={17} strokeWidth={2.2} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div className="subhead" style={{ fontSize: 14 }}>Сохранённое</div>
           </div>
           <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
         </Link>

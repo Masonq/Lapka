@@ -1,5 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, MessageCircle, CheckCircle2 } from "lucide-react";
+import { MapPin, MessageCircle, CheckCircle2, Bookmark } from "lucide-react";
+import { api } from "../api/client";
+import { useAuth } from "../AuthContext";
+import { useToast } from "../ToastContext";
 
 const TYPE_LABELS = {
   lost: "Потерялся",
@@ -20,10 +24,42 @@ function timeAgo(iso) {
 }
 
 export default function PostCard({ post }) {
+  const { isAuthed } = useAuth();
+  const { showToast } = useToast();
+  const [saved, setSaved] = useState(post.is_saved);
+  const [busy, setBusy] = useState(false);
   const showTrag = (post.type === "lost" || post.type === "found") && post.last_seen_location;
+
+  async function toggleSave(e) {
+    e.preventDefault(); // не даём сработать вложенной ссылке на пост
+    if (busy) return;
+    setBusy(true);
+    const next = !saved;
+    setSaved(next); // оптимистично — визуально мгновенно
+    try {
+      if (next) await api.savePost(post.id);
+      else await api.unsavePost(post.id);
+    } catch (err) {
+      setSaved(!next); // откатываем, если не получилось
+      showToast(err.message, "error");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div className="post-card card">
+      {isAuthed && (
+        <button
+          className="post-save-btn"
+          onClick={toggleSave}
+          aria-label={saved ? "Убрать из сохранённого" : "Сохранить"}
+          aria-pressed={saved}
+        >
+          <Bookmark size={16} strokeWidth={2.2} fill={saved ? "currentColor" : "none"} />
+        </button>
+      )}
+
       <Link to={`/posts/${post.id}`} className="post-card-link">
         {post.photo_url && (
           <img src={post.photo_url} alt={post.title} className="post-card-photo" />

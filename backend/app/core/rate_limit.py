@@ -67,3 +67,4 @@ review_limiter = RateLimiter(max_actions=10, window_seconds=600)    # 10 отз�
 # защита от перебора паролей и массовой регистрации ботами
 login_limiter = RateLimiter(max_actions=10, window_seconds=900)     # 10 попыток входа за 15 минут с одного IP
 register_limiter = RateLimiter(max_actions=5, window_seconds=3600)  # 5 регистраций за час с одного IP
+report_limiter = RateLimiter(max_actions=10, window_seconds=3600)   # 10 жалоб за час на пользователя

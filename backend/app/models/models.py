@@ -152,3 +152,26 @@ class Follow(Base):
     follower_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
     following_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class SavedPost(Base):
+    __tablename__ = "saved_posts"
+    __table_args__ = (UniqueConstraint("user_id", "post_id", name="uq_user_saved_post"),)
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
+    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class Report(Base):
+    """Жалоба на пост. Очереди модерации (разделы 24-25 блюпринта) пока нет — жалобы
+    просто копятся в базе, разбирать их будет админка, когда до неё дойдём по порядку."""
+
+    __tablename__ = "reports"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    reporter_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
+    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id"), nullable=False)
+    reason = Column(String(500), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

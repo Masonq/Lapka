@@ -9,6 +9,7 @@ import NewPost from "./pages/NewPost";
 import PostDetail from "./pages/PostDetail";
 import Pets from "./pages/Pets";
 import PetProfile from "./pages/PetProfile";
+import SavedPosts from "./pages/SavedPosts";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
@@ -57,6 +58,7 @@ export default function App() {
         <Route path="/posts/:id" element={<PostDetail />} />
         <Route path="/pets" element={<Pets />} />
         <Route path="/pets/:id" element={<PetProfile />} />
+        <Route path="/saved" element={<SavedPosts />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />

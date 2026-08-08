@@ -81,6 +81,10 @@ export const api = {
   post: (id) => request(`/posts/${id}`),
   resolvePost: (id) => request(`/posts/${id}/resolve`, { method: "PATCH", auth: true }),
   deletePost: (id) => request(`/posts/${id}`, { method: "DELETE", auth: true }),
+  savePost: (id) => request(`/posts/${id}/save`, { method: "POST", auth: true }),
+  unsavePost: (id) => request(`/posts/${id}/save`, { method: "DELETE", auth: true }),
+  savedPosts: () => request("/posts/saved", { auth: true }),
+  reportPost: (id, reason) => request(`/posts/${id}/report`, { method: "POST", body: { reason }, auth: true }),
   comments: (id) => request(`/posts/${id}/comments`),
   addComment: (id, body) => request(`/posts/${id}/comments`, { method: "POST", body, auth: true }),
 

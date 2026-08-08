@@ -270,6 +270,28 @@ a {
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
+.post-save-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(26, 26, 26, 0.15);
+}
+
+.post-save-btn:active {
+  transform: scale(0.92);
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: 1fr;
