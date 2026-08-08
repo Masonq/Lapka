@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.db import Base, engine
-from app.routers import auth, follows, pets, posts, services, uploads
+from app.routers import auth, follows, pets, posts, services, uploads, users
 
 Base.metadata.create_all(bind=engine)
 
@@ -25,6 +25,7 @@ app.include_router(pets.router)
 app.include_router(services.router)
 app.include_router(follows.router)
 app.include_router(uploads.router)
+app.include_router(users.router)
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)

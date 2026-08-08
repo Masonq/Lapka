@@ -4,12 +4,17 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.rate_limit import client_ip, login_limiter, register_limiter
 from app.core.security import (
-    create_access_token, hash_password, verify_password, verify_telegram_auth
+    create_access_token, get_current_user, hash_password, verify_password, verify_telegram_auth
 )
 from app.models.models import AuthProvider, User
 from app.schemas.schemas import LoginEmail, RegisterEmail, TelegramAuth, Token, UserOut
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+
+@router.get("/me", response_model=UserOut)
+def me(user: User = Depends(get_current_user)):
+    return user
 
 
 @router.post("/register", response_model=Token)

@@ -23,30 +23,34 @@ export default function PostCard({ post }) {
   const showTrag = (post.type === "lost" || post.type === "found") && post.last_seen_location;
 
   return (
-    <Link to={`/posts/${post.id}`} className="post-card card">
-      {post.photo_url && (
-        <img src={post.photo_url} alt="" className="post-card-photo" />
-      )}
-      <span className={`post-badge ${post.type}`}>
-        {post.is_resolved && <CheckCircle2 size={12} />}
-        {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
-      </span>
+    <div className="post-card card">
+      <Link to={`/posts/${post.id}`} className="post-card-link">
+        {post.photo_url && (
+          <img src={post.photo_url} alt="" className="post-card-photo" />
+        )}
+        <span className={`post-badge ${post.type}`}>
+          {post.is_resolved && <CheckCircle2 size={12} />}
+          {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
+        </span>
 
-      <h3 className="post-title">{post.title}</h3>
-      <p className="post-body">
-        {post.body.length > 140 ? `${post.body.slice(0, 140)}…` : post.body}
-      </p>
+        <h3 className="post-title">{post.title}</h3>
+        <p className="post-body">
+          {post.body.length > 140 ? `${post.body.slice(0, 140)}…` : post.body}
+        </p>
 
-      {showTrag && (
-        <div className="trag">
-          <span className="trag-dot" />
-          <span className="trag-dot" />
-          <span className="trag-dot" />
-        </div>
-      )}
+        {showTrag && (
+          <div className="trag">
+            <span className="trag-dot" />
+            <span className="trag-dot" />
+            <span className="trag-dot" />
+          </div>
+        )}
+      </Link>
 
       <div className="post-meta">
-        <span className="post-meta-item">{post.author.display_name}</span>
+        <Link to={`/users/${post.author.id}`} className="post-meta-item post-meta-author">
+          {post.author.display_name}
+        </Link>
         {post.last_seen_location && (
           <span className="post-meta-item">
             <MapPin size={13} /> {post.last_seen_location}
@@ -57,6 +61,6 @@ export default function PostCard({ post }) {
         </span>
         <span style={{ marginLeft: "auto" }}>{timeAgo(post.created_at)}</span>
       </div>
-    </Link>
+    </div>
   );
 }

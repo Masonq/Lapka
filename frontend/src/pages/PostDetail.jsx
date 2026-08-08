@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, MapPin, CheckCircle2, Trash2 } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
@@ -99,7 +99,7 @@ export default function PostDetail() {
             </div>
           )}
           <div className="post-meta">
-            <span>{post.author.display_name}</span>
+            <Link to={`/users/${post.author.id}`} className="post-meta-author">{post.author.display_name}</Link>
           </div>
 
           <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
@@ -133,9 +133,9 @@ export default function PostDetail() {
 
         {comments.map((c) => (
           <div key={c.id} className="card" style={{ borderRadius: 16, padding: "10px 14px", marginBottom: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--black)" }}>
+            <Link to={`/users/${c.author.id}`} className="post-meta-author" style={{ fontSize: 12, display: "inline-block", marginBottom: 2 }}>
               {c.author.display_name}
-            </div>
+            </Link>
             <div style={{ fontSize: 14 }}>{c.body}</div>
           </div>
         ))}

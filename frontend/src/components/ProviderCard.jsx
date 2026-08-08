@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Star, Phone, ChevronDown, ChevronUp } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
@@ -62,7 +63,9 @@ export default function ProviderCard({ provider, onReviewed }) {
           <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
             {TYPE_RU[provider.service_type]}
           </span>
-          <div className="subhead" style={{ marginTop: 6 }}>{provider.user.display_name}</div>
+          <div className="subhead" style={{ marginTop: 6 }}>
+            <Link to={`/users/${provider.user.id}`} className="post-meta-author">{provider.user.display_name}</Link>
+          </div>
         </div>
         {provider.rating_count > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "var(--yellow-strong)" }}>
@@ -103,7 +106,9 @@ export default function ProviderCard({ provider, onReviewed }) {
           {!loadingReviews && reviews?.map((r) => (
             <div key={r.id} style={{ padding: "8px 0", borderTop: "1px solid var(--border)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                <span style={{ fontSize: 13, fontWeight: 700 }}>{r.author.display_name}</span>
+                <span style={{ fontSize: 13, fontWeight: 700 }}>
+                  <Link to={`/users/${r.author.id}`} className="post-meta-author">{r.author.display_name}</Link>
+                </span>
                 <span style={{ display: "flex", alignItems: "center", gap: 1 }}>
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star

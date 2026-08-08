@@ -23,6 +23,7 @@ def _to_out(post: Post) -> PostOut:
 def list_posts(
     type: Optional[str] = None,
     q: Optional[str] = None,
+    author_id: Optional[str] = None,
     limit: int = Query(30, ge=1, le=100),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
@@ -33,6 +34,8 @@ def list_posts(
             query = query.filter(Post.type == PostType(type))
         except ValueError:
             raise HTTPException(status_code=400, detail="Неизвестный тип поста")
+    if author_id:
+        query = query.filter(Post.author_id == author_id)
     if q:
         pattern = f"%{q.strip()}%"
         query = query.filter(or_(Post.title.ilike(pattern), Post.body.ilike(pattern)))

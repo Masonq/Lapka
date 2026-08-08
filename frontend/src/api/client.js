@@ -69,6 +69,9 @@ export const api = {
   register: (data) => request("/auth/register", { method: "POST", body: data }),
   login: (data) => request("/auth/login", { method: "POST", body: data }),
   telegramAuth: (data) => request("/auth/telegram", { method: "POST", body: data }),
+  me: () => request("/auth/me", { auth: true }),
+
+  user: (id) => request(`/users/${id}`),
 
   posts: (params = {}) => {
     const qs = new URLSearchParams(params).toString();
@@ -96,6 +99,7 @@ export const api = {
 
   follow: (userId) => request(`/follows/${userId}`, { method: "POST", auth: true }),
   unfollow: (userId) => request(`/follows/${userId}`, { method: "DELETE", auth: true }),
+  followers: (userId) => request(`/follows/${userId}/followers`),
 
   uploadImage,
 };

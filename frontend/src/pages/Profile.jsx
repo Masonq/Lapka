@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
+import { LogOut, UserCircle } from "lucide-react";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 
 export default function Profile() {
-  const { isAuthed, login, register, logout } = useAuth();
+  const { isAuthed, userId, login, register, logout } = useAuth();
   useDocumentTitle(isAuthed ? "Профиль" : "Вход");
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
@@ -19,12 +20,15 @@ export default function Profile() {
         <div className="page-header">
           <span className="page-title">Профиль</span>
         </div>
-        <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
           <div style={{ fontSize: 14, color: "var(--text-muted)" }}>Ты вошёл в LapaBG</div>
           <button className="btn btn-ghost" onClick={logout}>
             <LogOut size={16} /> Выйти
           </button>
         </div>
+        <Link to={`/users/${userId}`} className="btn btn-ghost btn-block">
+          <UserCircle size={16} /> Открыть свой профиль
+        </Link>
       </div>
     );
   }

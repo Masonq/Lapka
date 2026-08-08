@@ -7,6 +7,7 @@ import PostDetail from "./pages/PostDetail";
 import Pets from "./pages/Pets";
 import Services from "./pages/Services";
 import Profile from "./pages/Profile";
+import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 import { NAV_ITEMS } from "./navConfig";
 
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/pets" element={<Pets />} />
         <Route path="/services" element={<Services />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/users/:id" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
 
