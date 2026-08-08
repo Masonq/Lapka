@@ -170,6 +170,23 @@ a {
   border: 2px solid var(--surface);
 }
 
+.tab-badge {
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: var(--radius-pill);
+  background: var(--red);
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* --- Заголовок подстраницы --- */
 
 .page-header {

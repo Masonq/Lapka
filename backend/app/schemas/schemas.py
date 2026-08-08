@@ -248,3 +248,27 @@ class CommunityMemberOut(BaseModel):
     joined_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- Messages ----------
+
+class MessageCreate(BaseModel):
+    body: str = Field(..., min_length=1, max_length=2000)
+
+
+class MessageOut(BaseModel):
+    id: str
+    sender: UserOut
+    recipient_id: str
+    body: str
+    is_read: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ConversationOut(BaseModel):
+    partner: UserOut
+    last_message: str
+    last_message_at: datetime
+    unread_count: int = 0

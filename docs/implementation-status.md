@@ -17,7 +17,7 @@
 | 10 | Search | 🟡 | Есть autocomplete-подобный debounce-поиск по постам. Нет: вкладок People/Pets/Communities/Events, фильтров, recent/saved searches |
 | 11 | Nearby | 🟡 | По городу (не по точным координатам — блюпринт прямо это запрещает, а геолокации/карты у нас нет): публичный список питомцев с фильтром по городу. Нет: Map/List toggle, distance filter, species/breed/age/activity фильтры, Start Walk CTA, nearby events/places |
 | 12–13 | Communities | 🟡 | Создание, поиск/фильтр по городу, вступление/выход (с защитой последнего админа и от гонки при параллельном вступлении), список участников с ролями, посты внутри сообщества (нужно членство для публикации). Нет: Chat/Guides/Media вкладок, pinned announcement, rules, moderators UI, health indicators, cover-изображения (только avatar_url) |
-| 14 | Chat | ⬜ | Не начато — есть только страница-заглушка `/messages` |
+| 14 | Chat | 🟡 | Личные сообщения 1:1 работают: список бесед, тред, отправка, счётчик непрочитанных, отметка прочитанным при открытии, бейдж на вкладке "Чаты". Доставка через polling (5с в треде, 30с общий счётчик), не WebSocket. Нет: групповых чатов (community-чат внутри сообщества), realtime, reply/reaction/attachment/mention, report/block/mute, admin moderation tools |
 | 15 | Walk | ⬜ | Не начато |
 | 16 | Events | ⬜ | Не начато |
 | 17 | Lost & Found | ✅ | Основа продукта — типы lost/found, last_seen_location, фото, статус resolved. Нет: sighting reports, notify communities, status timeline |
@@ -33,7 +33,7 @@
 | 28 | Дизайн-система | 🟡 | Палитра под `design-reference.png` — тёплый оранжевый, снят пипеткой по пикселям. Применено к существующим экранам. Нет: левый сайдбар на десктопе (сейчас верхнее меню), ~25 нереализованных экранов referencе (сторис/сообщества/чат/здоровье/карта/marketplace) без своего дизайна, т.к. бэкенда под них нет |
 | 29 | API/backend layers | 🟡 | Auth, User/Pet, Social (posts/comments/follows), Services — есть. Community/Messaging/Discovery-Geo/Events-Walks/Marketplace/Moderation/Notification/Billing domains — нет |
 | 30 | Sprint Plan | — | Ориентир, не чеклист к вычёркиванию построчно |
-| 31 | MVP Release Gates | 🟡 | Есть: тесты (116), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
+| 31 | MVP Release Gates | 🟡 | Есть: тесты (127), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
 | 32–34 | Roadmap / KPI | — | Ориентир на будущее, не задача для кода |
 
 ## Что реально сделано сверх блюпринта

@@ -243,3 +243,20 @@ class CommunityMember(Base):
 
     community = relationship("Community", back_populates="members")
     user = relationship("User")
+
+
+class Message(Base):
+    """Личное сообщение 1:1 — раздел 14 блюпринта. Групповые чаты и realtime (WebSocket)
+    пока не реализованы: доставка через polling, тем же способом, что и уведомления."""
+
+    __tablename__ = "messages"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    sender_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    recipient_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    body = Column(String(2000), nullable=False)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    sender = relationship("User", foreign_keys=[sender_id])
+    recipient = relationship("User", foreign_keys=[recipient_id])

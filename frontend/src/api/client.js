@@ -133,5 +133,10 @@ export const api = {
   leaveCommunity: (id) => request(`/communities/${id}/leave`, { method: "DELETE", auth: true }),
   communityMembers: (id) => request(`/communities/${id}/members`),
 
+  conversations: () => request("/messages/conversations", { auth: true }),
+  messageThread: (userId) => request(`/messages/${userId}`, { auth: true }),
+  sendMessage: (userId, body) => request(`/messages/${userId}`, { method: "POST", body: { body }, auth: true }),
+  unreadMessagesCount: () => request("/messages/unread-count", { auth: true }),
+
   uploadImage,
 };

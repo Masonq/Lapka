@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, PawPrint, UserPlus, UserMinus } from "lucide-react";
+import { ArrowLeft, PawPrint, UserPlus, UserMinus, MessageCircle } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -94,15 +94,20 @@ export default function UserProfile() {
           </div>
 
           {isAuthed && !isOwnProfile && (
-            <button
-              className={isFollowing ? "btn btn-ghost btn-block" : "btn btn-primary btn-block"}
-              style={{ marginTop: 14 }}
-              onClick={toggleFollow}
-              disabled={followBusy}
-            >
-              {isFollowing ? <UserMinus size={16} /> : <UserPlus size={16} />}
-              {isFollowing ? "Отписаться" : "Подписаться"}
-            </button>
+            <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+              <button
+                className={isFollowing ? "btn btn-ghost" : "btn btn-primary"}
+                style={{ flex: 1 }}
+                onClick={toggleFollow}
+                disabled={followBusy}
+              >
+                {isFollowing ? <UserMinus size={16} /> : <UserPlus size={16} />}
+                {isFollowing ? "Отписаться" : "Подписаться"}
+              </button>
+              <Link to={`/messages/${id}`} className="btn btn-ghost" style={{ flex: 1 }}>
+                <MessageCircle size={16} /> Написать
+              </Link>
+            </div>
           )}
         </div>
 

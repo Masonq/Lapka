@@ -17,6 +17,7 @@ import Admin from "./pages/Admin";
 import Communities from "./pages/Communities";
 import CommunityDetail from "./pages/CommunityDetail";
 import Nearby from "./pages/Nearby";
+import MessageThread from "./pages/MessageThread";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
@@ -27,14 +28,17 @@ import { api } from "./api/client";
 export default function App() {
   const { isAuthed } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   useEffect(() => {
     if (!isAuthed) {
       setUnreadCount(0);
+      setUnreadMessages(0);
       return;
     }
     function poll() {
       api.unreadNotificationsCount().then(({ count }) => setUnreadCount(count)).catch(() => {});
+      api.unreadMessagesCount().then(({ count }) => setUnreadMessages(count)).catch(() => {});
     }
     poll();
     const interval = setInterval(poll, 30000);
@@ -96,12 +100,13 @@ export default function App() {
         <Route path="/communities" element={<Communities />} />
         <Route path="/communities/:id" element={<CommunityDetail />} />
         <Route path="/nearby" element={<Nearby />} />
+        <Route path="/messages/:userId" element={<MessageThread />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      <TabBar />
+      <TabBar unreadMessages={unreadMessages} />
     </div>
   );
 }
