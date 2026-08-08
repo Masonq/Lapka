@@ -124,7 +124,7 @@ export default function Feed() {
         </button>
       )}
 
-      <Link to="/new-post" className="fab" aria-label="Новый пост">
+      <Link to="/create" className="fab" aria-label="Создать">
         <Plus size={22} strokeWidth={2.4} />
       </Link>
     </div>

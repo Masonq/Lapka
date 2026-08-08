@@ -1,6 +1,6 @@
 {
-  "name": "LapaBG — питомцы Белграда",
-  "short_name": "LapaBG",
+  "name": "PetSocial — соцсеть для питомцев Белграда",
+  "short_name": "PetSocial",
   "description": "Потеряшки, находки, пристройство и услуги для владельцев животных в Белграде",
   "start_url": "/",
   "display": "standalone",

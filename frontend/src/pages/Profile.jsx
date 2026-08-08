@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, UserCircle } from "lucide-react";
+import { LogOut, UserCircle, PawPrint, ChevronRight } from "lucide-react";
+import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 
@@ -13,6 +14,14 @@ export default function Profile() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [me, setMe] = useState(null);
+  const [petsCount, setPetsCount] = useState(null);
+
+  useEffect(() => {
+    if (!isAuthed) return;
+    api.me().then(setMe).catch(() => setMe(null));
+    api.myPets().then((pets) => setPetsCount(pets.length)).catch(() => setPetsCount(null));
+  }, [isAuthed]);
 
   if (isAuthed) {
     return (
@@ -20,14 +29,45 @@ export default function Profile() {
         <div className="page-header">
           <span className="page-title">Профиль</span>
         </div>
-        <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <div style={{ fontSize: 14, color: "var(--text-muted)" }}>Ты вошёл в LapaBG</div>
-          <button className="btn btn-ghost" onClick={logout}>
-            <LogOut size={16} /> Выйти
+
+        <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: "50%", background: "var(--yellow-tint)", color: "#8A6A00",
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, flexShrink: 0, overflow: "hidden",
+          }}>
+            {me?.avatar_url ? (
+              <img src={me.avatar_url} alt={me.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              me?.display_name?.[0]?.toUpperCase() || "•"
+            )}
+          </div>
+          <div style={{ flex: 1 }}>
+            <div className="subhead" style={{ fontSize: 16 }}>{me?.display_name || "Ты в PetSocial"}</div>
+            <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{me?.city}</div>
+          </div>
+          <button className="btn btn-ghost" onClick={logout} aria-label="Выйти">
+            <LogOut size={16} />
           </button>
         </div>
+
+        <Link to="/pets" className="card" style={{
+          borderRadius: 20, padding: 16, marginBottom: 10, display: "flex", alignItems: "center", gap: 12,
+        }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: "50%", background: "var(--blue-tint)", color: "var(--blue)",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            <PawPrint size={17} strokeWidth={2.2} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div className="subhead" style={{ fontSize: 14 }}>Мои питомцы</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{petsCount === null ? "…" : petsCount === 0 ? "Пока нет ни одного" : `${petsCount}`}</div>
+          </div>
+          <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
+        </Link>
+
         <Link to={`/users/${userId}`} className="btn btn-ghost btn-block">
-          <UserCircle size={16} /> Открыть свой профиль
+          <UserCircle size={16} /> Открыть свой публичный профиль
         </Link>
       </div>
     );

@@ -1,11 +1,13 @@
 import { Routes, Route, Link, NavLink } from "react-router-dom";
-import { MapPin, User, Plus } from "lucide-react";
+import { MapPin, User, PlusCircle } from "lucide-react";
 import TabBar from "./components/TabBar";
 import Feed from "./pages/Feed";
+import Explore from "./pages/Explore";
+import Create from "./pages/Create";
+import Messages from "./pages/Messages";
 import NewPost from "./pages/NewPost";
 import PostDetail from "./pages/PostDetail";
 import Pets from "./pages/Pets";
-import Services from "./pages/Services";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
@@ -16,7 +18,7 @@ export default function App() {
     <div className="app-shell">
       <div className="top-header card">
         <div className="brand-block">
-          <span className="brand">Lapa</span>
+          <span className="brand">PetSocial</span>
           <span className="brand-geo">
             <MapPin size={10} strokeWidth={2.5} /> beograd
           </span>
@@ -36,8 +38,8 @@ export default function App() {
         </nav>
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Link to="/new-post" className="btn btn-primary desktop-only" style={{ padding: "9px 16px" }}>
-            <Plus size={16} strokeWidth={2.4} /> Новый пост
+          <Link to="/create" className="btn btn-primary desktop-only" style={{ padding: "9px 16px" }}>
+            <PlusCircle size={16} strokeWidth={2.4} /> Создать
           </Link>
           <Link to="/profile" className="header-avatar" aria-label="Профиль">
             <User size={16} strokeWidth={2.2} />
@@ -47,10 +49,12 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<Feed />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/create" element={<Create />} />
+        <Route path="/messages" element={<Messages />} />
         <Route path="/new-post" element={<NewPost />} />
         <Route path="/posts/:id" element={<PostDetail />} />
         <Route path="/pets" element={<Pets />} />
-        <Route path="/services" element={<Services />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { PawPrint, Plus, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, PawPrint, Plus, Trash2 } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -10,6 +11,7 @@ const SPECIES = ["Собака", "Кошка", "Другое"];
 
 export default function Pets() {
   useDocumentTitle("Мои питомцы");
+  const navigate = useNavigate();
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const [pets, setPets] = useState([]);
@@ -59,6 +61,9 @@ export default function Pets() {
   return (
     <div>
       <div className="page-header">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+          <ArrowLeft size={17} strokeWidth={2.2} />
+        </button>
         <span className="page-title">Мои питомцы</span>
         <button className="btn btn-ghost" onClick={() => setShowForm((v) => !v)}>
           <Plus size={16} /> Добавить

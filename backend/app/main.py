@@ -17,7 +17,7 @@ logger = logging.getLogger("lapabg")
 if os.getenv("AUTO_CREATE_SCHEMA") == "true":
     Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="LapaBG API")
+app = FastAPI(title="PetSocial API")
 
 if os.getenv("JWT_SECRET", "change-me-in-production") == "change-me-in-production":
     logger.warning(
@@ -56,4 +56,4 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "service": "LapaBG"}
+    return {"status": "ok", "service": "PetSocial"}

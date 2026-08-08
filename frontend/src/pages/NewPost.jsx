@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
@@ -20,7 +20,9 @@ export default function NewPost() {
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const [type, setType] = useState("lost");
+  const [searchParams] = useSearchParams();
+  const initialType = TYPES.some((t) => t.value === searchParams.get("type")) ? searchParams.get("type") : "lost";
+  const [type, setType] = useState(initialType);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [location, setLocation] = useState("");
