@@ -1,5 +1,5 @@
 import time
-from collections import defaultdict, deque
+from collections import deque
 
 from fastapi import HTTPException, Request
 
@@ -24,13 +24,29 @@ class RateLimiter:
     def __init__(self, max_actions: int, window_seconds: int):
         self.max_actions = max_actions
         self.window_seconds = window_seconds
-        self._hits: dict[str, deque] = defaultdict(deque)
+        self._hits: dict[str, deque] = {}
+        self._last_sweep = time.time()
+
+    def _trim(self, hits: deque, now: float) -> None:
+        while hits and now - hits[0] > self.window_seconds:
+            hits.popleft()
+
+    def _sweep(self, now: float) -> None:
+        """Убирает ключи, чьё окно полностью истекло. Без этого self._hits рос бы
+        бесконечно на всё время жизни процесса — каждый новый IP/пользователь добавлял
+        бы запись, которая никогда не удалялась бы сама по себе."""
+        stale = [k for k, hits in self._hits.items() if not hits or now - hits[-1] > self.window_seconds]
+        for k in stale:
+            del self._hits[k]
+        self._last_sweep = now
 
     def check(self, key: str):
         now = time.time()
-        hits = self._hits[key]
-        while hits and now - hits[0] > self.window_seconds:
-            hits.popleft()
+        if now - self._last_sweep > self.window_seconds:
+            self._sweep(now)
+
+        hits = self._hits.setdefault(key, deque())
+        self._trim(hits, now)
         if len(hits) >= self.max_actions:
             retry_after = int(self.window_seconds - (now - hits[0])) + 1
             raise HTTPException(
