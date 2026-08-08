@@ -1,0 +1,170 @@
+def test_create_and_get_post(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/posts",
+        json={"type": "lost", "title": "Бела пропала", "body": "у Ташмайдана"},
+        headers=headers,
+    )
+    assert r.status_code == 200
+    post = r.json()
+    assert post["title"] == "Бела пропала"
+    assert post["is_resolved"] is False
+
+    r = client.get(f"/api/posts/{post['id']}")
+    assert r.status_code == 200
+    assert r.json()["id"] == post["id"]
+
+
+def test_get_nonexistent_post_404(client):
+    r = client.get("/api/posts/does-not-exist")
+    assert r.status_code == 404
+
+
+def test_unknown_post_type_rejected(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/posts",
+        json={"type": "not-a-real-type", "title": "Тест", "body": "текст"},
+        headers=headers,
+    )
+    assert r.status_code == 400
+
+
+def test_blank_title_rejected(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/posts",
+        json={"type": "general", "title": "   ", "body": "текст"},
+        headers=headers,
+    )
+    assert r.status_code == 400
+
+
+def test_filter_by_type(client, register_user):
+    headers = register_user()
+    client.post("/api/posts", json={"type": "lost", "title": "Потеряшка", "body": "текст"}, headers=headers)
+    client.post("/api/posts", json={"type": "adopt", "title": "Пристройство", "body": "текст"}, headers=headers)
+
+    r = client.get("/api/posts", params={"type": "lost"})
+    titles = [p["title"] for p in r.json()]
+    assert "Потеряшка" in titles
+    assert "Пристройство" not in titles
+
+
+def test_search_finds_by_title_and_body(client, register_user):
+    headers = register_user()
+    client.post(
+        "/api/posts",
+        json={"type": "lost", "title": "Бела пропала", "body": "вест-хайленд-терьер"},
+        headers=headers,
+    )
+    client.post(
+        "/api/posts",
+        json={"type": "adopt", "title": "Котята", "body": "ищут дом"},
+        headers=headers,
+    )
+
+    r = client.get("/api/posts", params={"q": "терьер"})
+    titles = [p["title"] for p in r.json()]
+    assert titles == ["Бела пропала"]
+
+    r = client.get("/api/posts", params={"q": "котят"})
+    titles = [p["title"] for p in r.json()]
+    assert titles == ["Котята"]
+
+    r = client.get("/api/posts", params={"q": "не найдётся никогда"})
+    assert r.json() == []
+
+
+def test_pagination_offset_and_limit(client, register_user):
+    headers = register_user()
+    for i in range(5):
+        client.post("/api/posts", json={"type": "general", "title": f"Пост {i}", "body": "текст"}, headers=headers)
+
+    page1 = client.get("/api/posts", params={"limit": 3, "offset": 0}).json()
+    page2 = client.get("/api/posts", params={"limit": 3, "offset": 3}).json()
+
+    assert len(page1) == 3
+    assert len(page2) == 2
+    assert {p["id"] for p in page1}.isdisjoint({p["id"] for p in page2})
+
+
+def test_limit_capped_at_100(client):
+    r = client.get("/api/posts", params={"limit": 9999})
+    assert r.status_code == 422  # превышает le=100 в схеме параметра
+
+
+def test_resolve_post_only_by_author(client, register_user):
+    headers_author = register_user()
+    headers_other = register_user()
+
+    post = client.post(
+        "/api/posts", json={"type": "lost", "title": "Тест", "body": "текст"}, headers=headers_author
+    ).json()
+
+    r = client.patch(f"/api/posts/{post['id']}/resolve", headers=headers_other)
+    assert r.status_code == 403
+
+    r = client.patch(f"/api/posts/{post['id']}/resolve", headers=headers_author)
+    assert r.status_code == 200
+    assert r.json()["is_resolved"] is True
+
+
+def test_delete_post_only_by_author(client, register_user):
+    headers_author = register_user()
+    headers_other = register_user()
+
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "Тест", "body": "текст"}, headers=headers_author
+    ).json()
+
+    r = client.delete(f"/api/posts/{post['id']}", headers=headers_other)
+    assert r.status_code == 403
+
+    r = client.delete(f"/api/posts/{post['id']}", headers=headers_author)
+    assert r.status_code == 200
+
+    r = client.get(f"/api/posts/{post['id']}")
+    assert r.status_code == 404
+
+
+def test_post_rate_limit(client, register_user):
+    headers = register_user()
+    statuses = []
+    for i in range(6):
+        r = client.post(
+            "/api/posts", json={"type": "general", "title": f"Пост {i}", "body": "текст"}, headers=headers
+        )
+        statuses.append(r.status_code)
+
+    assert statuses == [200, 200, 200, 200, 200, 429]
+
+
+def test_comments_flow(client, register_user):
+    headers = register_user()
+    post = client.post(
+        "/api/posts", json={"type": "question", "title": "Вопрос", "body": "текст"}, headers=headers
+    ).json()
+
+    r = client.post(f"/api/posts/{post['id']}/comments", json={"body": "Ответ"}, headers=headers)
+    assert r.status_code == 200
+
+    r = client.get(f"/api/posts/{post['id']}/comments")
+    assert len(r.json()) == 1
+    assert r.json()[0]["body"] == "Ответ"
+
+
+def test_blank_comment_rejected(client, register_user):
+    headers = register_user()
+    post = client.post(
+        "/api/posts", json={"type": "question", "title": "Вопрос", "body": "текст"}, headers=headers
+    ).json()
+
+    r = client.post(f"/api/posts/{post['id']}/comments", json={"body": "   "}, headers=headers)
+    assert r.status_code == 400
+
+
+def test_comment_on_nonexistent_post_404(client, register_user):
+    headers = register_user()
+    r = client.post("/api/posts/does-not-exist/comments", json={"body": "текст"}, headers=headers)
+    assert r.status_code == 404

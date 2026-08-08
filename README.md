@@ -17,6 +17,18 @@ docker compose up -d --build
 cd frontend && npm install && npm run dev
 ```
 
+## Тесты
+
+35 тестов бэкенда покрывают авторизацию, посты (CRUD, поиск, пагинация, rate limiting),
+питомцев, услуги (защита от накрутки рейтинга) и загрузку изображений (срез EXIF/GPS,
+отклонение подделок). Гоняются автоматически в GitHub Actions на каждый пуш.
+
+```
+cd backend
+pip install -r requirements-dev.txt
+pytest -v
+```
+
 ## Деплой на сервер (первый раз)
 См. `deploy/setup.sh` — поднимает Docker (backend+PostgreSQL), собирает фронт, настраивает nginx и SSL.
 

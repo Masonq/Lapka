@@ -119,6 +119,7 @@ class Comment(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     post = relationship("Post", back_populates="comments")
+    author = relationship("User")
 
 
 class ServiceProvider(Base):
