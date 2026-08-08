@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.rate_limit import client_ip, login_limiter, register_limiter
 from app.core.security import (
     create_access_token, hash_password, verify_password, verify_telegram_auth
 )
@@ -12,7 +13,9 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=Token)
-def register(data: RegisterEmail, db: Session = Depends(get_db)):
+def register(data: RegisterEmail, request: Request, db: Session = Depends(get_db)):
+    register_limiter.check(client_ip(request))
+
     if db.query(User).filter(User.email == data.email).first():
         raise HTTPException(status_code=400, detail="Такой email уже зарегистрирован")
 
@@ -29,7 +32,9 @@ def register(data: RegisterEmail, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=Token)
-def login(data: LoginEmail, db: Session = Depends(get_db)):
+def login(data: LoginEmail, request: Request, db: Session = Depends(get_db)):
+    login_limiter.check(client_ip(request))
+
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not user.password_hash or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Неверный email или пароль")
@@ -37,7 +42,9 @@ def login(data: LoginEmail, db: Session = Depends(get_db)):
 
 
 @router.post("/telegram", response_model=Token)
-def telegram_auth(data: TelegramAuth, db: Session = Depends(get_db)):
+def telegram_auth(data: TelegramAuth, request: Request, db: Session = Depends(get_db)):
+    login_limiter.check(client_ip(request))
+
     payload = data.model_dump()
     if not verify_telegram_auth(dict(payload)):
         raise HTTPException(status_code=401, detail="Подпись Telegram не подтверждена")

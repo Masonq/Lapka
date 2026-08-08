@@ -1,7 +1,16 @@
 import time
 from collections import defaultdict, deque
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
+
+
+def client_ip(request: Request) -> str:
+    """IP клиента с учётом прокси. nginx подставляет реальный IP в X-Forwarded-For
+    (см. deploy/nginx.conf); без него увидели бы только адрес самого nginx."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
 
 
 class RateLimiter:
@@ -37,3 +46,8 @@ comment_limiter = RateLimiter(max_actions=20, window_seconds=600)   # 20 ком�
 pet_limiter = RateLimiter(max_actions=10, window_seconds=600)       # 10 питомцев за 10 минут
 provider_limiter = RateLimiter(max_actions=3, window_seconds=600)   # 3 анкеты за 10 минут
 review_limiter = RateLimiter(max_actions=10, window_seconds=600)    # 10 отзывов за 10 минут
+
+# Эндпоинты входа доступны без токена, поэтому лимитируем по IP, а не по user_id —
+# защита от перебора паролей и массовой регистрации ботами
+login_limiter = RateLimiter(max_actions=10, window_seconds=900)     # 10 попыток входа за 15 минут с одного IP
+register_limiter = RateLimiter(max_actions=5, window_seconds=3600)  # 5 регистраций за час с одного IP
