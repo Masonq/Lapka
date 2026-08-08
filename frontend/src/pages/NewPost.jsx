@@ -59,10 +59,12 @@ export default function NewPost() {
 
   return (
     <div>
-      <div className="top-header">
-        <button className="btn btn-ghost" onClick={() => navigate(-1)}>
-          <ArrowLeft size={16} /> Назад
+      <div className="page-header">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+          <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
+        <span className="page-title">Новый пост</span>
+        <span style={{ width: 38 }} />
       </div>
 
       <form onSubmit={handleSubmit}>

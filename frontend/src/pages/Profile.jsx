@@ -14,14 +14,15 @@ export default function Profile() {
   if (isAuthed) {
     return (
       <div>
-        <div className="top-header">
-          <span style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600 }}>
-            Профиль
-          </span>
+        <div className="page-header">
+          <span className="page-title">Профиль</span>
         </div>
-        <button className="btn btn-ghost" onClick={logout}>
-          <LogOut size={16} /> Выйти
-        </button>
+        <div className="glass" style={{ borderRadius: 20, padding: 18, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ fontSize: 14, color: "var(--text-muted)" }}>Ты вошёл в LapaBG</div>
+          <button className="btn btn-ghost" onClick={logout}>
+            <LogOut size={16} /> Выйти
+          </button>
+        </div>
       </div>
     );
   }
@@ -42,10 +43,8 @@ export default function Profile() {
 
   return (
     <div>
-      <div className="top-header">
-        <span style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600 }}>
-          {mode === "login" ? "Вход" : "Регистрация"}
-        </span>
+      <div className="page-header">
+        <span className="page-title">{mode === "login" ? "Вход" : "Регистрация"}</span>
       </div>
 
       <form onSubmit={submit} className="glass" style={{ borderRadius: 20, padding: 18 }}>
@@ -65,7 +64,7 @@ export default function Profile() {
         </div>
         {error && <p style={{ color: "var(--alert)", fontSize: 13 }}>{error}</p>}
         <button className="btn btn-primary btn-block" disabled={busy}>
-          {busy ? "Подождите…" : mode === "login" ? "Войти" : "Создать аккаунт"}
+          {busy ? "Секунду…" : mode === "login" ? "Войти" : "Создать аккаунт"}
         </button>
       </form>
 
@@ -81,7 +80,7 @@ export default function Profile() {
       </p>
 
       <p style={{ textAlign: "center", fontSize: 12, color: "var(--text-faint)", marginTop: 20 }}>
-        Вход через Telegram подключается на странице бота LapaBG
+        Вход через Telegram появится здесь позже
       </p>
     </div>
   );

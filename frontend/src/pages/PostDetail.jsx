@@ -40,14 +40,16 @@ export default function PostDetail() {
     load();
   }
 
-  if (!post) return <div className="empty-state">Загрузка…</div>;
+  if (!post) return <div className="empty-state">Загружаем пост…</div>;
 
   return (
     <div>
-      <div className="top-header">
-        <button className="btn btn-ghost" onClick={() => navigate(-1)}>
-          <ArrowLeft size={16} /> Назад
+      <div className="page-header">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+          <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
+        <span className="page-title">Пост</span>
+        <span style={{ width: 38 }} />
       </div>
 
       <div className="post-card glass" style={{ marginBottom: 20 }}>
@@ -57,7 +59,7 @@ export default function PostDetail() {
           {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
         </span>
         <h2 className="post-title">{post.title}</h2>
-        <p className="post-body" style={{ WebkitLineClamp: "unset" }}>{post.body}</p>
+        <p className="post-body">{post.body}</p>
         {post.last_seen_location && (
           <div className="post-meta" style={{ marginBottom: 8 }}>
             <span className="post-meta-item"><MapPin size={13} /> {post.last_seen_location}</span>
@@ -74,7 +76,7 @@ export default function PostDetail() {
         )}
       </div>
 
-      <h3 style={{ fontFamily: "var(--font-display)", fontSize: 16, marginBottom: 10 }}>
+      <h3 className="subhead" style={{ marginBottom: 10 }}>
         Комментарии ({comments.length})
       </h3>
 
@@ -102,7 +104,7 @@ export default function PostDetail() {
         </form>
       ) : (
         <p style={{ fontSize: 13, color: "var(--text-faint)", marginTop: 12 }}>
-          Войдите, чтобы оставить комментарий
+          Войди, чтобы оставить комментарий
         </p>
       )}
     </div>

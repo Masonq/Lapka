@@ -43,17 +43,15 @@ export default function Pets() {
     return (
       <div className="empty-state">
         <div className="empty-state-title">Профили питомцев</div>
-        Войдите, чтобы добавить своего питомца
+        Войди, чтобы добавить своего питомца
       </div>
     );
   }
 
   return (
     <div>
-      <div className="top-header">
-        <span style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600 }}>
-          Мои питомцы
-        </span>
+      <div className="page-header">
+        <span className="page-title">Мои питомцы</span>
         <button className="btn btn-ghost" onClick={() => setShowForm((v) => !v)}>
           <Plus size={16} /> Добавить
         </button>
@@ -88,7 +86,7 @@ export default function Pets() {
         <div className="empty-state">
           <PawPrint size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
           <div className="empty-state-title">Питомцев пока нет</div>
-          Добавьте первого — это займёт минуту
+          Добавь первого — это займёт минуту
         </div>
       )}
 
@@ -98,9 +96,7 @@ export default function Pets() {
           display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>
           <div>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 16 }}>
-              {pet.name}
-            </div>
+            <div className="subhead">{pet.name}</div>
             <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
               {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} г.` : ""}
             </div>

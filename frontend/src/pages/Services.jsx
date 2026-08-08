@@ -47,10 +47,8 @@ export default function Services() {
 
   return (
     <div>
-      <div className="top-header">
-        <span style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600 }}>
-          Услуги для питомцев
-        </span>
+      <div className="page-header">
+        <span className="page-title">Услуги для питомцев</span>
         {isAuthed && (
           <button className="btn btn-ghost" onClick={() => setShowForm((v) => !v)}>
             Стать исполнителем
@@ -98,7 +96,7 @@ export default function Services() {
       {providers.length === 0 && (
         <div className="empty-state">
           <div className="empty-state-title">Пока никого нет</div>
-          Будьте первым исполнителем в этой категории
+          Будь первым исполнителем в этой категории
         </div>
       )}
 
@@ -107,9 +105,7 @@ export default function Services() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
               <span className="post-badge general">{TYPE_RU[p.service_type]}</span>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 16, marginTop: 6 }}>
-                {p.user.display_name}
-              </div>
+              <div className="subhead" style={{ marginTop: 6 }}>{p.user.display_name}</div>
             </div>
             {p.rating_count > 0 && (
               <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "var(--warm)" }}>

@@ -55,9 +55,7 @@ export default function Feed() {
         <PostCard key={post.id} post={post} />
       ))}
 
-      <Link to="/new-post" className="btn btn-primary" style={{
-        position: "fixed", right: "max(16px, calc(50% - 264px))", bottom: 96, zIndex: 25, padding: 14,
-      }}>
+      <Link to="/new-post" className="fab" aria-label="Новый пост">
         <Plus size={22} strokeWidth={2.4} />
       </Link>
     </div>
