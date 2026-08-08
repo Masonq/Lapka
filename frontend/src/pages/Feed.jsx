@@ -4,6 +4,7 @@ import { Plus, Search, X } from "lucide-react";
 import { api } from "../api/client";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import { useDocumentTitle } from "../useDocumentTitle";
 
 const FILTERS = [
   { value: "", label: "Все" },
@@ -15,6 +16,7 @@ const FILTERS = [
 ];
 
 export default function Feed() {
+  useDocumentTitle("Лента");
   const [posts, setPosts] = useState([]);
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");

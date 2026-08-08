@@ -1,0 +1,13 @@
+{
+  "name": "LapaBG — питомцы Белграда",
+  "short_name": "LapaBG",
+  "description": "Потеряшки, находки, пристройство и услуги для владельцев животных в Белграде",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F5F6",
+  "theme_color": "#FFDB4D",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

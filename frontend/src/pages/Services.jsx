@@ -4,6 +4,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
+import { useDocumentTitle } from "../useDocumentTitle";
 
 const TYPES = [
   { value: "", label: "Все" },
@@ -19,6 +20,7 @@ const TYPE_RU = {
 };
 
 export default function Services() {
+  useDocumentTitle("Услуги");
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const [providers, setProviders] = useState([]);

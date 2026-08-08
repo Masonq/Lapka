@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { LogOut } from "lucide-react";
 import { useAuth } from "../AuthContext";
+import { useDocumentTitle } from "../useDocumentTitle";
 
 export default function Profile() {
   const { isAuthed, login, register, logout } = useAuth();
+  useDocumentTitle(isAuthed ? "Профиль" : "Вход");
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

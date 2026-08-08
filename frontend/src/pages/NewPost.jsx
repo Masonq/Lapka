@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
+import { useDocumentTitle } from "../useDocumentTitle";
 
 const TYPES = [
   { value: "lost", label: "Потерялся" },
@@ -14,6 +15,7 @@ const TYPES = [
 ];
 
 export default function NewPost() {
+  useDocumentTitle("Новый пост");
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();

@@ -3,10 +3,12 @@ import { PawPrint, Plus, Trash2 } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
+import { useDocumentTitle } from "../useDocumentTitle";
 
 const SPECIES = ["Собака", "Кошка", "Другое"];
 
 export default function Pets() {
+  useDocumentTitle("Мои питомцы");
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const [pets, setPets] = useState([]);

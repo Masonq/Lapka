@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, CheckCircle2 } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
+import { useDocumentTitle } from "../useDocumentTitle";
 
 const TYPE_LABELS = {
   lost: "Потерялся",
@@ -22,6 +23,7 @@ export default function PostDetail() {
   const [comments, setComments] = useState([]);
   const [text, setText] = useState("");
   const [notFound, setNotFound] = useState(false);
+  useDocumentTitle(post ? post.title : "Пост");
 
   function load() {
     api.post(id).then(setPost).catch(() => setNotFound(true));
