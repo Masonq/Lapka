@@ -135,3 +135,14 @@ class ServiceProviderOut(BaseModel):
 class ReviewCreate(BaseModel):
     rating: int = Field(..., ge=1, le=5)
     body: Optional[str] = Field(None, max_length=500)
+
+
+class ReviewOut(BaseModel):
+    id: str
+    author: UserOut
+    rating: int
+    body: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

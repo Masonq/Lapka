@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Star, Phone } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
+import ProviderCard from "../components/ProviderCard";
 import { useDocumentTitle } from "../useDocumentTitle";
 
 const TYPES = [
@@ -14,10 +14,6 @@ const TYPES = [
   { value: "vet", label: "Ветеринары" },
   { value: "groomer", label: "Грумеры" },
 ];
-
-const TYPE_RU = {
-  sitter: "Ситтер", boarding: "Передержка", trainer: "Кинолог", vet: "Ветеринар", groomer: "Грумер",
-};
 
 export default function Services() {
   useDocumentTitle("Услуги");
@@ -131,26 +127,7 @@ export default function Services() {
       {!loading && providers.length > 0 && (
         <div className="card-grid">
           {providers.map((p) => (
-            <div key={p.id} className="card" style={{ borderRadius: 20, padding: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div>
-              <span className="post-badge general">{TYPE_RU[p.service_type]}</span>
-              <div className="subhead" style={{ marginTop: 6 }}>{p.user.display_name}</div>
-            </div>
-            {p.rating_count > 0 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "var(--yellow-strong)" }}>
-                <Star size={14} fill="var(--yellow-strong)" strokeWidth={0} /> {p.rating_avg}
-              </div>
-            )}
-          </div>
-          <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "8px 0" }}>{p.description}</p>
-          <div className="post-meta">
-            {p.price_from && <span>от {p.price_from} дин.</span>}
-            {p.contact && (
-              <span className="post-meta-item"><Phone size={13} /> {p.contact}</span>
-            )}
-          </div>
-            </div>
+            <ProviderCard key={p.id} provider={p} onReviewed={load} />
           ))}
         </div>
       )}

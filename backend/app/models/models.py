@@ -74,17 +74,6 @@ class Pet(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     owner = relationship("User", back_populates="pets")
-    photos = relationship("PetPhoto", back_populates="pet", cascade="all, delete-orphan")
-
-
-class PetPhoto(Base):
-    __tablename__ = "pet_photos"
-
-    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
-    pet_id = Column(UUID(as_uuid=False), ForeignKey("pets.id"), nullable=False)
-    url = Column(String(500), nullable=False)
-
-    pet = relationship("Pet", back_populates="photos")
 
 
 class Post(Base):
@@ -149,6 +138,7 @@ class ServiceReview(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     provider = relationship("ServiceProvider", back_populates="reviews")
+    author = relationship("User")
 
 
 class Follow(Base):

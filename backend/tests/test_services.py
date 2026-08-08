@@ -59,3 +59,35 @@ def test_rating_average_computed_correctly(client, register_user):
     updated = next(p for p in r.json() if p["id"] == provider["id"])
     assert updated["rating_count"] == 2
     assert updated["rating_avg"] == 4.0
+
+
+def test_list_reviews_shows_author_and_text(client, register_user):
+    headers_provider = register_user()
+    provider = client.post(
+        "/api/services", json={"service_type": "sitter", "description": "Ситтер"}, headers=headers_provider
+    ).json()
+
+    headers_reviewer = register_user("Марко")
+    client.post(
+        f"/api/services/{provider['id']}/reviews",
+        json={"rating": 5, "body": "Отличный ситтер!"},
+        headers=headers_reviewer,
+    )
+
+    r = client.get(f"/api/services/{provider['id']}/reviews")
+    assert r.status_code == 200
+    reviews = r.json()
+    assert len(reviews) == 1
+    assert reviews[0]["author"]["display_name"] == "Марко"
+    assert reviews[0]["body"] == "Отличный ситтер!"
+
+
+def test_list_reviews_for_provider_without_reviews_is_empty(client, register_user):
+    headers_provider = register_user()
+    provider = client.post(
+        "/api/services", json={"service_type": "vet", "description": "Ветеринар"}, headers=headers_provider
+    ).json()
+
+    r = client.get(f"/api/services/{provider['id']}/reviews")
+    assert r.status_code == 200
+    assert r.json() == []

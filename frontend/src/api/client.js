@@ -91,6 +91,7 @@ export const api = {
     return request(`/services${qs ? `?${qs}` : ""}`);
   },
   becomeProvider: (data) => request("/services", { method: "POST", body: data, auth: true }),
+  providerReviews: (id) => request(`/services/${id}/reviews`),
   reviewProvider: (id, data) => request(`/services/${id}/reviews`, { method: "POST", body: data, auth: true }),
 
   follow: (userId) => request(`/follows/${userId}`, { method: "POST", auth: true }),

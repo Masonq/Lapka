@@ -7,7 +7,7 @@ from app.core.db import get_db
 from app.core.rate_limit import provider_limiter, review_limiter
 from app.core.security import get_current_user
 from app.models.models import ServiceProvider, ServiceReview, ServiceType, User
-from app.schemas.schemas import ReviewCreate, ServiceProviderCreate, ServiceProviderOut
+from app.schemas.schemas import ReviewCreate, ReviewOut, ServiceProviderCreate, ServiceProviderOut
 
 router = APIRouter(prefix="/api/services", tags=["services"])
 
@@ -47,6 +47,16 @@ def become_provider(
     db.commit()
     db.refresh(provider)
     return provider
+
+
+@router.get("/{provider_id}/reviews", response_model=list[ReviewOut])
+def list_reviews(provider_id: str, db: Session = Depends(get_db)):
+    return (
+        db.query(ServiceReview)
+        .filter(ServiceReview.provider_id == provider_id)
+        .order_by(ServiceReview.created_at.desc())
+        .all()
+    )
 
 
 @router.post("/{provider_id}/reviews", response_model=ServiceProviderOut)
