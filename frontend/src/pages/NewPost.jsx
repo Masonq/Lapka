@@ -26,7 +26,7 @@ export default function NewPost() {
     return (
       <div className="empty-state">
         <div className="empty-state-title">Нужно войти</div>
-        Чтобы опубликовать пост, сначала войдите в аккаунт
+        Чтобы опубликовать пост, сначала войди в аккаунт
         <div style={{ marginTop: 16 }}>
           <button className="btn btn-primary" onClick={() => navigate("/profile")}>
             Войти
@@ -67,30 +67,49 @@ export default function NewPost() {
         <span style={{ width: 38 }} />
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="field">
-          <label>Тип поста</label>
-          <select value={type} onChange={(e) => setType(e.target.value)}>
-            {TYPES.map((t) => (
-              <option key={t.value} value={t.value}>{t.label}</option>
-            ))}
-          </select>
+      <div className="field">
+        <label>Тип поста</label>
+        <div className="chip-row" style={{ paddingBottom: 2 }}>
+          {TYPES.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              className={`chip${type === t.value ? " active" : ""}`}
+              onClick={() => setType(t.value)}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
+      </div>
 
+      <form onSubmit={handleSubmit} className="card" style={{ borderRadius: 20, padding: 18 }}>
         <div className="field">
           <label>Заголовок</label>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={200} />
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            maxLength={200}
+            placeholder="Например: Бела, вест-хайленд-терьер"
+          />
         </div>
 
         <div className="field">
           <label>Описание</label>
-          <textarea rows={5} value={body} onChange={(e) => setBody(e.target.value)} required />
+          <textarea
+            rows={5}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            required
+            placeholder="Опиши, что случилось, приметы, обстоятельства"
+          />
         </div>
 
         {needsLocation && (
           <div className="field">
             <label>Где видели (район, улица)</label>
-            <input value={location} onChange={(e) => setLocation(e.target.value)} />
+            <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Например: Ташмайдан" />
           </div>
         )}
 

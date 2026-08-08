@@ -19,10 +19,11 @@ export default function PostDetail() {
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [text, setText] = useState("");
+  const [notFound, setNotFound] = useState(false);
 
   function load() {
-    api.post(id).then(setPost);
-    api.comments(id).then(setComments);
+    api.post(id).then(setPost).catch(() => setNotFound(true));
+    api.comments(id).then(setComments).catch(() => setComments([]));
   }
 
   useEffect(load, [id]);
@@ -40,6 +41,15 @@ export default function PostDetail() {
     load();
   }
 
+  if (notFound) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state-title">Пост не найден</div>
+        Возможно, его удалили или ссылка устарела
+      </div>
+    );
+  }
+
   if (!post) return <div className="empty-state">Загружаем пост…</div>;
 
   return (
@@ -53,7 +63,6 @@ export default function PostDetail() {
       </div>
 
       <div className="post-card card" style={{ marginBottom: 20 }}>
-        <span className={`post-type-rail ${post.type}`} />
         <span className={`post-badge ${post.type}`}>
           {post.is_resolved && <CheckCircle2 size={12} />}
           {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
@@ -94,7 +103,7 @@ export default function PostDetail() {
           <input
             style={{
               flex: 1, border: "1px solid var(--border)", borderRadius: 999,
-              padding: "10px 16px", fontSize: 14, background: "var(--bg-elevated)",
+              padding: "10px 16px", fontSize: 14, background: "var(--surface)",
             }}
             placeholder="Написать комментарий…"
             value={text}

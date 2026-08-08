@@ -65,9 +65,18 @@ export default function Pets() {
           </div>
           <div className="field">
             <label>Вид</label>
-            <select value={form.species} onChange={(e) => setForm({ ...form, species: e.target.value })}>
-              {SPECIES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
+            <div className="chip-row" style={{ paddingBottom: 2 }}>
+              {SPECIES.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={`chip${form.species === s ? " active" : ""}`}
+                  onClick={() => setForm({ ...form, species: s })}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="field">
             <label>Порода</label>
@@ -90,22 +99,32 @@ export default function Pets() {
         </div>
       )}
 
-      {pets.map((pet) => (
-        <div key={pet.id} className="card" style={{
-          borderRadius: 20, padding: "14px 16px", marginBottom: 10,
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-        }}>
-          <div>
-            <div className="subhead">{pet.name}</div>
-            <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-              {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} г.` : ""}
+      {pets.map((pet) => {
+        const avatarTint = pet.species === "Собака" ? "var(--blue-tint)" : pet.species === "Кошка" ? "var(--yellow-tint)" : "var(--gray-tint)";
+        const avatarColor = pet.species === "Собака" ? "var(--blue)" : pet.species === "Кошка" ? "#8A6A00" : "var(--text-muted)";
+        return (
+          <div key={pet.id} className="card" style={{
+            borderRadius: 20, padding: "14px 16px", marginBottom: 10,
+            display: "flex", alignItems: "center", gap: 12,
+          }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: "50%", background: avatarTint, color: avatarColor,
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <PawPrint size={20} strokeWidth={2.2} />
             </div>
+            <div style={{ flex: 1 }}>
+              <div className="subhead">{pet.name}</div>
+              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} г.` : ""}
+              </div>
+            </div>
+            <button className="btn btn-ghost" onClick={() => remove(pet.id)} style={{ padding: 9 }}>
+              <Trash2 size={16} />
+            </button>
           </div>
-          <button className="btn btn-ghost" onClick={() => remove(pet.id)} style={{ padding: 9 }}>
-            <Trash2 size={16} />
-          </button>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

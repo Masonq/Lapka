@@ -50,7 +50,7 @@ export default function Services() {
       <div className="page-header">
         <span className="page-title">Услуги для питомцев</span>
         {isAuthed && (
-          <button className="btn btn-ghost" onClick={() => setShowForm((v) => !v)}>
+          <button className="btn btn-primary" onClick={() => setShowForm((v) => !v)}>
             Стать исполнителем
           </button>
         )}
@@ -60,21 +60,30 @@ export default function Services() {
         <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
           <div className="field">
             <label>Вид услуги</label>
-            <select value={form.service_type} onChange={(e) => setForm({ ...form, service_type: e.target.value })}>
-              {TYPES.filter((t) => t.value).map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-            </select>
+            <div className="chip-row" style={{ paddingBottom: 2 }}>
+              {TYPES.filter((t) => t.value).map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  className={`chip${form.service_type === t.value ? " active" : ""}`}
+                  onClick={() => setForm({ ...form, service_type: t.value })}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="field">
             <label>Описание</label>
-            <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
+            <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required placeholder="Опыт, район работы, что входит в услугу" />
           </div>
           <div className="field">
             <label>Цена от (динары)</label>
-            <input type="number" min="0" value={form.price_from} onChange={(e) => setForm({ ...form, price_from: e.target.value })} />
+            <input type="number" min="0" value={form.price_from} onChange={(e) => setForm({ ...form, price_from: e.target.value })} placeholder="800" />
           </div>
           <div className="field">
             <label>Контакт (телефон/telegram)</label>
-            <input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} />
+            <input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="+381 6X XXX XXXX или @username" />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
           <button className="btn btn-primary btn-block">Опубликовать анкету</button>
