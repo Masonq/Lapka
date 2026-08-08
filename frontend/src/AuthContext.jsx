@@ -1,10 +1,21 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useMemo } from "react";
 import { getToken, setToken, clearToken, api } from "./api/client";
 
 const AuthContext = createContext(null);
 
+function decodeUserId(token) {
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.sub || null;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }) {
   const [token, setTokenState] = useState(getToken());
+  const userId = useMemo(() => decodeUserId(token), [token]);
 
   const login = useCallback(async (email, password) => {
     const { access_token } = await api.login({ email, password });
@@ -31,7 +42,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthed: !!token, login, register, loginWithTelegram, logout }}
+      value={{ isAuthed: !!token, userId, login, register, loginWithTelegram, logout }}
     >
       {children}
     </AuthContext.Provider>

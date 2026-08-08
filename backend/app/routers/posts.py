@@ -1,10 +1,11 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import desc, or_
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.rate_limit import post_limiter, comment_limiter
 from app.core.security import get_current_user
 from app.models.models import Comment, Post, PostType, User
 from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut
@@ -22,8 +23,8 @@ def _to_out(post: Post) -> PostOut:
 def list_posts(
     type: Optional[str] = None,
     q: Optional[str] = None,
-    limit: int = 30,
-    offset: int = 0,
+    limit: int = Query(30, ge=1, le=100),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
 ):
     query = db.query(Post)
@@ -41,6 +42,11 @@ def list_posts(
 
 @router.post("", response_model=PostOut)
 def create_post(data: PostCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    post_limiter.check(user.id)
+
+    if not data.title.strip() or not data.body.strip():
+        raise HTTPException(status_code=400, detail="Заголовок и описание не могут быть пустыми")
+
     try:
         post_type = PostType(data.type)
     except ValueError:
@@ -83,6 +89,18 @@ def resolve_post(post_id: str, db: Session = Depends(get_db), user: User = Depen
     return _to_out(post)
 
 
+@router.delete("/{post_id}")
+def delete_post(post_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Пост не найден")
+    if post.author_id != user.id:
+        raise HTTPException(status_code=403, detail="Можно удалить только свой пост")
+    db.delete(post)
+    db.commit()
+    return {"ok": True}
+
+
 @router.get("/{post_id}/comments", response_model=list[CommentOut])
 def list_comments(post_id: str, db: Session = Depends(get_db)):
     return db.query(Comment).filter(Comment.post_id == post_id).order_by(Comment.created_at).all()
@@ -95,6 +113,11 @@ def add_comment(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
+    comment_limiter.check(user.id)
+
+    if not data.body.strip():
+        raise HTTPException(status_code=400, detail="Комментарий не может быть пустым")
+
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Пост не найден")

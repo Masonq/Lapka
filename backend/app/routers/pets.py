@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.rate_limit import pet_limiter
 from app.core.security import get_current_user
 from app.models.models import Pet, User
 from app.schemas.schemas import PetCreate, PetOut
@@ -21,6 +22,10 @@ def pets_of_user(user_id: str, db: Session = Depends(get_db)):
 
 @router.post("", response_model=PetOut)
 def create_pet(data: PetCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    pet_limiter.check(user.id)
+    if not data.name.strip():
+        raise HTTPException(status_code=400, detail="Кличка не может быть пустой")
+
     pet = Pet(owner_id=user.id, **data.model_dump())
     db.add(pet)
     db.commit()

@@ -77,6 +77,7 @@ export const api = {
   createPost: (data) => request("/posts", { method: "POST", body: data, auth: true }),
   post: (id) => request(`/posts/${id}`),
   resolvePost: (id) => request(`/posts/${id}/resolve`, { method: "PATCH", auth: true }),
+  deletePost: (id) => request(`/posts/${id}`, { method: "DELETE", auth: true }),
   comments: (id) => request(`/posts/${id}/comments`),
   addComment: (id, body) => request(`/posts/${id}/comments`, { method: "POST", body, auth: true }),
 

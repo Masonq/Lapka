@@ -15,6 +15,8 @@ const FILTERS = [
   { value: "general", label: "Общее" },
 ];
 
+const PAGE_SIZE = 20;
+
 export default function Feed() {
   useDocumentTitle("Лента");
   const [posts, setPosts] = useState([]);
@@ -22,6 +24,8 @@ export default function Feed() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 350);
@@ -30,15 +34,32 @@ export default function Feed() {
 
   useEffect(() => {
     setLoading(true);
-    const params = {};
+    const params = { limit: PAGE_SIZE, offset: 0 };
     if (filter) params.type = filter;
     if (debouncedSearch) params.q = debouncedSearch;
     api
       .posts(params)
-      .then(setPosts)
+      .then((result) => {
+        setPosts(result);
+        setHasMore(result.length === PAGE_SIZE);
+      })
       .catch(() => setPosts([]))
       .finally(() => setLoading(false));
   }, [filter, debouncedSearch]);
+
+  function loadMore() {
+    setLoadingMore(true);
+    const params = { limit: PAGE_SIZE, offset: posts.length };
+    if (filter) params.type = filter;
+    if (debouncedSearch) params.q = debouncedSearch;
+    api
+      .posts(params)
+      .then((result) => {
+        setPosts((prev) => [...prev, ...result]);
+        setHasMore(result.length === PAGE_SIZE);
+      })
+      .finally(() => setLoadingMore(false));
+  }
 
   return (
     <div>
@@ -90,6 +111,17 @@ export default function Feed() {
             <PostCard key={post.id} post={post} />
           ))}
         </div>
+      )}
+
+      {!loading && hasMore && (
+        <button
+          className="btn btn-ghost btn-block"
+          style={{ marginTop: 14 }}
+          onClick={loadMore}
+          disabled={loadingMore}
+        >
+          {loadingMore ? "Загружаем…" : "Показать ещё"}
+        </button>
       )}
 
       <Link to="/new-post" className="fab" aria-label="Новый пост">

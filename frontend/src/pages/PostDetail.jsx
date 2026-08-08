@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MapPin, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, MapPin, CheckCircle2, Trash2 } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -17,12 +17,13 @@ const TYPE_LABELS = {
 export default function PostDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthed } = useAuth();
+  const { isAuthed, userId } = useAuth();
   const { showToast } = useToast();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [text, setText] = useState("");
   const [notFound, setNotFound] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   useDocumentTitle(post ? post.title : "Пост");
 
   function load() {
@@ -35,15 +36,29 @@ export default function PostDetail() {
   async function submitComment(e) {
     e.preventDefault();
     if (!text.trim()) return;
-    await api.addComment(id, { body: text });
-    setText("");
-    load();
+    try {
+      await api.addComment(id, { body: text });
+      setText("");
+      load();
+    } catch (err) {
+      showToast(err.message, "error");
+    }
   }
 
   async function markResolved() {
     await api.resolvePost(id);
     showToast("Отмечено решённым");
     load();
+  }
+
+  async function handleDelete() {
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      return;
+    }
+    await api.deletePost(id);
+    showToast("Пост удалён");
+    navigate("/");
   }
 
   if (notFound) {
@@ -87,11 +102,23 @@ export default function PostDetail() {
             <span>{post.author.display_name}</span>
           </div>
 
-          {isAuthed && !post.is_resolved && (post.type === "lost" || post.type === "found") && (
-            <button className="btn btn-ghost" style={{ marginTop: 12 }} onClick={markResolved}>
-              <CheckCircle2 size={16} /> Отметить решённым
-            </button>
-          )}
+          <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+            {isAuthed && !post.is_resolved && (post.type === "lost" || post.type === "found") && (
+              <button className="btn btn-ghost" onClick={markResolved}>
+                <CheckCircle2 size={16} /> Отметить решённым
+              </button>
+            )}
+            {post.author.id === userId && (
+              <button
+                className="btn btn-ghost"
+                style={confirmingDelete ? { background: "var(--red-tint)", color: "var(--red)" } : undefined}
+                onClick={handleDelete}
+                onBlur={() => setConfirmingDelete(false)}
+              >
+                <Trash2 size={16} /> {confirmingDelete ? "Точно удалить?" : "Удалить пост"}
+              </button>
+            )}
+          </div>
         </div>
 
         <h3 className="subhead" style={{ marginBottom: 10 }}>

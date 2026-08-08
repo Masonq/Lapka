@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.rate_limit import provider_limiter, review_limiter
 from app.core.security import get_current_user
 from app.models.models import ServiceProvider, ServiceReview, ServiceType, User
 from app.schemas.schemas import ReviewCreate, ServiceProviderCreate, ServiceProviderOut
@@ -26,6 +27,7 @@ def list_providers(type: Optional[str] = None, db: Session = Depends(get_db)):
 def become_provider(
     data: ServiceProviderCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)
 ):
+    provider_limiter.check(user.id)
     if user.service_profile:
         raise HTTPException(status_code=400, detail="Профиль исполнителя уже создан")
     try:
@@ -54,9 +56,21 @@ def leave_review(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
+    review_limiter.check(user.id)
+
     provider = db.query(ServiceProvider).filter(ServiceProvider.id == provider_id).first()
     if not provider:
         raise HTTPException(status_code=404, detail="Исполнитель не найден")
+    if provider.user_id == user.id:
+        raise HTTPException(status_code=400, detail="Нельзя оставить отзыв самому себе")
+
+    existing = (
+        db.query(ServiceReview)
+        .filter(ServiceReview.provider_id == provider_id, ServiceReview.author_id == user.id)
+        .first()
+    )
+    if existing:
+        raise HTTPException(status_code=400, detail="Ты уже оставлял отзыв этому исполнителю")
 
     review = ServiceReview(provider_id=provider_id, author_id=user.id, rating=data.rating, body=data.body)
     db.add(review)
