@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
+import { useToast } from "../ToastContext";
 
 const TYPES = [
   { value: "lost", label: "Потерялся" },
@@ -14,6 +15,7 @@ const TYPES = [
 
 export default function NewPost() {
   const { isAuthed } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const [type, setType] = useState("lost");
   const [title, setTitle] = useState("");
@@ -47,9 +49,11 @@ export default function NewPost() {
         body,
         last_seen_location: location || undefined,
       });
+      showToast("Пост опубликован");
       navigate(`/posts/${post.id}`);
     } catch (err) {
       setError(err.message);
+      showToast(err.message, "error");
     } finally {
       setSubmitting(false);
     }

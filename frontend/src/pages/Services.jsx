@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Star, Phone } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
+import { useToast } from "../ToastContext";
+import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
 
 const TYPES = [
   { value: "", label: "Все" },
@@ -18,6 +20,7 @@ const TYPE_RU = {
 
 export default function Services() {
   const { isAuthed } = useAuth();
+  const { showToast } = useToast();
   const [providers, setProviders] = useState([]);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
@@ -44,9 +47,11 @@ export default function Services() {
         price_from: form.price_from ? Number(form.price_from) : undefined,
       });
       setShowForm(false);
+      showToast("Анкета опубликована");
       load();
     } catch (err) {
       setError(err.message);
+      showToast(err.message, "error");
     }
   }
 
@@ -107,7 +112,12 @@ export default function Services() {
         ))}
       </div>
 
-      {loading && <div className="empty-state">Загружаем список…</div>}
+      {loading && (
+        <>
+          <ServiceCardSkeleton />
+          <ServiceCardSkeleton />
+        </>
+      )}
 
       {!loading && providers.length === 0 && (
         <div className="empty-state">
@@ -116,7 +126,7 @@ export default function Services() {
         </div>
       )}
 
-      {providers.map((p) => (
+      {!loading && providers.map((p) => (
         <div key={p.id} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>

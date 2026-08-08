@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import desc
+from sqlalchemy import desc, or_
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
@@ -21,17 +21,21 @@ def _to_out(post: Post) -> PostOut:
 @router.get("", response_model=list[PostOut])
 def list_posts(
     type: Optional[str] = None,
+    q: Optional[str] = None,
     limit: int = 30,
     offset: int = 0,
     db: Session = Depends(get_db),
 ):
-    q = db.query(Post)
+    query = db.query(Post)
     if type:
         try:
-            q = q.filter(Post.type == PostType(type))
+            query = query.filter(Post.type == PostType(type))
         except ValueError:
             raise HTTPException(status_code=400, detail="Неизвестный тип поста")
-    posts = q.order_by(desc(Post.created_at)).offset(offset).limit(limit).all()
+    if q:
+        pattern = f"%{q.strip()}%"
+        query = query.filter(or_(Post.title.ilike(pattern), Post.body.ilike(pattern)))
+    posts = query.order_by(desc(Post.created_at)).offset(offset).limit(limit).all()
     return [_to_out(p) for p in posts]
 
 

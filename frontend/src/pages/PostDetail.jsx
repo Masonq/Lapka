@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, CheckCircle2 } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
+import { useToast } from "../ToastContext";
 
 const TYPE_LABELS = {
   lost: "Потерялся",
@@ -16,6 +17,7 @@ export default function PostDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthed } = useAuth();
+  const { showToast } = useToast();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [text, setText] = useState("");
@@ -38,6 +40,7 @@ export default function PostDetail() {
 
   async function markResolved() {
     await api.resolvePost(id);
+    showToast("Отмечено решённым");
     load();
   }
 

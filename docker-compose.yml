@@ -2,12 +2,14 @@ version: "3.8"
 
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:16
     restart: unless-stopped
     environment:
       POSTGRES_USER: lapabg
       POSTGRES_PASSWORD: lapabg
       POSTGRES_DB: lapabg
+      POSTGRES_INITDB_ARGS: "--locale=en_US.UTF-8"
+      LANG: en_US.UTF-8
     volumes:
       - lapabg_pgdata:/var/lib/postgresql/data
     ports:

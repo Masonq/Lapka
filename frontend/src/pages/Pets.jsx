@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { PawPrint, Plus, Trash2 } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
+import { useToast } from "../ToastContext";
 
 const SPECIES = ["Собака", "Кошка", "Другое"];
 
 export default function Pets() {
   const { isAuthed } = useAuth();
+  const { showToast } = useToast();
   const [pets, setPets] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: "", species: "Собака", breed: "", age_years: "" });
@@ -28,14 +30,17 @@ export default function Pets() {
       });
       setForm({ name: "", species: "Собака", breed: "", age_years: "" });
       setShowForm(false);
+      showToast(`${form.name} добавлен`);
       load();
     } catch (err) {
       setError(err.message);
+      showToast(err.message, "error");
     }
   }
 
-  async function remove(id) {
+  async function remove(id, name) {
     await api.deletePet(id);
+    showToast(`${name} удалён`);
     load();
   }
 
@@ -119,7 +124,7 @@ export default function Pets() {
                 {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} г.` : ""}
               </div>
             </div>
-            <button className="btn btn-ghost" onClick={() => remove(pet.id)} style={{ padding: 9 }} aria-label={`Удалить ${pet.name}`}>
+            <button className="btn btn-ghost" onClick={() => remove(pet.id, pet.name)} style={{ padding: 9 }} aria-label={`Удалить ${pet.name}`}>
               <Trash2 size={16} />
             </button>
           </div>
