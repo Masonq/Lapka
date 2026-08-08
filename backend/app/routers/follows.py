@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
@@ -13,13 +14,24 @@ router = APIRouter(prefix="/api/follows", tags=["follows"])
 def follow_user(user_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     if user_id == user.id:
         raise HTTPException(status_code=400, detail="Нельзя подписаться на себя")
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+
     exists = db.query(Follow).filter(
         Follow.follower_id == user.id, Follow.following_id == user_id
     ).first()
     if exists:
         return {"ok": True}
+
     db.add(Follow(follower_id=user.id, following_id=user_id))
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Параллельный запрос успел создать ту же подписку между проверкой и коммитом —
+        # уникальный индекс это отловил, для вызывающего это не ошибка, а уже готовый результат
+        db.rollback()
     return {"ok": True}
 
 

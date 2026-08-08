@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import (
-    Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Text, Float
+    Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Text, Float, UniqueConstraint
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -153,6 +153,7 @@ class ServiceReview(Base):
 
 class Follow(Base):
     __tablename__ = "follows"
+    __table_args__ = (UniqueConstraint("follower_id", "following_id", name="uq_follower_following"),)
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
     follower_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
