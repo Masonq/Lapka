@@ -99,27 +99,53 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 4px 14px;
-  margin: 0 -4px;
+  padding: 14px 14px;
+  margin: 0 -16px 4px;
+  border-radius: 0 0 20px 20px;
+}
+
+.brand-block {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
 }
 
 .brand {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 22px;
+  font-size: 21px;
   letter-spacing: -0.01em;
   color: var(--primary-dark);
 }
 
-.brand-dot {
-  width: 6px;
-  height: 6px;
+.brand-geo {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #93691E;
+  background: var(--warm-tint);
+  padding: 3px 8px 2px;
+  border-radius: var(--radius-pill);
+  transform: translateY(-1px);
+}
+
+.header-avatar {
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--warm);
-  transform: translateY(-8px);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-dark);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
 }
 
 /* --- Капсульная нижняя навигация --- */
