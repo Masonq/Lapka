@@ -1,6 +1,6 @@
 import enum
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import (
     Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Text, Float, UniqueConstraint
@@ -53,7 +53,7 @@ class User(Base):
 
     city = Column(String(80), default="Beograd")
     is_service_provider = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     pets = relationship("Pet", back_populates="owner", cascade="all, delete-orphan")
     posts = relationship("Post", back_populates="author", cascade="all, delete-orphan")
@@ -71,7 +71,7 @@ class Pet(Base):
     age_years = Column(Integer, nullable=True)
     about = Column(String(500), nullable=True)
     avatar_url = Column(String(500), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     owner = relationship("User", back_populates="pets")
 
@@ -92,7 +92,7 @@ class Post(Base):
     last_seen_lng = Column(Float, nullable=True)
     is_resolved = Column(Boolean, default=False)  # нашёлся / пристроен
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     author = relationship("User", back_populates="posts")
     comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
@@ -105,7 +105,7 @@ class Comment(Base):
     post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id"), nullable=False)
     author_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
     body = Column(String(1000), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     post = relationship("Post", back_populates="comments")
     author = relationship("User")
@@ -135,7 +135,7 @@ class ServiceReview(Base):
     author_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
     rating = Column(Integer, nullable=False)  # 1..5
     body = Column(String(500), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     provider = relationship("ServiceProvider", back_populates="reviews")
     author = relationship("User")
@@ -148,4 +148,4 @@ class Follow(Base):
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
     follower_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
     following_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

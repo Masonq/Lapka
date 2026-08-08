@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 # ---------- Auth ----------
@@ -42,8 +42,7 @@ class UserOut(BaseModel):
     city: str
     is_service_provider: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ---------- Pet ----------
@@ -61,8 +60,7 @@ class PetOut(PetCreate):
     id: str
     owner_id: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ---------- Post ----------
@@ -91,8 +89,7 @@ class PostOut(BaseModel):
     created_at: datetime
     comments_count: int = 0
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CommentCreate(BaseModel):
@@ -105,8 +102,7 @@ class CommentOut(BaseModel):
     body: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ---------- Services ----------
@@ -128,8 +124,7 @@ class ServiceProviderOut(BaseModel):
     rating_avg: float
     rating_count: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ReviewCreate(BaseModel):
@@ -144,5 +139,4 @@ class ReviewOut(BaseModel):
     body: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
