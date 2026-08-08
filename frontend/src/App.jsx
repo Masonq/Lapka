@@ -8,6 +8,7 @@ import Messages from "./pages/Messages";
 import NewPost from "./pages/NewPost";
 import PostDetail from "./pages/PostDetail";
 import Pets from "./pages/Pets";
+import PetProfile from "./pages/PetProfile";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
@@ -55,6 +56,7 @@ export default function App() {
         <Route path="/new-post" element={<NewPost />} />
         <Route path="/posts/:id" element={<PostDetail />} />
         <Route path="/pets" element={<Pets />} />
+        <Route path="/pets/:id" element={<PetProfile />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />

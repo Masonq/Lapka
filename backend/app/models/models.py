@@ -68,8 +68,11 @@ class Pet(Base):
     name = Column(String(80), nullable=False)
     species = Column(String(40), nullable=False)   # собака / кошка / другое
     breed = Column(String(80), nullable=True)
+    gender = Column(String(20), nullable=True)      # мальчик / девочка
     age_years = Column(Integer, nullable=True)
-    about = Column(String(500), nullable=True)
+    city = Column(String(80), nullable=True)
+    activity_level = Column(String(20), nullable=True)  # спокойный / средний / активный
+    about = Column(String(500), nullable=True)      # характер, интересы — свободным текстом
     avatar_url = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

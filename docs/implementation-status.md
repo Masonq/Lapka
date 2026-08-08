@@ -9,8 +9,8 @@
 | 2 | Глобальная навигация | ✅ | Mobile: Home/Explore/Create/Messages/Profile — сделано. Desktop: пока верхнее меню, не левый сайдбар как на референсе |
 | 3 | Home | 🟡 | Лента + поиск + фильтры есть. Нет: Pet Switcher, Pet Hub Card, Stories, Quick Actions, вкладок For You/Following/Nearby, Local Pulse, рекомендаций |
 | 4 | Pet Hub | 🟡 | Список питомцев в профиле есть (`/pets`). Нет: карточка-хаб с Today/Health/Walk shortcuts/Friends/Documents |
-| 5 | Создание питомца | 🟡 | Есть: фото, имя, вид, порода, возраст. Нет: пол, дата рождения, город, характер, активность, интересы |
-| 6 | Pet Profile | ⬜ | Отдельной публичной страницы питомца нет (только в составе профиля владельца) |
+| 5 | Создание питомца | ✅ | Есть: фото, имя, вид, порода, пол, возраст, город, активность, характер/интересы (текстом в about). Нет: дата рождения (только целый возраст) — сочли достаточным |
+| 6 | Pet Profile | ✅ | Публичная страница `/pets/:id`: аватар, факты, город/активность, характер, карточка владельца. Нет: Stats (posts/friends/followers у питомца), Tabs (Photos/Friends/Health), QR Pet ID, Follow/Message — питомец пока не самостоятельный социальный объект (нет подписок/сообщений на питомца, только на владельца) |
 | 7 | Feed / Post Detail | 🟡 | Есть свой URL, автор, медиа (одно фото), caption, локация, комментарии, save нет, report нет, edit/delete есть (только delete) |
 | 8 | Create Center | ✅ | Сделано — типы скрываются, а не блокируются. Реализовано: lost/found/adopt/question/general. Нет: Story/Poll/Walk/Event/Listing/Review |
 | 9 | Explore | 🟡 | Поиск + услуги реально работают. Nearby/Communities/Events/Adoption/Marketplace — честные заглушки "скоро" |

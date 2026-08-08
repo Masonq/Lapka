@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, PawPrint, UserPlus, UserMinus } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
@@ -111,7 +111,7 @@ export default function UserProfile() {
             <h3 className="subhead" style={{ marginBottom: 10 }}>Питомцы</h3>
             <div className="card-grid" style={{ marginBottom: 20 }}>
               {pets.map((pet) => (
-                <div key={pet.id} className="card" style={{
+                <Link key={pet.id} to={`/pets/${pet.id}`} className="card" style={{
                   borderRadius: 20, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12,
                 }}>
                   <div style={{
@@ -128,7 +128,7 @@ export default function UserProfile() {
                     <div className="subhead" style={{ fontSize: 14 }}>{pet.name}</div>
                     <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{pet.species}</div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </>

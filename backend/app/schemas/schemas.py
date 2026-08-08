@@ -51,7 +51,10 @@ class PetCreate(BaseModel):
     name: str = Field(..., max_length=80)
     species: str = Field(..., max_length=40)
     breed: Optional[str] = Field(None, max_length=80)
+    gender: Optional[str] = Field(None, max_length=20)
     age_years: Optional[int] = Field(None, ge=0, le=100)
+    city: Optional[str] = Field(None, max_length=80)
+    activity_level: Optional[str] = Field(None, max_length=20)
     about: Optional[str] = Field(None, max_length=500)
     avatar_url: Optional[str] = Field(None, max_length=500)
 

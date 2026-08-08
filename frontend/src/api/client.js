@@ -86,6 +86,7 @@ export const api = {
 
   myPets: () => request("/pets/mine", { auth: true }),
   petsOfUser: (userId) => request(`/pets/user/${userId}`),
+  pet: (id) => request(`/pets/${id}`),
   createPet: (data) => request("/pets", { method: "POST", body: data, auth: true }),
   deletePet: (id) => request(`/pets/${id}`, { method: "DELETE", auth: true }),
 

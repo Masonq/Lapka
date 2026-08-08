@@ -50,3 +50,31 @@ def test_pet_rate_limit(client, register_user):
 
     assert statuses.count(429) == 1
     assert statuses[-1] == 429
+
+
+def test_pet_extended_fields(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/pets",
+        json={
+            "name": "Бела", "species": "Собака", "breed": "Вест-хайленд-терьер",
+            "gender": "Девочка", "age_years": 3, "city": "Белград",
+            "activity_level": "Активный", "about": "Любит гонять мяч",
+        },
+        headers=headers,
+    )
+    assert r.status_code == 200
+    pet = r.json()
+    assert pet["gender"] == "Девочка"
+    assert pet["city"] == "Белград"
+    assert pet["activity_level"] == "Активный"
+
+
+def test_pet_extended_fields_are_optional(client, register_user):
+    headers = register_user()
+    r = client.post("/api/pets", json={"name": "Мурка", "species": "Кошка"}, headers=headers)
+    assert r.status_code == 200
+    pet = r.json()
+    assert pet["gender"] is None
+    assert pet["city"] is None
+    assert pet["activity_level"] is None
