@@ -22,6 +22,7 @@ export default function NewPost() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialType = TYPES.some((t) => t.value === searchParams.get("type")) ? searchParams.get("type") : "lost";
+  const communityId = searchParams.get("community_id") || undefined;
   const [type, setType] = useState(initialType);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -55,6 +56,7 @@ export default function NewPost() {
         body,
         photo_url: photoUrl || undefined,
         last_seen_location: location || undefined,
+        community_id: communityId,
       });
       showToast("Пост опубликован");
       navigate(`/posts/${post.id}`);

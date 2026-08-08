@@ -13,10 +13,10 @@
 | 6 | Pet Profile | ✅ | Публичная страница `/pets/:id`: аватар, факты, город/активность, характер, карточка владельца. Нет: Stats (posts/friends/followers у питомца), Tabs (Photos/Friends/Health), QR Pet ID, Follow/Message — питомец пока не самостоятельный социальный объект (нет подписок/сообщений на питомца, только на владельца) |
 | 7 | Feed / Post Detail | ✅ | Есть свой URL, автор, медиа (одно фото), caption, локация, комментарии, save (закладка + страница "Сохранённое"), report (жалоба сохраняется в БД, очереди разбора пока нет — см. раздел 24-25), delete. Нет: карусель медиа (только 1 фото), reactions (только комментарии), edit поста, mute/hide |
 | 8 | Create Center | ✅ | Сделано — типы скрываются, а не блокируются. Реализовано: lost/found/adopt/question/general. Нет: Story/Poll/Walk/Event/Listing/Review |
-| 9 | Explore | 🟡 | Поиск + услуги реально работают. Nearby/Communities/Events/Adoption/Marketplace — честные заглушки "скоро" |
+| 9 | Explore | 🟡 | Поиск + услуги + реальный блок сообществ (превью 3 + ссылка на полный список) работают. Nearby/Events/Adoption/Marketplace — честные заглушки "скоро" |
 | 10 | Search | 🟡 | Есть autocomplete-подобный debounce-поиск по постам. Нет: вкладок People/Pets/Communities/Events, фильтров, recent/saved searches |
 | 11 | Nearby | ⬜ | Не начато — нет геолокации/карты вообще |
-| 12–13 | Communities | ⬜ | Не начато |
+| 12–13 | Communities | 🟡 | Создание, поиск/фильтр по городу, вступление/выход (с защитой последнего админа и от гонки при параллельном вступлении), список участников с ролями, посты внутри сообщества (нужно членство для публикации). Нет: Chat/Guides/Media вкладок, pinned announcement, rules, moderators UI, health indicators, cover-изображения (только avatar_url) |
 | 14 | Chat | ⬜ | Не начато — есть только страница-заглушка `/messages` |
 | 15 | Walk | ⬜ | Не начато |
 | 16 | Events | ⬜ | Не начато |
@@ -33,7 +33,7 @@
 | 28 | Дизайн-система | 🟡 | Палитра под `design-reference.png` — тёплый оранжевый, снят пипеткой по пикселям. Применено к существующим экранам. Нет: левый сайдбар на десктопе (сейчас верхнее меню), ~25 нереализованных экранов referencе (сторис/сообщества/чат/здоровье/карта/marketplace) без своего дизайна, т.к. бэкенда под них нет |
 | 29 | API/backend layers | 🟡 | Auth, User/Pet, Social (posts/comments/follows), Services — есть. Community/Messaging/Discovery-Geo/Events-Walks/Marketplace/Moderation/Notification/Billing domains — нет |
 | 30 | Sprint Plan | — | Ориентир, не чеклист к вычёркиванию построчно |
-| 31 | MVP Release Gates | 🟡 | Есть: тесты (100), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
+| 31 | MVP Release Gates | 🟡 | Есть: тесты (114), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
 | 32–34 | Roadmap / KPI | — | Ориентир на будущее, не задача для кода |
 
 ## Что реально сделано сверх блюпринта

@@ -14,6 +14,8 @@ import SavedPosts from "./pages/SavedPosts";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
+import Communities from "./pages/Communities";
+import CommunityDetail from "./pages/CommunityDetail";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
@@ -90,6 +92,8 @@ export default function App() {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/communities" element={<Communities />} />
+        <Route path="/communities/:id" element={<CommunityDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />

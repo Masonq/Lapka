@@ -96,9 +96,12 @@ class Post(Base):
     last_seen_lng = Column(Float, nullable=True)
     is_resolved = Column(Boolean, default=False)  # нашёлся / пристроен
 
+    community_id = Column(UUID(as_uuid=False), ForeignKey("communities.id", ondelete="SET NULL"), nullable=True)
+
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     author = relationship("User", back_populates="posts")
+    community = relationship("Community")
     comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
 
 
@@ -211,3 +214,32 @@ class Notification(Base):
 
     actor = relationship("User", foreign_keys=[actor_id])
     post = relationship("Post")
+
+
+class Community(Base):
+    __tablename__ = "communities"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    name = Column(String(100), nullable=False)
+    description = Column(String(1000), nullable=True)
+    avatar_url = Column(String(500), nullable=True)
+    city = Column(String(80), nullable=True)
+    created_by = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    creator = relationship("User")
+    members = relationship("CommunityMember", back_populates="community", cascade="all, delete-orphan")
+
+
+class CommunityMember(Base):
+    __tablename__ = "community_members"
+    __table_args__ = (UniqueConstraint("community_id", "user_id", name="uq_community_member"),)
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    community_id = Column(UUID(as_uuid=False), ForeignKey("communities.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    role = Column(String(20), default="member")  # member / moderator / admin
+    joined_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    community = relationship("Community", back_populates="members")
+    user = relationship("User")

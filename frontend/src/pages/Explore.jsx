@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Search, MapPin, Users, CalendarDays, ShoppingBag, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, MapPin, Users, CalendarDays, ShoppingBag, Heart, ChevronRight } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -19,7 +20,6 @@ const SERVICE_TYPES = [
 
 const UPCOMING = [
   { icon: MapPin, label: "Рядом", desc: "Питомцы и заведения на карте поблизости" },
-  { icon: Users, label: "Сообщества", desc: "Группы по породам и районам" },
   { icon: CalendarDays, label: "События и прогулки", desc: "Совместные выгулы и встречи" },
   { icon: Heart, label: "Приюты и пристройство", desc: "Питомцы, которым ищут дом" },
   { icon: ShoppingBag, label: "Барахолка", desc: "Купить/продать/отдать даром" },
@@ -41,6 +41,12 @@ export default function Explore() {
   const [showProviderForm, setShowProviderForm] = useState(false);
   const [form, setForm] = useState({ service_type: "sitter", description: "", price_from: "", contact: "" });
   const [formError, setFormError] = useState("");
+
+  const [communities, setCommunities] = useState([]);
+
+  useEffect(() => {
+    api.communities().then((list) => setCommunities(list.slice(0, 3))).catch(() => setCommunities([]));
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query.trim()), 350);
@@ -121,6 +127,35 @@ export default function Explore() {
         </>
       ) : (
         <>
+          {communities.length > 0 && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <h3 className="subhead" style={{ margin: 0 }}>Сообщества</h3>
+                <Link to="/communities" style={{ display: "flex", alignItems: "center", fontSize: 13, color: "var(--text-muted)" }}>
+                  Все <ChevronRight size={14} />
+                </Link>
+              </div>
+              <div className="card-grid" style={{ marginBottom: 24 }}>
+                {communities.map((c) => (
+                  <Link key={c.id} to={`/communities/${c.id}`} className="card" style={{
+                    borderRadius: 20, padding: 14, display: "flex", alignItems: "center", gap: 10,
+                  }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
+                      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontWeight: 800, fontSize: 13,
+                    }}>
+                      {c.name[0]?.toUpperCase()}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div className="subhead" style={{ fontSize: 13 }}>{c.name}</div>
+                      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.members_count} участников</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
+
           <h3 className="subhead" style={{ marginBottom: 10 }}>Услуги для питомцев</h3>
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>

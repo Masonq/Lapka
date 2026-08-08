@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.rate_limit import post_limiter, comment_limiter, report_limiter
 from app.core.security import get_current_user, get_current_user_optional
-from app.models.models import Comment, Follow, Notification, Post, Report, SavedPost, PostType, User
+from app.models.models import Comment, CommunityMember, Follow, Notification, Post, Report, SavedPost, PostType, User
 from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, ReportCreate
 
 router = APIRouter(prefix="/api/posts", tags=["posts"])
@@ -26,6 +26,7 @@ def list_posts(
     type: Optional[str] = None,
     q: Optional[str] = None,
     author_id: Optional[str] = None,
+    community_id: Optional[str] = None,
     following: bool = False,
     limit: int = Query(30, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -40,6 +41,8 @@ def list_posts(
             raise HTTPException(status_code=400, detail="Неизвестный тип поста")
     if author_id:
         query = query.filter(Post.author_id == author_id)
+    if community_id:
+        query = query.filter(Post.community_id == community_id)
     if following:
         if not user:
             raise HTTPException(status_code=401, detail="Войди, чтобы смотреть ленту подписок")
@@ -79,6 +82,13 @@ def create_post(data: PostCreate, db: Session = Depends(get_db), user: User = De
     except ValueError:
         raise HTTPException(status_code=400, detail="Неизвестный тип поста")
 
+    if data.community_id:
+        is_member = db.query(CommunityMember).filter(
+            CommunityMember.community_id == data.community_id, CommunityMember.user_id == user.id
+        ).first()
+        if not is_member:
+            raise HTTPException(status_code=403, detail="Нужно вступить в сообщество, чтобы публиковать в нём")
+
     post = Post(
         author_id=user.id,
         type=post_type,
@@ -88,6 +98,7 @@ def create_post(data: PostCreate, db: Session = Depends(get_db), user: User = De
         last_seen_location=data.last_seen_location,
         last_seen_lat=data.last_seen_lat,
         last_seen_lng=data.last_seen_lng,
+        community_id=data.community_id,
     )
     db.add(post)
     db.commit()

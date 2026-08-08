@@ -92,6 +92,7 @@ class PostCreate(BaseModel):
     last_seen_location: Optional[str] = Field(None, max_length=200)
     last_seen_lat: Optional[float] = None
     last_seen_lng: Optional[float] = None
+    community_id: Optional[str] = None
 
 
 class PostOut(BaseModel):
@@ -108,6 +109,7 @@ class PostOut(BaseModel):
     created_at: datetime
     comments_count: int = 0
     is_saved: bool = False
+    community_id: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -215,3 +217,34 @@ class AdminOverview(BaseModel):
     pets_count: int
     unresolved_reports_count: int
     service_providers_count: int
+
+
+# ---------- Communities ----------
+
+class CommunityCreate(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    description: Optional[str] = Field(None, max_length=1000)
+    avatar_url: Optional[str] = Field(None, max_length=500)
+    city: Optional[str] = Field(None, max_length=80)
+
+
+class CommunityOut(BaseModel):
+    id: str
+    name: str
+    description: Optional[str] = None
+    avatar_url: Optional[str] = None
+    city: Optional[str] = None
+    creator: Optional[UserOut] = None
+    members_count: int = 0
+    is_member: bool = False
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CommunityMemberOut(BaseModel):
+    user: UserOut
+    role: str
+    joined_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

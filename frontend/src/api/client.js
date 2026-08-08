@@ -119,5 +119,15 @@ export const api = {
   adminDeletePost: (id) => request(`/admin/posts/${id}`, { method: "DELETE", auth: true }),
   adminAuditLog: () => request("/admin/audit-log", { auth: true }),
 
+  communities: (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return request(`/communities${qs ? `?${qs}` : ""}`, { auth: true });
+  },
+  community: (id) => request(`/communities/${id}`, { auth: true }),
+  createCommunity: (data) => request("/communities", { method: "POST", body: data, auth: true }),
+  joinCommunity: (id) => request(`/communities/${id}/join`, { method: "POST", auth: true }),
+  leaveCommunity: (id) => request(`/communities/${id}/leave`, { method: "DELETE", auth: true }),
+  communityMembers: (id) => request(`/communities/${id}/members`),
+
   uploadImage,
 };
