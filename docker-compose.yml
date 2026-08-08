@@ -22,10 +22,14 @@ services:
       DATABASE_URL: postgresql+psycopg2://lapabg:lapabg@db:5432/lapabg
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      UPLOAD_DIR: /app/uploads
     depends_on:
       - db
     ports:
       - "127.0.0.1:8020:8000"
+    volumes:
+      - lapabg_uploads:/app/uploads
 
 volumes:
   lapabg_pgdata:
+  lapabg_uploads:

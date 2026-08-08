@@ -4,6 +4,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import PhotoPicker from "../components/PhotoPicker";
 
 const SPECIES = ["Собака", "Кошка", "Другое"];
 
@@ -13,7 +14,7 @@ export default function Pets() {
   const { showToast } = useToast();
   const [pets, setPets] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: "", species: "Собака", breed: "", age_years: "" });
+  const [form, setForm] = useState({ name: "", species: "Собака", breed: "", age_years: "", avatar_url: null });
   const [error, setError] = useState("");
 
   function load() {
@@ -30,7 +31,7 @@ export default function Pets() {
         ...form,
         age_years: form.age_years ? Number(form.age_years) : undefined,
       });
-      setForm({ name: "", species: "Собака", breed: "", age_years: "" });
+      setForm({ name: "", species: "Собака", breed: "", age_years: "", avatar_url: null });
       setShowForm(false);
       showToast(`${form.name} добавлен`);
       load();
@@ -66,6 +67,11 @@ export default function Pets() {
 
       {showForm && (
         <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
+          <PhotoPicker
+            value={form.avatar_url}
+            onChange={(url) => setForm({ ...form, avatar_url: url })}
+            label="Фото (необязательно)"
+          />
           <div className="field">
             <label htmlFor="pet-name">Кличка</label>
             <input id="pet-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="Например: Бела" />
@@ -118,9 +124,13 @@ export default function Pets() {
               }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: "50%", background: avatarTint, color: avatarColor,
-                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden",
                 }}>
-                  <PawPrint size={20} strokeWidth={2.2} />
+                  {pet.avatar_url ? (
+                    <img src={pet.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <PawPrint size={20} strokeWidth={2.2} />
+                  )}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div className="subhead">{pet.name}</div>

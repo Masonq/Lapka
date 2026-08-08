@@ -6,3 +6,4 @@ pydantic[email]==2.9.2
 python-jose[cryptography]==3.3.0
 bcrypt==4.2.0
 python-multipart==0.0.12
+pillow==10.4.0

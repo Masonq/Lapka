@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import PhotoPicker from "../components/PhotoPicker";
 
 const TYPES = [
   { value: "lost", label: "Потерялся" },
@@ -23,6 +24,7 @@ export default function NewPost() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [location, setLocation] = useState("");
+  const [photoUrl, setPhotoUrl] = useState(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,6 +51,7 @@ export default function NewPost() {
         type,
         title,
         body,
+        photo_url: photoUrl || undefined,
         last_seen_location: location || undefined,
       });
       showToast("Пост опубликован");
@@ -91,6 +94,8 @@ export default function NewPost() {
         </div>
 
         <form onSubmit={handleSubmit} className="card" style={{ borderRadius: 20, padding: 18 }}>
+        <PhotoPicker value={photoUrl} onChange={setPhotoUrl} label="Фото (необязательно)" />
+
         <div className="field">
           <label htmlFor="post-title">Заголовок</label>
           <input

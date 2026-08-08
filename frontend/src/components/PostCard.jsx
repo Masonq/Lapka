@@ -24,6 +24,9 @@ export default function PostCard({ post }) {
 
   return (
     <Link to={`/posts/${post.id}`} className="post-card card">
+      {post.photo_url && (
+        <img src={post.photo_url} alt="" className="post-card-photo" />
+      )}
       <span className={`post-badge ${post.type}`}>
         {post.is_resolved && <CheckCircle2 size={12} />}
         {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}

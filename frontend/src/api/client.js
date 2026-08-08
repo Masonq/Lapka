@@ -40,6 +40,31 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
   return res.json();
 }
 
+async function uploadImage(file) {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/uploads", {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    let detail = "Не удалось загрузить фото";
+    try {
+      const data = await res.json();
+      detail = data.detail || detail;
+    } catch {
+      // no-op
+    }
+    throw new Error(detail);
+  }
+
+  return res.json();
+}
+
 export const api = {
   register: (data) => request("/auth/register", { method: "POST", body: data }),
   login: (data) => request("/auth/login", { method: "POST", body: data }),
@@ -69,4 +94,6 @@ export const api = {
 
   follow: (userId) => request(`/follows/${userId}`, { method: "POST", auth: true }),
   unfollow: (userId) => request(`/follows/${userId}`, { method: "DELETE", auth: true }),
+
+  uploadImage,
 };
