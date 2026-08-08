@@ -64,7 +64,7 @@ export default function NewPost() {
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
         <span className="page-title">Новый пост</span>
-        <span style={{ width: 38 }} />
+        <span style={{ width: 44 }} />
       </div>
 
       <div className="field">

@@ -38,7 +38,7 @@ def login(data: LoginEmail, db: Session = Depends(get_db)):
 
 @router.post("/telegram", response_model=Token)
 def telegram_auth(data: TelegramAuth, db: Session = Depends(get_db)):
-    payload = data.dict()
+    payload = data.model_dump()
     if not verify_telegram_auth(dict(payload)):
         raise HTTPException(status_code=401, detail="Подпись Telegram не подтверждена")
 

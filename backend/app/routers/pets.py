@@ -21,7 +21,7 @@ def pets_of_user(user_id: str, db: Session = Depends(get_db)):
 
 @router.post("", response_model=PetOut)
 def create_pet(data: PetCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    pet = Pet(owner_id=user.id, **data.dict())
+    pet = Pet(owner_id=user.id, **data.model_dump())
     db.add(pet)
     db.commit()
     db.refresh(pet)

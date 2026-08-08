@@ -10,8 +10,8 @@
 
   --black: #1A1A1A;
   --text: #1A1A1A;
-  --text-muted: #8C8C8C;
-  --text-faint: #B3B3B5;
+  --text-muted: #6E6E73;
+  --text-faint: #9C9CA0;
 
   --green: #2FA84F;
   --green-tint: #E4F5E8;
@@ -160,8 +160,8 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -198,7 +198,7 @@ a {
   gap: 3px;
   padding: 9px 4px 8px;
   border-radius: var(--radius-pill);
-  color: var(--text-faint);
+  color: var(--text-muted);
   transition: color 0.15s ease, background 0.15s ease;
 }
 

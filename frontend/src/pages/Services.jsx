@@ -20,12 +20,17 @@ export default function Services() {
   const { isAuthed } = useAuth();
   const [providers, setProviders] = useState([]);
   const [filter, setFilter] = useState("");
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ service_type: "sitter", description: "", price_from: "", contact: "" });
   const [error, setError] = useState("");
 
   function load() {
-    api.services(filter ? { type: filter } : {}).then(setProviders).catch(() => setProviders([]));
+    setLoading(true);
+    api.services(filter ? { type: filter } : {})
+      .then(setProviders)
+      .catch(() => setProviders([]))
+      .finally(() => setLoading(false));
   }
 
   useEffect(load, [filter]);
@@ -102,7 +107,9 @@ export default function Services() {
         ))}
       </div>
 
-      {providers.length === 0 && (
+      {loading && <div className="empty-state">Загружаем список…</div>}
+
+      {!loading && providers.length === 0 && (
         <div className="empty-state">
           <div className="empty-state-title">Пока никого нет</div>
           Будь первым исполнителем в этой категории

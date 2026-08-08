@@ -59,7 +59,7 @@ export default function PostDetail() {
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
         <span className="page-title">Пост</span>
-        <span style={{ width: 38 }} />
+        <span style={{ width: 44 }} />
       </div>
 
       <div className="post-card card" style={{ marginBottom: 20 }}>

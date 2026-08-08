@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/posts", tags=["posts"])
 
 
 def _to_out(post: Post) -> PostOut:
-    out = PostOut.from_orm(post)
+    out = PostOut.model_validate(post)
     out.comments_count = len(post.comments)
     return out
 

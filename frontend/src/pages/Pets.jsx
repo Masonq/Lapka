@@ -119,7 +119,7 @@ export default function Pets() {
                 {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} г.` : ""}
               </div>
             </div>
-            <button className="btn btn-ghost" onClick={() => remove(pet.id)} style={{ padding: 9 }}>
+            <button className="btn btn-ghost" onClick={() => remove(pet.id)} style={{ padding: 9 }} aria-label={`Удалить ${pet.name}`}>
               <Trash2 size={16} />
             </button>
           </div>

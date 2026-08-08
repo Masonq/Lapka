@@ -18,7 +18,7 @@ export default function App() {
             <MapPin size={10} strokeWidth={2.5} /> beograd
           </span>
         </div>
-        <Link to="/profile" className="header-avatar">
+        <Link to="/profile" className="header-avatar" aria-label="Профиль">
           <User size={16} strokeWidth={2.2} />
         </Link>
       </div>
