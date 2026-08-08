@@ -50,17 +50,17 @@ export default function Profile() {
       <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 18 }}>
         {mode === "register" && (
           <div className="field">
-            <label>Имя</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Как к тебе обращаться" />
+            <label htmlFor="auth-name">Имя</label>
+            <input id="auth-name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Как к тебе обращаться" autoComplete="name" />
           </div>
         )}
         <div className="field">
-          <label>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
+          <label htmlFor="auth-email">Email</label>
+          <input id="auth-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" autoComplete="email" />
         </div>
         <div className="field">
-          <label>Пароль</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="Минимум 6 символов" />
+          <label htmlFor="auth-password">Пароль</label>
+          <input id="auth-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="Минимум 6 символов" autoComplete={mode === "login" ? "current-password" : "new-password"} />
         </div>
         {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
         <button className="btn btn-primary btn-block" disabled={busy}>

@@ -65,12 +65,12 @@ export default function Pets() {
       {showForm && (
         <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
           <div className="field">
-            <label>Кличка</label>
-            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+            <label htmlFor="pet-name">Кличка</label>
+            <input id="pet-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="Например: Бела" />
           </div>
           <div className="field">
-            <label>Вид</label>
-            <div className="chip-row" style={{ paddingBottom: 2 }}>
+            <label id="pet-species-label">Вид</label>
+            <div className="chip-row" role="group" aria-labelledby="pet-species-label" style={{ paddingBottom: 2 }}>
               {SPECIES.map((s) => (
                 <button
                   key={s}
@@ -84,12 +84,12 @@ export default function Pets() {
             </div>
           </div>
           <div className="field">
-            <label>Порода</label>
-            <input value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} />
+            <label htmlFor="pet-breed">Порода</label>
+            <input id="pet-breed" value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} placeholder="Необязательно" />
           </div>
           <div className="field">
-            <label>Возраст (лет)</label>
-            <input type="number" min="0" value={form.age_years} onChange={(e) => setForm({ ...form, age_years: e.target.value })} />
+            <label htmlFor="pet-age">Возраст (лет)</label>
+            <input id="pet-age" type="number" min="0" value={form.age_years} onChange={(e) => setForm({ ...form, age_years: e.target.value })} placeholder="Необязательно" />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
           <button className="btn btn-primary btn-block">Сохранить</button>

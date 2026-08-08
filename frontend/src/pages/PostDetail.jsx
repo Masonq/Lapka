@@ -92,6 +92,12 @@ export default function PostDetail() {
         Комментарии ({comments.length})
       </h3>
 
+      {comments.length === 0 && (
+        <p style={{ fontSize: 13, color: "var(--text-faint)", marginBottom: 12 }}>
+          Пока нет комментариев — можешь стать первым
+        </p>
+      )}
+
       {comments.map((c) => (
         <div key={c.id} className="card" style={{ borderRadius: 16, padding: "10px 14px", marginBottom: 8 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--black)" }}>

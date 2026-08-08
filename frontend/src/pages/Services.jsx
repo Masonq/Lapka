@@ -69,8 +69,8 @@ export default function Services() {
       {showForm && (
         <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
           <div className="field">
-            <label>Вид услуги</label>
-            <div className="chip-row" style={{ paddingBottom: 2 }}>
+            <label id="service-type-label">Вид услуги</label>
+            <div className="chip-row" role="group" aria-labelledby="service-type-label" style={{ paddingBottom: 2 }}>
               {TYPES.filter((t) => t.value).map((t) => (
                 <button
                   key={t.value}
@@ -84,16 +84,16 @@ export default function Services() {
             </div>
           </div>
           <div className="field">
-            <label>Описание</label>
-            <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required placeholder="Опыт, район работы, что входит в услугу" />
+            <label htmlFor="service-description">Описание</label>
+            <textarea id="service-description" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required placeholder="Опыт, район работы, что входит в услугу" />
           </div>
           <div className="field">
-            <label>Цена от (динары)</label>
-            <input type="number" min="0" value={form.price_from} onChange={(e) => setForm({ ...form, price_from: e.target.value })} placeholder="800" />
+            <label htmlFor="service-price">Цена от (динары)</label>
+            <input id="service-price" type="number" min="0" value={form.price_from} onChange={(e) => setForm({ ...form, price_from: e.target.value })} placeholder="800" />
           </div>
           <div className="field">
-            <label>Контакт (телефон/telegram)</label>
-            <input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="+381 6X XXX XXXX или @username" />
+            <label htmlFor="service-contact">Контакт (телефон/telegram)</label>
+            <input id="service-contact" value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="+381 6X XXX XXXX или @username" />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
           <button className="btn btn-primary btn-block">Опубликовать анкету</button>

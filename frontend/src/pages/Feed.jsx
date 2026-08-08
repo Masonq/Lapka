@@ -46,6 +46,7 @@ export default function Feed() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Искать по ленте: кличка, район…"
+          aria-label="Поиск по ленте"
         />
         {search && (
           <button className="search-clear" onClick={() => setSearch("")} aria-label="Очистить поиск">

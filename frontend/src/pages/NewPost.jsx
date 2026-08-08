@@ -72,8 +72,8 @@ export default function NewPost() {
       </div>
 
       <div className="field">
-        <label>Тип поста</label>
-        <div className="chip-row" style={{ paddingBottom: 2 }}>
+        <label id="post-type-label">Тип поста</label>
+        <div className="chip-row" role="group" aria-labelledby="post-type-label" style={{ paddingBottom: 2 }}>
           {TYPES.map((t) => (
             <button
               key={t.value}
@@ -89,8 +89,9 @@ export default function NewPost() {
 
       <form onSubmit={handleSubmit} className="card" style={{ borderRadius: 20, padding: 18 }}>
         <div className="field">
-          <label>Заголовок</label>
+          <label htmlFor="post-title">Заголовок</label>
           <input
+            id="post-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -100,8 +101,9 @@ export default function NewPost() {
         </div>
 
         <div className="field">
-          <label>Описание</label>
+          <label htmlFor="post-body">Описание</label>
           <textarea
+            id="post-body"
             rows={5}
             value={body}
             onChange={(e) => setBody(e.target.value)}
@@ -112,8 +114,8 @@ export default function NewPost() {
 
         {needsLocation && (
           <div className="field">
-            <label>Где видели (район, улица)</label>
-            <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Например: Ташмайдан" />
+            <label htmlFor="post-location">Где видели (район, улица)</label>
+            <input id="post-location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Например: Ташмайдан" />
           </div>
         )}
 
