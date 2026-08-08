@@ -1,0 +1,115 @@
+import { useEffect, useState } from "react";
+import { PawPrint, Plus, Trash2 } from "lucide-react";
+import { api } from "../api/client";
+import { useAuth } from "../AuthContext";
+
+const SPECIES = ["Собака", "Кошка", "Другое"];
+
+export default function Pets() {
+  const { isAuthed } = useAuth();
+  const [pets, setPets] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", species: "Собака", breed: "", age_years: "" });
+  const [error, setError] = useState("");
+
+  function load() {
+    if (isAuthed) api.myPets().then(setPets).catch(() => setPets([]));
+  }
+
+  useEffect(load, [isAuthed]);
+
+  async function submit(e) {
+    e.preventDefault();
+    setError("");
+    try {
+      await api.createPet({
+        ...form,
+        age_years: form.age_years ? Number(form.age_years) : undefined,
+      });
+      setForm({ name: "", species: "Собака", breed: "", age_years: "" });
+      setShowForm(false);
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function remove(id) {
+    await api.deletePet(id);
+    load();
+  }
+
+  if (!isAuthed) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state-title">Профили питомцев</div>
+        Войдите, чтобы добавить своего питомца
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="top-header">
+        <span style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600 }}>
+          Мои питомцы
+        </span>
+        <button className="btn btn-ghost" onClick={() => setShowForm((v) => !v)}>
+          <Plus size={16} /> Добавить
+        </button>
+      </div>
+
+      {showForm && (
+        <form onSubmit={submit} className="glass" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
+          <div className="field">
+            <label>Кличка</label>
+            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          </div>
+          <div className="field">
+            <label>Вид</label>
+            <select value={form.species} onChange={(e) => setForm({ ...form, species: e.target.value })}>
+              {SPECIES.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label>Порода</label>
+            <input value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} />
+          </div>
+          <div className="field">
+            <label>Возраст (лет)</label>
+            <input type="number" min="0" value={form.age_years} onChange={(e) => setForm({ ...form, age_years: e.target.value })} />
+          </div>
+          {error && <p style={{ color: "var(--alert)", fontSize: 13 }}>{error}</p>}
+          <button className="btn btn-primary btn-block">Сохранить</button>
+        </form>
+      )}
+
+      {pets.length === 0 && !showForm && (
+        <div className="empty-state">
+          <PawPrint size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <div className="empty-state-title">Питомцев пока нет</div>
+          Добавьте первого — это займёт минуту
+        </div>
+      )}
+
+      {pets.map((pet) => (
+        <div key={pet.id} className="glass" style={{
+          borderRadius: 20, padding: "14px 16px", marginBottom: 10,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 16 }}>
+              {pet.name}
+            </div>
+            <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
+              {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} г.` : ""}
+            </div>
+          </div>
+          <button className="btn btn-ghost" onClick={() => remove(pet.id)} style={{ padding: 9 }}>
+            <Trash2 size={16} />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}

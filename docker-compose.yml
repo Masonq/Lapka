@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lapabg
+      POSTGRES_PASSWORD: lapabg
+      POSTGRES_DB: lapabg
+    volumes:
+      - lapabg_pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg2://lapabg:lapabg@db:5432/lapabg
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:8020:8000"
+
+volumes:
+  lapabg_pgdata:

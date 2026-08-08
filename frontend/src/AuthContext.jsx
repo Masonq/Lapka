@@ -1,0 +1,43 @@
+import { createContext, useContext, useState, useCallback } from "react";
+import { getToken, setToken, clearToken, api } from "./api/client";
+
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [token, setTokenState] = useState(getToken());
+
+  const login = useCallback(async (email, password) => {
+    const { access_token } = await api.login({ email, password });
+    setToken(access_token);
+    setTokenState(access_token);
+  }, []);
+
+  const register = useCallback(async (display_name, email, password) => {
+    const { access_token } = await api.register({ display_name, email, password });
+    setToken(access_token);
+    setTokenState(access_token);
+  }, []);
+
+  const loginWithTelegram = useCallback(async (tgData) => {
+    const { access_token } = await api.telegramAuth(tgData);
+    setToken(access_token);
+    setTokenState(access_token);
+  }, []);
+
+  const logout = useCallback(() => {
+    clearToken();
+    setTokenState(null);
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{ isAuthed: !!token, login, register, loginWithTelegram, logout }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
