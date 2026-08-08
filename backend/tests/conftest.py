@@ -30,6 +30,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", f"sqlite:///{db_path}")
     monkeypatch.setenv("UPLOAD_DIR", str(upload_dir))
     monkeypatch.setenv("JWT_SECRET", "test-secret")
+    monkeypatch.setenv("AUTO_CREATE_SCHEMA", "true")
 
     # Модули с состоянием (лимитеры, engine) должны переимпортироваться заново на каждый тест,
     # иначе rate-limit тесты будут видеть счётчики от предыдущих тестов

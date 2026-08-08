@@ -1,3 +1,4 @@
+import logging
 import os
 
 from fastapi import FastAPI
@@ -7,13 +8,34 @@ from fastapi.staticfiles import StaticFiles
 from app.core.db import Base, engine
 from app.routers import auth, follows, pets, posts, services, uploads, users
 
-Base.metadata.create_all(bind=engine)
+logger = logging.getLogger("lapabg")
+
+# В проде схема БД накатывается через `alembic upgrade head` (см. deploy/setup.sh и
+# deploy/update.sh) — так изменения применяются контролируемо, с историей и возможностью
+# отката, а не молча досоздают недостающее при каждом запуске. create_all() оставлен только
+# для тестов и быстрой локальной разработки без Alembic, включается явным флагом
+if os.getenv("AUTO_CREATE_SCHEMA") == "true":
+    Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="LapaBG API")
 
+if os.getenv("JWT_SECRET", "change-me-in-production") == "change-me-in-production":
+    logger.warning(
+        "JWT_SECRET не задан или оставлен дефолтным ('change-me-in-production') — "
+        "любой, кто это знает, может подделать токен авторизации. "
+        "Задай реальный секрет в docker-compose.yml перед выходом в прод."
+    )
+
+# По умолчанию — только локальная разработка (Vite dev-сервер). В проде задаётся
+# явно через ALLOWED_ORIGINS в docker-compose.yml (см. deploy/setup.sh), например
+# ALLOWED_ORIGINS=https://lapa.flatro.app — так с чужого сайта не дёрнуть наш API
+# из браузера от имени залогиненного пользователя, даже если у него украли токен через XSS
+_default_origins = "http://localhost:5173,http://127.0.0.1:5173"
+allowed_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", _default_origins).split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

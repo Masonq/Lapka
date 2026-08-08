@@ -23,6 +23,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       UPLOAD_DIR: /app/uploads
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://lapa.flatro.app}
     depends_on:
       - db
     ports:
