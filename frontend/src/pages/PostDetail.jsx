@@ -52,7 +52,7 @@ export default function PostDetail() {
         <span style={{ width: 38 }} />
       </div>
 
-      <div className="post-card glass" style={{ marginBottom: 20 }}>
+      <div className="post-card card" style={{ marginBottom: 20 }}>
         <span className={`post-type-rail ${post.type}`} />
         <span className={`post-badge ${post.type}`}>
           {post.is_resolved && <CheckCircle2 size={12} />}
@@ -81,8 +81,8 @@ export default function PostDetail() {
       </h3>
 
       {comments.map((c) => (
-        <div key={c.id} className="glass" style={{ borderRadius: 16, padding: "10px 14px", marginBottom: 8 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--primary-dark)" }}>
+        <div key={c.id} className="card" style={{ borderRadius: 16, padding: "10px 14px", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--black)" }}>
             {c.author.display_name}
           </div>
           <div style={{ fontSize: 14 }}>{c.body}</div>
@@ -93,7 +93,7 @@ export default function PostDetail() {
         <form onSubmit={submitComment} style={{ display: "flex", gap: 8, marginTop: 12 }}>
           <input
             style={{
-              flex: 1, border: "1px solid var(--border-glass)", borderRadius: 999,
+              flex: 1, border: "1px solid var(--border)", borderRadius: 999,
               padding: "10px 16px", fontSize: 14, background: "var(--bg-elevated)",
             }}
             placeholder="Написать комментарий…"

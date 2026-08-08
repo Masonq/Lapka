@@ -11,7 +11,7 @@ import Profile from "./pages/Profile";
 export default function App() {
   return (
     <div className="app-shell">
-      <div className="top-header glass">
+      <div className="top-header card">
         <div className="brand-block">
           <span className="brand">Lapa</span>
           <span className="brand-geo">

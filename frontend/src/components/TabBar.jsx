@@ -10,7 +10,7 @@ const tabs = [
 
 export default function TabBar() {
   return (
-    <nav className="tab-bar glass-strong">
+    <nav className="tab-bar card-strong">
       {tabs.map(({ to, label, icon: Icon, end }) => (
         <NavLink
           key={to}

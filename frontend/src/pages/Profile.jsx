@@ -17,7 +17,7 @@ export default function Profile() {
         <div className="page-header">
           <span className="page-title">Профиль</span>
         </div>
-        <div className="glass" style={{ borderRadius: 20, padding: 18, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ fontSize: 14, color: "var(--text-muted)" }}>Ты вошёл в LapaBG</div>
           <button className="btn btn-ghost" onClick={logout}>
             <LogOut size={16} /> Выйти
@@ -47,7 +47,7 @@ export default function Profile() {
         <span className="page-title">{mode === "login" ? "Вход" : "Регистрация"}</span>
       </div>
 
-      <form onSubmit={submit} className="glass" style={{ borderRadius: 20, padding: 18 }}>
+      <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 18 }}>
         {mode === "register" && (
           <div className="field">
             <label>Имя</label>
@@ -62,7 +62,7 @@ export default function Profile() {
           <label>Пароль</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
         </div>
-        {error && <p style={{ color: "var(--alert)", fontSize: 13 }}>{error}</p>}
+        {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
         <button className="btn btn-primary btn-block" disabled={busy}>
           {busy ? "Секунду…" : mode === "login" ? "Войти" : "Создать аккаунт"}
         </button>
@@ -72,7 +72,7 @@ export default function Profile() {
         {mode === "login" ? "Нет аккаунта? " : "Уже есть аккаунт? "}
         <a
           href="#"
-          style={{ color: "var(--primary-dark)", fontWeight: 700 }}
+          style={{ color: "var(--black)", fontWeight: 700 }}
           onClick={(e) => { e.preventDefault(); setMode(mode === "login" ? "register" : "login"); }}
         >
           {mode === "login" ? "Зарегистрироваться" : "Войти"}

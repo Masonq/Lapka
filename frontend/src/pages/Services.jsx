@@ -57,7 +57,7 @@ export default function Services() {
       </div>
 
       {showForm && (
-        <form onSubmit={submit} className="glass" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
+        <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
           <div className="field">
             <label>Вид услуги</label>
             <select value={form.service_type} onChange={(e) => setForm({ ...form, service_type: e.target.value })}>
@@ -76,7 +76,7 @@ export default function Services() {
             <label>Контакт (телефон/telegram)</label>
             <input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} />
           </div>
-          {error && <p style={{ color: "var(--alert)", fontSize: 13 }}>{error}</p>}
+          {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
           <button className="btn btn-primary btn-block">Опубликовать анкету</button>
         </form>
       )}
@@ -101,15 +101,15 @@ export default function Services() {
       )}
 
       {providers.map((p) => (
-        <div key={p.id} className="glass" style={{ borderRadius: 20, padding: 16, marginBottom: 10 }}>
+        <div key={p.id} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
               <span className="post-badge general">{TYPE_RU[p.service_type]}</span>
               <div className="subhead" style={{ marginTop: 6 }}>{p.user.display_name}</div>
             </div>
             {p.rating_count > 0 && (
-              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "var(--warm)" }}>
-                <Star size={14} fill="var(--warm)" strokeWidth={0} /> {p.rating_avg}
+              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, fontWeight: 700, color: "var(--yellow-strong)" }}>
+                <Star size={14} fill="var(--yellow-strong)" strokeWidth={0} /> {p.rating_avg}
               </div>
             )}
           </div>

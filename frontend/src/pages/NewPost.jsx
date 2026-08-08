@@ -94,7 +94,7 @@ export default function NewPost() {
           </div>
         )}
 
-        {error && <p style={{ color: "var(--alert)", fontSize: 13 }}>{error}</p>}
+        {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
 
         <button className="btn btn-primary btn-block" disabled={submitting}>
           {submitting ? "Публикуем…" : "Опубликовать"}

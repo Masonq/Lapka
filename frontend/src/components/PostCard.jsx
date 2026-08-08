@@ -23,7 +23,7 @@ export default function PostCard({ post }) {
   const showTrag = (post.type === "lost" || post.type === "found") && post.last_seen_location;
 
   return (
-    <Link to={`/posts/${post.id}`} className="post-card glass">
+    <Link to={`/posts/${post.id}`} className="post-card card">
       <span className={`post-type-rail ${post.type}`} />
       <span className={`post-badge ${post.type}`}>
         {post.is_resolved && <CheckCircle2 size={12} />}

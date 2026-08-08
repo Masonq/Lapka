@@ -58,7 +58,7 @@ export default function Pets() {
       </div>
 
       {showForm && (
-        <form onSubmit={submit} className="glass" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
+        <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
           <div className="field">
             <label>Кличка</label>
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -77,7 +77,7 @@ export default function Pets() {
             <label>Возраст (лет)</label>
             <input type="number" min="0" value={form.age_years} onChange={(e) => setForm({ ...form, age_years: e.target.value })} />
           </div>
-          {error && <p style={{ color: "var(--alert)", fontSize: 13 }}>{error}</p>}
+          {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
           <button className="btn btn-primary btn-block">Сохранить</button>
         </form>
       )}
@@ -91,7 +91,7 @@ export default function Pets() {
       )}
 
       {pets.map((pet) => (
-        <div key={pet.id} className="glass" style={{
+        <div key={pet.id} className="card" style={{
           borderRadius: 20, padding: "14px 16px", marginBottom: 10,
           display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>

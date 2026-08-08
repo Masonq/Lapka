@@ -1,37 +1,37 @@
 :root {
-  /* --- Цвет --- */
-  --bg: #F3F6F1;
-  --bg-elevated: #FBFDFA;
-  --surface-glass: rgba(255, 255, 255, 0.6);
-  --surface-glass-strong: rgba(255, 255, 255, 0.82);
-  --border-glass: rgba(63, 107, 78, 0.14);
+  /* --- Цвет: фирменная палитра в духе Яндекса --- */
+  --bg: #F5F5F6;
+  --surface: #FFFFFF;
+  --border: #EBEBEC;
 
-  --primary: #3F6B4E;
-  --primary-dark: #2C4E38;
-  --primary-tint: rgba(63, 107, 78, 0.1);
+  --yellow: #FFDB4D;
+  --yellow-strong: #FFCC00;
+  --yellow-tint: #FFF6DA;
 
-  --warm: #E2A03F;
-  --warm-tint: rgba(226, 160, 63, 0.14);
+  --black: #1A1A1A;
+  --text: #1A1A1A;
+  --text-muted: #8C8C8C;
+  --text-faint: #B3B3B5;
 
-  --alert: #C1503E;
-  --alert-tint: rgba(193, 80, 62, 0.12);
+  --green: #2FA84F;
+  --green-tint: #E4F5E8;
 
-  --text: #202821;
-  --text-muted: #5C6B5E;
-  --text-faint: #8A968B;
+  --red: #EF3B3B;
+  --red-tint: #FDE7E7;
 
-  /* --- Типографика --- */
-  --font-display: "Fraunces", Georgia, serif;
-  --font-body: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --blue: #3D7CFF;
+  --blue-tint: #E7EEFF;
 
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 10px;
+  --gray-tint: #EFEFF0;
+
+  --font-body: "Golos Text", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
   --radius-pill: 999px;
 
-  --shadow-glass: 0 8px 32px rgba(32, 40, 33, 0.08), 0 1px 2px rgba(32, 40, 33, 0.04);
-  --shadow-float: 0 12px 40px rgba(32, 40, 33, 0.14);
+  --shadow-card: 0 1px 2px rgba(26, 26, 26, 0.04), 0 8px 24px rgba(26, 26, 26, 0.06);
+  --shadow-float: 0 10px 30px rgba(26, 26, 26, 0.16);
 }
 
 * {
@@ -44,10 +44,7 @@ html, body, #root {
 
 body {
   margin: 0;
-  background:
-    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(63, 107, 78, 0.10), transparent),
-    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(226, 160, 63, 0.10), transparent),
-    var(--bg);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -64,23 +61,21 @@ a {
 }
 
 ::selection {
-  background: var(--primary-tint);
+  background: var(--yellow-tint);
 }
 
-/* --- Утилиты --- */
+/* --- Плоские карточки с тенью вместо стекла --- */
 
-.glass {
-  background: var(--surface-glass);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border: 1px solid var(--border-glass);
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
 }
 
-.glass-strong {
-  background: var(--surface-glass-strong);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-  border: 1px solid var(--border-glass);
+.card-strong {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-float);
 }
 
 .app-shell {
@@ -111,41 +106,71 @@ a {
 }
 
 .brand {
-  font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 800;
   font-size: 21px;
-  letter-spacing: -0.01em;
-  color: var(--primary-dark);
+  letter-spacing: -0.02em;
+  color: var(--black);
 }
 
 .brand-geo {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: #93691E;
-  background: var(--warm-tint);
-  padding: 3px 8px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--black);
+  background: var(--yellow-tint);
+  padding: 3px 9px 3px 7px;
   border-radius: var(--radius-pill);
-  transform: translateY(-1px);
 }
 
 .header-avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--surface-glass);
-  border: 1px solid var(--border-glass);
+  background: var(--yellow);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary-dark);
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 14px;
+  color: var(--black);
+}
+
+/* --- Заголовок подстраницы --- */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 2px 16px;
+}
+
+.page-title {
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+
+.subhead {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--black);
+  cursor: pointer;
+}
+
+.icon-btn:active {
+  transform: scale(0.95);
 }
 
 /* --- Капсульная нижняя навигация --- */
@@ -174,18 +199,41 @@ a {
   padding: 9px 4px 8px;
   border-radius: var(--radius-pill);
   color: var(--text-faint);
-  transition: color 0.2s ease, background 0.2s ease;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
 .tab-item.active {
-  color: var(--primary-dark);
-  background: var(--primary-tint);
+  color: var(--black);
+  background: var(--yellow-tint);
 }
 
 .tab-item span {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.01em;
+}
+
+/* --- Плавающая кнопка нового поста --- */
+
+.fab {
+  position: fixed;
+  right: max(16px, calc(50% - 264px));
+  bottom: 96px;
+  z-index: 25;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-float);
+  border: none;
+}
+
+.fab:active {
+  transform: scale(0.95);
 }
 
 /* --- Карточка поста --- */
@@ -193,49 +241,30 @@ a {
 .post-card {
   position: relative;
   border-radius: var(--radius-lg);
-  padding: 16px 16px 14px 18px;
+  padding: 16px;
   margin-bottom: 12px;
-  box-shadow: var(--shadow-glass);
-  overflow: hidden;
+  display: block;
 }
-
-.post-type-rail {
-  position: absolute;
-  left: 0;
-  top: 14px;
-  bottom: 14px;
-  width: 3px;
-  border-radius: var(--radius-pill);
-}
-
-.post-type-rail.lost { background: var(--alert); }
-.post-type-rail.found { background: var(--primary); }
-.post-type-rail.adopt { background: var(--warm); }
-.post-type-rail.question { background: #6E85B8; }
-.post-type-rail.general { background: var(--text-faint); }
 
 .post-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  padding: 3px 9px 3px 7px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
   border-radius: var(--radius-pill);
 }
 
-.post-badge.lost { background: var(--alert-tint); color: var(--alert); }
-.post-badge.found { background: var(--primary-tint); color: var(--primary-dark); }
-.post-badge.adopt { background: var(--warm-tint); color: #93691E; }
-.post-badge.question { background: rgba(110, 133, 184, 0.14); color: #48588A; }
-.post-badge.general { background: rgba(138, 150, 139, 0.14); color: var(--text-muted); }
+.post-badge.lost { background: var(--red-tint); color: var(--red); }
+.post-badge.found { background: var(--green-tint); color: var(--green); }
+.post-badge.adopt { background: var(--yellow-tint); color: #8A6A00; }
+.post-badge.question { background: var(--blue-tint); color: var(--blue); }
+.post-badge.general { background: var(--gray-tint); color: var(--text-muted); }
 
 .post-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 600;
+  font-weight: 800;
+  font-size: 17px;
   margin: 10px 0 4px;
   letter-spacing: -0.01em;
 }
@@ -253,6 +282,7 @@ a {
   gap: 14px;
   font-size: 12px;
   color: var(--text-faint);
+  font-weight: 600;
 }
 
 .post-meta-item {
@@ -274,7 +304,7 @@ a {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--alert);
+  background: var(--red);
   opacity: 0.35;
 }
 
@@ -282,69 +312,6 @@ a {
   width: 6px;
   height: 6px;
   opacity: 1;
-}
-
-/* --- Заголовок подстраницы (не sticky, легче основной шапки) --- */
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 2px 16px;
-}
-
-.page-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.subhead {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 16px;
-  letter-spacing: -0.01em;
-}
-
-.icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid var(--border-glass);
-  background: var(--bg-elevated);
-  color: var(--primary-dark);
-  cursor: pointer;
-}
-
-.icon-btn:active {
-  transform: scale(0.95);
-}
-
-/* --- Плавающая кнопка нового поста --- */
-
-.fab {
-  position: fixed;
-  right: max(16px, calc(50% - 264px));
-  bottom: 96px;
-  z-index: 25;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--primary);
-  color: #F6FAF4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-float);
-  border: none;
-}
-
-.fab:active {
-  transform: scale(0.95);
 }
 
 /* --- Кнопки --- */
@@ -368,13 +335,13 @@ a {
 }
 
 .btn-primary {
-  background: var(--primary);
-  color: #F6FAF4;
+  background: var(--yellow);
+  color: var(--black);
 }
 
 .btn-ghost {
-  background: var(--primary-tint);
-  color: var(--primary-dark);
+  background: var(--gray-tint);
+  color: var(--black);
 }
 
 .btn-block {
@@ -392,15 +359,15 @@ a {
 
 .field label {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
 }
 
 .field input,
 .field textarea,
 .field select {
-  border: 1px solid var(--border-glass);
-  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  background: var(--surface);
   border-radius: var(--radius-md);
   padding: 12px 14px;
   font-size: 15px;
@@ -412,7 +379,8 @@ a {
 .field input:focus,
 .field textarea:focus,
 .field select:focus {
-  border-color: var(--primary);
+  border-color: var(--yellow-strong);
+  box-shadow: 0 0 0 3px var(--yellow-tint);
 }
 
 /* --- Фильтр-чипы --- */
@@ -434,16 +402,16 @@ a {
   padding: 8px 15px;
   border-radius: var(--radius-pill);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
-  border: 1px solid var(--border-glass);
-  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .chip.active {
-  background: var(--primary);
-  color: #F6FAF4;
-  border-color: var(--primary);
+  background: var(--black);
+  color: #FFFFFF;
+  border-color: var(--black);
 }
 
 /* --- Пустые состояния --- */
@@ -455,9 +423,9 @@ a {
 }
 
 .empty-state-title {
-  font-family: var(--font-display);
+  font-weight: 800;
   font-size: 17px;
-  color: var(--text-muted);
+  color: var(--text);
   margin-bottom: 6px;
 }
 
