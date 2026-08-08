@@ -164,6 +164,26 @@ def test_blank_comment_rejected(client, register_user):
     assert r.status_code == 400
 
 
+def test_title_too_long_rejected_cleanly(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/posts",
+        json={"type": "general", "title": "а" * 201, "body": "текст"},
+        headers=headers,
+    )
+    assert r.status_code == 422  # чистая ошибка валидации, а не 500 от переполнения колонки БД
+
+
+def test_location_too_long_rejected_cleanly(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/posts",
+        json={"type": "lost", "title": "Тест", "body": "текст", "last_seen_location": "а" * 201},
+        headers=headers,
+    )
+    assert r.status_code == 422
+
+
 def test_comment_on_nonexistent_post_404(client, register_user):
     headers = register_user()
     r = client.post("/api/posts/does-not-exist/comments", json={"body": "текст"}, headers=headers)

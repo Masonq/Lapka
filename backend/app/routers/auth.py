@@ -46,6 +46,7 @@ def telegram_auth(data: TelegramAuth, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.telegram_id == telegram_id).first()
     if not user:
         name = data.first_name + (f" {data.last_name}" if data.last_name else "")
+        name = name[:80]  # предел колонки User.display_name
         user = User(
             display_name=name,
             telegram_id=telegram_id,

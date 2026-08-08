@@ -19,10 +19,10 @@ class LoginEmail(BaseModel):
 
 class TelegramAuth(BaseModel):
     id: int
-    first_name: str
-    last_name: Optional[str] = None
-    username: Optional[str] = None
-    photo_url: Optional[str] = None
+    first_name: str = Field(..., max_length=64)
+    last_name: Optional[str] = Field(None, max_length=64)
+    username: Optional[str] = Field(None, max_length=64)
+    photo_url: Optional[str] = Field(None, max_length=500)
     auth_date: int
     hash: str
 
@@ -51,10 +51,10 @@ class UserOut(BaseModel):
 class PetCreate(BaseModel):
     name: str = Field(..., max_length=80)
     species: str = Field(..., max_length=40)
-    breed: Optional[str] = None
-    age_years: Optional[int] = None
-    about: Optional[str] = None
-    avatar_url: Optional[str] = None
+    breed: Optional[str] = Field(None, max_length=80)
+    age_years: Optional[int] = Field(None, ge=0, le=100)
+    about: Optional[str] = Field(None, max_length=500)
+    avatar_url: Optional[str] = Field(None, max_length=500)
 
 
 class PetOut(PetCreate):
@@ -70,9 +70,9 @@ class PetOut(PetCreate):
 class PostCreate(BaseModel):
     type: str
     title: str = Field(..., max_length=200)
-    body: str
-    photo_url: Optional[str] = None
-    last_seen_location: Optional[str] = None
+    body: str = Field(..., max_length=5000)
+    photo_url: Optional[str] = Field(None, max_length=500)
+    last_seen_location: Optional[str] = Field(None, max_length=200)
     last_seen_lat: Optional[float] = None
     last_seen_lng: Optional[float] = None
 
@@ -114,8 +114,8 @@ class CommentOut(BaseModel):
 class ServiceProviderCreate(BaseModel):
     service_type: str
     description: str = Field(..., max_length=1000)
-    price_from: Optional[int] = None
-    contact: Optional[str] = None
+    price_from: Optional[int] = Field(None, ge=0, le=1_000_000)
+    contact: Optional[str] = Field(None, max_length=200)
 
 
 class ServiceProviderOut(BaseModel):
@@ -134,4 +134,4 @@ class ServiceProviderOut(BaseModel):
 
 class ReviewCreate(BaseModel):
     rating: int = Field(..., ge=1, le=5)
-    body: Optional[str] = None
+    body: Optional[str] = Field(None, max_length=500)
