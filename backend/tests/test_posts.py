@@ -184,6 +184,38 @@ def test_location_too_long_rejected_cleanly(client, register_user):
     assert r.status_code == 422
 
 
+def test_following_feed_requires_auth(client):
+    r = client.get("/api/posts", params={"following": True})
+    assert r.status_code == 401
+
+
+def test_following_feed_shows_only_followed_authors(client, register_user, register_user_with_id):
+    headers_viewer, viewer_id = register_user_with_id()
+    headers_followed, followed_id = register_user_with_id()
+    headers_stranger = register_user()
+
+    client.post(
+        "/api/posts", json={"type": "general", "title": "От подписки", "body": "текст"}, headers=headers_followed
+    )
+    client.post(
+        "/api/posts", json={"type": "general", "title": "От незнакомца", "body": "текст"}, headers=headers_stranger
+    )
+
+    client.post(f"/api/follows/{followed_id}", headers=headers_viewer)
+
+    r = client.get("/api/posts", params={"following": True}, headers=headers_viewer)
+    assert r.status_code == 200
+    titles = [p["title"] for p in r.json()]
+    assert titles == ["От подписки"]
+
+
+def test_following_feed_empty_when_no_subscriptions(client, register_user):
+    headers = register_user()
+    r = client.get("/api/posts", params={"following": True}, headers=headers)
+    assert r.status_code == 200
+    assert r.json() == []
+
+
 def test_comment_on_nonexistent_post_404(client, register_user):
     headers = register_user()
     r = client.post("/api/posts/does-not-exist/comments", json={"body": "текст"}, headers=headers)

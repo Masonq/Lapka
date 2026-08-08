@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Search, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, X, AlertTriangle, MapPinCheck, Heart } from "lucide-react";
 import { api } from "../api/client";
+import { useAuth } from "../AuthContext";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -14,10 +16,18 @@ const FILTERS = [
   { value: "general", label: "Общее" },
 ];
 
+const QUICK_ACTIONS = [
+  { type: "lost", label: "Потерялся", icon: AlertTriangle, tint: "var(--red-tint)", color: "var(--red)" },
+  { type: "found", label: "Нашёлся", icon: MapPinCheck, tint: "var(--green-tint)", color: "var(--green-strong)" },
+  { type: "adopt", label: "Ищет дом", icon: Heart, tint: "var(--primary-tint)", color: "#95491B" },
+];
+
 const PAGE_SIZE = 20;
 
 export default function Feed() {
   useDocumentTitle("Лента");
+  const { isAuthed } = useAuth();
+  const [feedTab, setFeedTab] = useState("for-you");
   const [posts, setPosts] = useState([]);
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
@@ -31,28 +41,30 @@ export default function Feed() {
     return () => clearTimeout(t);
   }, [search]);
 
-  useEffect(() => {
-    setLoading(true);
-    const params = { limit: PAGE_SIZE, offset: 0 };
+  function buildParams(offset) {
+    const params = { limit: PAGE_SIZE, offset };
     if (filter) params.type = filter;
     if (debouncedSearch) params.q = debouncedSearch;
+    if (feedTab === "following") params.following = true;
+    return params;
+  }
+
+  useEffect(() => {
+    setLoading(true);
     api
-      .posts(params)
+      .posts(buildParams(0))
       .then((result) => {
         setPosts(result);
         setHasMore(result.length === PAGE_SIZE);
       })
       .catch(() => setPosts([]))
       .finally(() => setLoading(false));
-  }, [filter, debouncedSearch]);
+  }, [filter, debouncedSearch, feedTab]);
 
   function loadMore() {
     setLoadingMore(true);
-    const params = { limit: PAGE_SIZE, offset: posts.length };
-    if (filter) params.type = filter;
-    if (debouncedSearch) params.q = debouncedSearch;
     api
-      .posts(params)
+      .posts(buildParams(posts.length))
       .then((result) => {
         setPosts((prev) => [...prev, ...result]);
         setHasMore(result.length === PAGE_SIZE);
@@ -62,6 +74,43 @@ export default function Feed() {
 
   return (
     <div>
+      {isAuthed && (
+        <div style={{ display: "flex", gap: 10, padding: "4px 0 16px" }}>
+          {QUICK_ACTIONS.map(({ type, label, icon: Icon, tint, color }) => (
+            <Link
+              key={type}
+              to={`/new-post?type=${type}`}
+              style={{
+                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                padding: "12px 4px", borderRadius: 16, background: tint, color,
+              }}
+            >
+              <Icon size={19} strokeWidth={2.2} />
+              <span style={{ fontSize: 11, fontWeight: 700 }}>{label}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {isAuthed && (
+        <div style={{ display: "flex", gap: 4, padding: "0 0 12px" }}>
+          <button
+            className={`chip${feedTab === "for-you" ? " active" : ""}`}
+            onClick={() => setFeedTab("for-you")}
+            style={{ flex: 1 }}
+          >
+            Для тебя
+          </button>
+          <button
+            className={`chip${feedTab === "following" ? " active" : ""}`}
+            onClick={() => setFeedTab("following")}
+            style={{ flex: 1 }}
+          >
+            Подписки
+          </button>
+        </div>
+      )}
+
       <div className="search-bar">
         <Search size={17} strokeWidth={2.2} />
         <input
@@ -99,8 +148,14 @@ export default function Feed() {
 
       {!loading && posts.length === 0 && (
         <div className="empty-state">
-          <div className="empty-state-title">{debouncedSearch ? "Ничего не нашлось" : "Пока пусто"}</div>
-          {debouncedSearch ? "Попробуй другой запрос" : "Будь первым, кто расскажет о своём питомце соседям"}
+          <div className="empty-state-title">
+            {debouncedSearch ? "Ничего не нашлось" : feedTab === "following" ? "Пока пусто в подписках" : "Пока пусто"}
+          </div>
+          {debouncedSearch
+            ? "Попробуй другой запрос"
+            : feedTab === "following"
+              ? "Подпишись на кого-нибудь через профиль — их посты появятся здесь"
+              : "Будь первым, кто расскажет о своём питомце соседям"}
         </div>
       )}
 

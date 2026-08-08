@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.core.rate_limit import post_limiter, comment_limiter
-from app.core.security import get_current_user
-from app.models.models import Comment, Post, PostType, User
+from app.core.security import get_current_user, get_current_user_optional
+from app.models.models import Comment, Follow, Post, PostType, User
 from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut
 
 router = APIRouter(prefix="/api/posts", tags=["posts"])
@@ -24,9 +24,11 @@ def list_posts(
     type: Optional[str] = None,
     q: Optional[str] = None,
     author_id: Optional[str] = None,
+    following: bool = False,
     limit: int = Query(30, ge=1, le=100),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_current_user_optional),
 ):
     query = db.query(Post)
     if type:
@@ -36,6 +38,16 @@ def list_posts(
             raise HTTPException(status_code=400, detail="Неизвестный тип поста")
     if author_id:
         query = query.filter(Post.author_id == author_id)
+    if following:
+        if not user:
+            raise HTTPException(status_code=401, detail="Войди, чтобы смотреть ленту подписок")
+        followed_ids = [
+            row.following_id
+            for row in db.query(Follow.following_id).filter(Follow.follower_id == user.id).all()
+        ]
+        if not followed_ids:
+            return []
+        query = query.filter(Post.author_id.in_(followed_ids))
     if q:
         pattern = f"%{q.strip()}%"
         query = query.filter(or_(Post.title.ilike(pattern), Post.body.ilike(pattern)))
