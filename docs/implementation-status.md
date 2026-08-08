@@ -25,15 +25,15 @@
 | 19 | Health | ⬜ | Не начато. **Важно:** это медицинские данные — при реализации не должны попадать в ленту/рекомендации (см. раздел 19 блюпринта) |
 | 20 | Marketplace | ⬜ | Не начато |
 | 21 | Notifications | 🟡 | Есть: колокольчик в шапке со счётчиком (опрос раз в 30с), список, mark all read/mark one read, триггеры на follow и comment. Нет: категорий All/Social/Messages/Pet/Local/Safety/System (у нас только 2 типа событий), realtime (только polling), notification settings |
-| 22 | Profile | 🟡 | Аватар/имя/город/питомцы/выход есть. Нет: settings, privacy, security, blocked users, saved, followers/following счётчики (счётчик подписчиков есть только в публичном профиле) |
-| 23 | Settings | ⬜ | Не начато |
+| 22 | Profile | 🟡 | Аватар/имя/город/питомцы/сохранённое/настройки/выход есть. Нет: privacy, security (кроме смены пароля), blocked users, followers/following счётчики на своей странице (есть только в публичном профиле) |
+| 23 | Settings | 🟡 | Смена пароля, удаление аккаунта (с каскадным удалением всех данных — питомцы/посты/комментарии/подписки/отзывы/уведомления). Нет: account (кроме пароля), notifications settings, location, language, appearance, data export, help & support |
 | 24–25 | Admin Dashboard + модерация | ⬜ | Не начато |
 | 26 | User flows | 🟡 | Регистрация и первый пост работают близко к описанным flow. Остальные flow зависят от нереализованных разделов |
 | 27 | Компонентная система UI | 🟡 | Button/Input/Avatar/PostCard/Toast/Skeleton/EmptyState есть. Нет отдельных: CommunityCard/EventCard/WalkCard/BusinessCard/ListingCard/StoryAvatar/ChatBubble/BottomSheet/Modal/FilterDrawer/MapMarker |
 | 28 | Дизайн-система | 🟡 | Палитра под `design-reference.png` — тёплый оранжевый, снят пипеткой по пикселям. Применено к существующим экранам. Нет: левый сайдбар на десктопе (сейчас верхнее меню), ~25 нереализованных экранов referencе (сторис/сообщества/чат/здоровье/карта/marketplace) без своего дизайна, т.к. бэкенда под них нет |
 | 29 | API/backend layers | 🟡 | Auth, User/Pet, Social (posts/comments/follows), Services — есть. Community/Messaging/Discovery-Geo/Events-Walks/Marketplace/Moderation/Notification/Billing domains — нет |
 | 30 | Sprint Plan | — | Ориентир, не чеклист к вычёркиванию построчно |
-| 31 | MVP Release Gates | 🟡 | Есть: тесты (60), rate limiting, миграции, non-root Docker, CORS. Нет: E2E, permissions-аудит по ролям (ролей пока и нет кроме user), Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
+| 31 | MVP Release Gates | 🟡 | Есть: тесты (90), rate limiting, миграции, non-root Docker, CORS. Нет: E2E, permissions-аудит по ролям (ролей пока и нет кроме user), Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
 | 32–34 | Roadmap / KPI | — | Ориентир на будущее, не задача для кода |
 
 ## Что реально сделано сверх блюпринта

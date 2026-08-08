@@ -216,6 +216,28 @@ def test_following_feed_empty_when_no_subscriptions(client, register_user):
     assert r.json() == []
 
 
+def test_delete_post_cascades_saved_reports_comments(client, register_user):
+    """Раньше это падало 500-й ошибкой на реальном Postgres (FK-нарушение) — SQLite без
+    PRAGMA foreign_keys=ON эту проблему не видел. Теперь FK проверяются и в тестах, и на
+    всех связанных таблицах стоит ondelete=CASCADE."""
+    headers_author = register_user()
+    headers_other = register_user()
+
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "Тест", "body": "текст"}, headers=headers_author
+    ).json()
+
+    client.post(f"/api/posts/{post['id']}/save", headers=headers_other)
+    client.post(f"/api/posts/{post['id']}/report", json={"reason": "тест"}, headers=headers_other)
+    client.post(f"/api/posts/{post['id']}/comments", json={"body": "коммент"}, headers=headers_other)
+
+    r = client.delete(f"/api/posts/{post['id']}", headers=headers_author)
+    assert r.status_code == 200
+
+    r = client.get(f"/api/posts/{post['id']}")
+    assert r.status_code == 404
+
+
 def test_comment_on_nonexistent_post_404(client, register_user):
     headers = register_user()
     r = client.post("/api/posts/does-not-exist/comments", json={"body": "текст"}, headers=headers)

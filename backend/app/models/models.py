@@ -64,7 +64,7 @@ class Pet(Base):
     __tablename__ = "pets"
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
-    owner_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
+    owner_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     name = Column(String(80), nullable=False)
     species = Column(String(40), nullable=False)   # собака / кошка / другое
     breed = Column(String(80), nullable=True)
@@ -83,7 +83,7 @@ class Post(Base):
     __tablename__ = "posts"
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
-    author_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
+    author_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     type = Column(Enum(PostType), nullable=False)
     title = Column(String(200), nullable=False)
     body = Column(Text, nullable=False)
@@ -105,8 +105,8 @@ class Comment(Base):
     __tablename__ = "comments"
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
-    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id"), nullable=False)
-    author_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
+    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
+    author_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     body = Column(String(1000), nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
@@ -118,7 +118,7 @@ class ServiceProvider(Base):
     __tablename__ = "service_providers"
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
-    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), unique=True, nullable=False)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
     service_type = Column(Enum(ServiceType), nullable=False)
     description = Column(String(1000), nullable=False)
     price_from = Column(Integer, nullable=True)  # в динарах
@@ -134,8 +134,8 @@ class ServiceReview(Base):
     __tablename__ = "service_reviews"
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
-    provider_id = Column(UUID(as_uuid=False), ForeignKey("service_providers.id"), nullable=False)
-    author_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
+    provider_id = Column(UUID(as_uuid=False), ForeignKey("service_providers.id", ondelete="CASCADE"), nullable=False)
+    author_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     rating = Column(Integer, nullable=False)  # 1..5
     body = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
@@ -149,8 +149,8 @@ class Follow(Base):
     __table_args__ = (UniqueConstraint("follower_id", "following_id", name="uq_follower_following"),)
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
-    follower_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
-    following_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
+    follower_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    following_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
@@ -159,8 +159,8 @@ class SavedPost(Base):
     __table_args__ = (UniqueConstraint("user_id", "post_id", name="uq_user_saved_post"),)
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
-    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
-    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
@@ -171,8 +171,8 @@ class Report(Base):
     __tablename__ = "reports"
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
-    reporter_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
-    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id"), nullable=False)
+    reporter_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
     reason = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
@@ -181,10 +181,10 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
-    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)   # получатель
-    actor_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)  # кто вызвал событие
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)   # получатель
+    actor_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)  # кто вызвал событие
     type = Column(String(20), nullable=False)  # follow / comment
-    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id"), nullable=True)
+    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id", ondelete="CASCADE"), nullable=True)
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

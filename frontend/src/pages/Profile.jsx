@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, UserCircle, PawPrint, Bookmark, ChevronRight } from "lucide-react";
+import { LogOut, UserCircle, PawPrint, Bookmark, Settings as SettingsIcon, ChevronRight } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -81,8 +81,12 @@ export default function Profile() {
           <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
         </Link>
 
-        <Link to={`/users/${userId}`} className="btn btn-ghost btn-block">
+        <Link to={`/users/${userId}`} className="btn btn-ghost btn-block" style={{ marginBottom: 10 }}>
           <UserCircle size={16} /> Открыть свой публичный профиль
+        </Link>
+
+        <Link to="/settings" className="btn btn-ghost btn-block">
+          <SettingsIcon size={16} /> Настройки
         </Link>
       </div>
     );

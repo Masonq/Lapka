@@ -104,3 +104,72 @@ def test_client_ip_prefers_x_forwarded_for(client):
         headers={"X-Forwarded-For": "10.0.0.2"},
     )
     assert r_other_ip.status_code == 401
+
+
+def test_change_password(client):
+    email = "change-pass-test@example.com"
+    r = client.post(
+        "/api/auth/register",
+        json={"display_name": "Тест", "email": email, "password": "original-pass"},
+    )
+    headers = {"Authorization": f"Bearer {r.json()['access_token']}"}
+
+    r = client.patch(
+        "/api/auth/password",
+        json={"current_password": "original-pass", "new_password": "new-password-123"},
+        headers=headers,
+    )
+    assert r.status_code == 200
+
+    # старый пароль больше не работает
+    r = client.post("/api/auth/login", json={"email": email, "password": "original-pass"})
+    assert r.status_code == 401
+
+    # новый — работает
+    r = client.post("/api/auth/login", json={"email": email, "password": "new-password-123"})
+    assert r.status_code == 200
+
+
+def test_change_password_wrong_current_rejected(client, register_user):
+    headers = register_user(password="original-pass")
+    r = client.patch(
+        "/api/auth/password",
+        json={"current_password": "wrong-current", "new_password": "new-password-123"},
+        headers=headers,
+    )
+    assert r.status_code == 401
+
+
+def test_change_password_requires_auth(client):
+    r = client.patch("/api/auth/password", json={"current_password": "x", "new_password": "new-password-123"})
+    assert r.status_code == 401
+
+
+def test_delete_account_requires_correct_password(client, register_user):
+    headers = register_user(password="original-pass")
+    r = client.request("DELETE", "/api/auth/me", json={"password": "wrong"}, headers=headers)
+    assert r.status_code == 401
+
+
+def test_delete_account_removes_user_and_cascades(client, register_user):
+    headers = register_user(password="original-pass")
+    client.post("/api/pets", json={"name": "Бела", "species": "Собака"}, headers=headers)
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "Тест", "body": "текст"}, headers=headers
+    ).json()
+
+    r = client.request("DELETE", "/api/auth/me", json={"password": "original-pass"}, headers=headers)
+    assert r.status_code == 200
+
+    # токен теперь недействителен — пользователя больше нет
+    r = client.get("/api/auth/me", headers=headers)
+    assert r.status_code == 401
+
+    # пост удалённого автора тоже пропал (каскад)
+    r = client.get(f"/api/posts/{post['id']}")
+    assert r.status_code == 404
+
+
+def test_delete_account_requires_auth(client):
+    r = client.request("DELETE", "/api/auth/me", json={})
+    assert r.status_code == 401

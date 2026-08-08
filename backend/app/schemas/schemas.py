@@ -17,6 +17,15 @@ class LoginEmail(BaseModel):
     password: str
 
 
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=6, max_length=72)
+
+
+class DeleteAccount(BaseModel):
+    password: Optional[str] = None  # не нужен для Telegram-аккаунтов без пароля
+
+
 class TelegramAuth(BaseModel):
     id: int
     first_name: str = Field(..., max_length=64)

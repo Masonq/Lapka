@@ -44,8 +44,8 @@ def upgrade() -> None:
     sa.Column('follower_id', sa.UUID(as_uuid=False), nullable=False),
     sa.Column('following_id', sa.UUID(as_uuid=False), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['follower_id'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['following_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['follower_id'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['following_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('follower_id', 'following_id', name='uq_follower_following')
     )
@@ -59,7 +59,7 @@ def upgrade() -> None:
     sa.Column('about', sa.String(length=500), nullable=True),
     sa.Column('avatar_url', sa.String(length=500), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('posts',
@@ -74,7 +74,7 @@ def upgrade() -> None:
     sa.Column('last_seen_lng', sa.Float(), nullable=True),
     sa.Column('is_resolved', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('service_providers',
@@ -86,7 +86,7 @@ def upgrade() -> None:
     sa.Column('contact', sa.String(length=200), nullable=True),
     sa.Column('rating_avg', sa.Float(), nullable=True),
     sa.Column('rating_count', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id')
     )
@@ -96,8 +96,8 @@ def upgrade() -> None:
     sa.Column('author_id', sa.UUID(as_uuid=False), nullable=False),
     sa.Column('body', sa.String(length=1000), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ),
+    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('service_reviews',
@@ -107,8 +107,8 @@ def upgrade() -> None:
     sa.Column('rating', sa.Integer(), nullable=False),
     sa.Column('body', sa.String(length=500), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
-    sa.ForeignKeyConstraint(['provider_id'], ['service_providers.id'], ),
+    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['provider_id'], ['service_providers.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

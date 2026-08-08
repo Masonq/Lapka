@@ -29,9 +29,9 @@ def upgrade() -> None:
         sa.Column('post_id', sa.UUID(as_uuid=False), nullable=True),
         sa.Column('is_read', sa.Boolean(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(['actor_id'], ['users.id']),
-        sa.ForeignKeyConstraint(['post_id'], ['posts.id']),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id']),
+        sa.ForeignKeyConstraint(['actor_id'], ['users.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
     )
 

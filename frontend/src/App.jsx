@@ -12,6 +12,7 @@ import Pets from "./pages/Pets";
 import PetProfile from "./pages/PetProfile";
 import SavedPosts from "./pages/SavedPosts";
 import Notifications from "./pages/Notifications";
+import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
@@ -86,6 +87,7 @@ export default function App() {
         <Route path="/pets/:id" element={<PetProfile />} />
         <Route path="/saved" element={<SavedPosts />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />

@@ -22,6 +22,14 @@ if engine.dialect.name == "sqlite":
     def _register_unicode_lower(dbapi_connection, connection_record):
         dbapi_connection.create_function("lower", 1, lambda s: s.lower() if s is not None else None)
 
+    # SQLite по умолчанию НЕ проверяет внешние ключи, даже если они объявлены в моделях —
+    # без этой строки тесты пропускали бы нарушения FK, которые Postgres в проде бы поймал
+    # (так и было: удаление поста, сохранённого другим пользователем, падало 500-й на
+    # реальной базе, а тесты на SQLite этого не видели, пока не включили эту проверку)
+    @event.listens_for(engine, "connect")
+    def _enable_foreign_keys(dbapi_connection, connection_record):
+        dbapi_connection.execute("PRAGMA foreign_keys=ON")
+
 
 def get_db():
     db = SessionLocal()

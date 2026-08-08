@@ -27,8 +27,8 @@ def upgrade() -> None:
         sa.Column('post_id', sa.UUID(as_uuid=False), nullable=False),
         sa.Column('reason', sa.String(length=500), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(['post_id'], ['posts.id']),
-        sa.ForeignKeyConstraint(['reporter_id'], ['users.id']),
+        sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['reporter_id'], ['users.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
     )
     op.create_table(
@@ -37,8 +37,8 @@ def upgrade() -> None:
         sa.Column('user_id', sa.UUID(as_uuid=False), nullable=False),
         sa.Column('post_id', sa.UUID(as_uuid=False), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(['post_id'], ['posts.id']),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id']),
+        sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('user_id', 'post_id', name='uq_user_saved_post'),
     )
