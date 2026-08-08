@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import { Routes, Route, Link, NavLink } from "react-router-dom";
-import { MapPin, User, PlusCircle } from "lucide-react";
+import { MapPin, User, PlusCircle, Bell } from "lucide-react";
 import TabBar from "./components/TabBar";
 import Feed from "./pages/Feed";
 import Explore from "./pages/Explore";
@@ -10,12 +11,31 @@ import PostDetail from "./pages/PostDetail";
 import Pets from "./pages/Pets";
 import PetProfile from "./pages/PetProfile";
 import SavedPosts from "./pages/SavedPosts";
+import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 import { NAV_ITEMS } from "./navConfig";
+import { useAuth } from "./AuthContext";
+import { api } from "./api/client";
 
 export default function App() {
+  const { isAuthed } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!isAuthed) {
+      setUnreadCount(0);
+      return;
+    }
+    function poll() {
+      api.unreadNotificationsCount().then(({ count }) => setUnreadCount(count)).catch(() => {});
+    }
+    poll();
+    const interval = setInterval(poll, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthed]);
+
   return (
     <div className="app-shell">
       <div className="top-header card">
@@ -43,6 +63,12 @@ export default function App() {
           <Link to="/create" className="btn btn-primary desktop-only" style={{ padding: "9px 16px" }}>
             <PlusCircle size={16} strokeWidth={2.4} /> Добавить
           </Link>
+          {isAuthed && (
+            <Link to="/notifications" className="header-icon-btn" aria-label="Уведомления">
+              <Bell size={17} strokeWidth={2.2} />
+              {unreadCount > 0 && <span className="header-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+            </Link>
+          )}
           <Link to="/profile" className="header-avatar" aria-label="Профиль">
             <User size={16} strokeWidth={2.2} />
           </Link>
@@ -59,6 +85,7 @@ export default function App() {
         <Route path="/pets" element={<Pets />} />
         <Route path="/pets/:id" element={<PetProfile />} />
         <Route path="/saved" element={<SavedPosts />} />
+        <Route path="/notifications" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />

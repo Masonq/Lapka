@@ -106,5 +106,10 @@ export const api = {
   unfollow: (userId) => request(`/follows/${userId}`, { method: "DELETE", auth: true }),
   followers: (userId) => request(`/follows/${userId}/followers`),
 
+  notifications: () => request("/notifications", { auth: true }),
+  unreadNotificationsCount: () => request("/notifications/unread-count", { auth: true }),
+  markAllNotificationsRead: () => request("/notifications/read-all", { method: "PATCH", auth: true }),
+  markNotificationRead: (id) => request(`/notifications/${id}/read`, { method: "PATCH", auth: true }),
+
   uploadImage,
 };

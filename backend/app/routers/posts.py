@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.rate_limit import post_limiter, comment_limiter, report_limiter
 from app.core.security import get_current_user, get_current_user_optional
-from app.models.models import Comment, Follow, Post, Report, SavedPost, PostType, User
+from app.models.models import Comment, Follow, Notification, Post, Report, SavedPost, PostType, User
 from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, ReportCreate
 
 router = APIRouter(prefix="/api/posts", tags=["posts"])
@@ -173,6 +173,8 @@ def add_comment(
         raise HTTPException(status_code=404, detail="Пост не найден")
     comment = Comment(post_id=post_id, author_id=user.id, body=data.body)
     db.add(comment)
+    if post.author_id != user.id:
+        db.add(Notification(user_id=post.author_id, actor_id=user.id, type="comment", post_id=post_id))
     db.commit()
     db.refresh(comment)
     return comment

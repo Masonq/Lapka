@@ -175,3 +175,18 @@ class Report(Base):
     post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id"), nullable=False)
     reason = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)   # получатель
+    actor_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)  # кто вызвал событие
+    type = Column(String(20), nullable=False)  # follow / comment
+    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id"), nullable=True)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    actor = relationship("User", foreign_keys=[actor_id])
+    post = relationship("Post")

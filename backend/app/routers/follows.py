@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.core.security import get_current_user
-from app.models.models import Follow, User
+from app.models.models import Follow, Notification, User
 from app.schemas.schemas import UserOut
 
 router = APIRouter(prefix="/api/follows", tags=["follows"])
@@ -26,6 +26,7 @@ def follow_user(user_id: str, db: Session = Depends(get_db), user: User = Depend
         return {"ok": True}
 
     db.add(Follow(follower_id=user.id, following_id=user_id))
+    db.add(Notification(user_id=user_id, actor_id=user.id, type="follow"))
     try:
         db.commit()
     except IntegrityError:

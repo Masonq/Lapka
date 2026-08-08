@@ -148,3 +148,17 @@ class ReviewOut(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- Notifications ----------
+
+class NotificationOut(BaseModel):
+    id: str
+    type: str
+    actor: UserOut
+    post_id: Optional[str] = None
+    post_title: Optional[str] = None
+    is_read: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
