@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Link, NavLink } from "react-router-dom";
-import { MapPin, User, PlusCircle, Bell } from "lucide-react";
+import { User, PlusCircle, Bell } from "lucide-react";
 import ScrollToTop from "./ScrollToTop";
 import TabBar from "./components/TabBar";
 import Feed from "./pages/Feed";
@@ -59,13 +59,10 @@ export default function App() {
       <div className="top-header card">
         <div className="brand-block">
           <img src="/logo.png" alt="Lapki BG" className="brand-logo" />
-          <span className="brand-geo">
-            <MapPin size={10} strokeWidth={2.5} /> beograd
-          </span>
         </div>
 
         <nav className="desktop-nav">
-          {NAV_ITEMS.map(({ to, label, end }) => (
+          {NAV_ITEMS.filter((item) => !item.primary).map(({ to, label, end }) => (
             <NavLink
               key={to}
               to={to}
