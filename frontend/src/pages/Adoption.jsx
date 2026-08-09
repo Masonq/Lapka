@@ -1,0 +1,74 @@
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, Heart, PlusCircle } from "lucide-react";
+import { api } from "../api/client";
+import { useAuth } from "../AuthContext";
+import { useDocumentTitle } from "../useDocumentTitle";
+import PostCard from "../components/PostCard";
+
+const TABS = [
+  { value: "active", label: "Ищут дом" },
+  { value: "resolved", label: "Уже пристроены" },
+];
+
+export default function Adoption() {
+  useDocumentTitle("Приюты и пристройство");
+  const navigate = useNavigate();
+  const { isAuthed } = useAuth();
+  const [tab, setTab] = useState("active");
+  const [posts, setPosts] = useState(null);
+
+  useEffect(() => {
+    setPosts(null);
+    api
+      .posts({ type: "adopt", is_resolved: tab === "resolved", limit: 30 })
+      .then(setPosts)
+      .catch(() => setPosts([]));
+  }, [tab]);
+
+  return (
+    <div>
+      <div className="page-header">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+          <ArrowLeft size={17} strokeWidth={2.2} />
+        </button>
+        <span className="page-title">Пристройство</span>
+        {isAuthed ? (
+          <Link to="/new-post?type=adopt" className="btn btn-ghost" style={{ padding: "8px 12px" }} aria-label="Разместить питомца">
+            <PlusCircle size={16} />
+          </Link>
+        ) : (
+          <span style={{ width: 44 }} />
+        )}
+      </div>
+
+      <div className="chip-row" style={{ marginBottom: 16 }}>
+        {TABS.map((t) => (
+          <button key={t.value} className={`chip${tab === t.value ? " active" : ""}`} onClick={() => setTab(t.value)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {posts === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+
+      {posts?.length === 0 && (
+        <div className="empty-state">
+          <Heart size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <div className="empty-state-title">
+            {tab === "active" ? "Пока никого не пристраивают" : "Пока никого не пристроили"}
+          </div>
+          {tab === "active" && isAuthed && "Если ищешь дом для питомца — создай пост через + вверху"}
+        </div>
+      )}
+
+      {posts?.length > 0 && (
+        <div className="card-grid">
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

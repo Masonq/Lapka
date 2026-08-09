@@ -24,6 +24,7 @@ import EventDetail from "./pages/EventDetail";
 import Marketplace from "./pages/Marketplace";
 import NewListing from "./pages/NewListing";
 import ListingDetail from "./pages/ListingDetail";
+import Adoption from "./pages/Adoption";
 import FollowList from "./pages/FollowList";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
@@ -114,6 +115,7 @@ export default function App() {
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/marketplace/new" element={<NewListing />} />
         <Route path="/marketplace/:id" element={<ListingDetail />} />
+        <Route path="/adoption" element={<Adoption />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="/users/:id/connections" element={<FollowList />} />

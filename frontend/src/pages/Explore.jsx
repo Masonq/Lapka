@@ -27,10 +27,6 @@ const SEARCH_TABS = [
   { value: "events", label: "События" },
 ];
 
-const UPCOMING = [
-  { icon: Heart, label: "Приюты и пристройство", desc: "Питомцы, которым ищут дом" },
-];
-
 export default function Explore() {
   useDocumentTitle("Поиск");
   const { isAuthed } = useAuth();
@@ -292,6 +288,22 @@ export default function Explore() {
             <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
           </Link>
 
+          <Link to="/adoption" className="card" style={{
+            borderRadius: 20, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", gap: 12,
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: "50%", background: "var(--red-tint)", color: "var(--red)",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <Heart size={17} strokeWidth={2.2} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div className="subhead" style={{ fontSize: 14 }}>Приюты и пристройство</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Питомцы, которым ищут дом</div>
+            </div>
+            <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
+          </Link>
+
           {communities.length > 0 && (
             <>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
@@ -392,22 +404,6 @@ export default function Explore() {
               {providers.map((p) => <ProviderCard key={p.id} provider={p} onReviewed={loadServices} />)}
             </div>
           )}
-
-          <h3 className="subhead" style={{ marginBottom: 10 }}>Скоро</h3>
-          <div className="card-grid">
-            {UPCOMING.map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="card" style={{ borderRadius: 20, padding: 16, opacity: 0.7 }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: "50%", background: "var(--gray-tint)", color: "var(--text-muted)",
-                  display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10,
-                }}>
-                  <Icon size={17} strokeWidth={2} />
-                </div>
-                <div className="subhead" style={{ fontSize: 14 }}>{label}</div>
-                <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "4px 0 0" }}>{desc}</p>
-              </div>
-            ))}
-          </div>
         </>
       )}
     </div>
