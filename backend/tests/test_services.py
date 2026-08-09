@@ -117,3 +117,36 @@ def test_list_providers_query_count_does_not_scale_with_result_size(client, regi
 
     assert len(r.json()) == 3
     assert query_count <= 2  # 1 запрос провайдеров (с joinedload user) — без отдельных на каждого
+
+
+def test_list_reviews_query_count_does_not_scale_with_result_size(client, register_user):
+    """Тот же класс N+1 — review.author через ленивую связь давал отдельный запрос
+    на каждый отзыв, не подгружался вместе со списком."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    headers_provider = register_user("Исполнитель")
+    provider = client.post(
+        "/api/services", json={"service_type": "vet", "description": "Ветеринар"}, headers=headers_provider
+    ).json()
+
+    for i in range(3):
+        headers_reviewer = register_user(f"Клиент{i}")
+        client.post(
+            f"/api/services/{provider['id']}/reviews", json={"rating": 5, "body": f"Отзыв {i}"}, headers=headers_reviewer
+        )
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get(f"/api/services/{provider['id']}/reviews")
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 3
+    assert query_count <= 2  # 1 запрос отзывов (с joinedload author) — без отдельных на каждый

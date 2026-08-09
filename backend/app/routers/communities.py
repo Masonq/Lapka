@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import desc, func, or_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.rate_limit import RateLimiter
@@ -153,6 +153,7 @@ def leave_community(community_id: str, db: Session = Depends(get_db), user: User
 def list_members(community_id: str, db: Session = Depends(get_db)):
     return (
         db.query(CommunityMember)
+        .options(joinedload(CommunityMember.user))
         .filter(CommunityMember.community_id == community_id)
         .order_by(CommunityMember.joined_at)
         .all()

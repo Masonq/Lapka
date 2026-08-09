@@ -96,3 +96,43 @@ def test_mark_single_read_only_by_owner(client, register_user, register_user_wit
 
     r = client.patch(f"/api/notifications/{notification_id}/read", headers=headers_followed)
     assert r.status_code == 200
+
+
+def test_list_notifications_query_count_does_not_scale_with_result_size(client, register_user_with_id, register_user):
+    """Тот же класс N+1 — notification.actor и notification.post через ленивую связь
+    давали отдельные запросы на каждое уведомление (до 2N лишних запросов), не
+    подгружались вместе со списком."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    headers_author, author_id = register_user_with_id("Автор")
+
+    # follow-уведомления (без поста)
+    for i in range(2):
+        headers_follower = register_user(f"Подписчик{i}")
+        client.post(f"/api/follows/{author_id}", headers=headers_follower)
+
+    # comment-уведомления (с постом)
+    post = client.post(
+        "/api/posts", json={"type": "question", "title": "Вопрос", "body": "текст"}, headers=headers_author
+    ).json()
+    for i in range(2):
+        headers_commenter = register_user(f"Комментатор{i}")
+        client.post(f"/api/posts/{post['id']}/comments", json={"body": f"Ответ {i}"}, headers=headers_commenter)
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get("/api/notifications", headers=headers_author)
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 4
+    # 1 запрос уведомлений (с joinedload actor+post) + сама авторизация — небольшая
+    # константа, не растёт с числом уведомлений
+    assert query_count <= 3

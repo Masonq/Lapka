@@ -324,3 +324,35 @@ def test_list_posts_query_count_does_not_scale_with_result_size(client, register
     # 1 запрос постов (с joinedload автора — без отдельных запросов) + 1 батч комментариев.
     # Без авторизации get_current_user_optional не трогает базу вовсе, если токена нет
     assert query_count <= 3
+
+
+def test_list_comments_query_count_does_not_scale_with_result_size(client, register_user):
+    """Тот же класс N+1 — comment.author через ленивую связь давал отдельный
+    запрос на каждый комментарий, не подгружался вместе со списком."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    headers_author = register_user("Автор")
+    post = client.post(
+        "/api/posts", json={"type": "question", "title": "Вопрос", "body": "текст"}, headers=headers_author
+    ).json()
+
+    for i in range(4):
+        headers_commenter = register_user(f"Комментатор{i}")
+        client.post(f"/api/posts/{post['id']}/comments", json={"body": f"Ответ {i}"}, headers=headers_commenter)
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get(f"/api/posts/{post['id']}/comments")
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 4
+    # 1 запрос комментариев (с joinedload author) — без отдельных запросов на каждый
+    assert query_count <= 1

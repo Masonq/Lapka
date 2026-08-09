@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import and_, desc, func, or_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.rate_limit import RateLimiter
@@ -83,8 +83,19 @@ def get_thread(user_id: str, db: Session = Depends(get_db), user: User = Depends
     if not partner:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
 
+    # открыли беседу — отмечаем входящие от собеседника прочитанными. Делаем это
+    # ДО загрузки сообщений для ответа: db.commit() по умолчанию истекает все
+    # объекты в сессии (expire_on_commit=True) — если бы мы сначала загрузили
+    # messages, а потом закоммитили update, каждое сообщение перезапрашивалось бы
+    # отдельным запросом при сериализации ответа
+    db.query(Message).filter(
+        Message.sender_id == user_id, Message.recipient_id == user.id, Message.is_read.is_(False)
+    ).update({"is_read": True})
+    db.commit()
+
     messages = (
         db.query(Message)
+        .options(joinedload(Message.sender))
         .filter(
             or_(
                 and_(Message.sender_id == user.id, Message.recipient_id == user_id),
@@ -94,12 +105,6 @@ def get_thread(user_id: str, db: Session = Depends(get_db), user: User = Depends
         .order_by(Message.created_at)
         .all()
     )
-
-    # открыли беседу — отмечаем входящие от собеседника прочитанными
-    db.query(Message).filter(
-        Message.sender_id == user_id, Message.recipient_id == user.id, Message.is_read.is_(False)
-    ).update({"is_read": True})
-    db.commit()
 
     return messages
 

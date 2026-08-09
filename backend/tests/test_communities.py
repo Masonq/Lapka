@@ -180,3 +180,34 @@ def test_list_communities_query_count_does_not_scale_with_result_size(client, re
     assert len(r.json()) == 3
     # 1 запрос списка + 1 батч подписок + 1 батч подсчёта участников = 3, а не 2+N
     assert query_count <= 3
+
+
+def test_list_members_query_count_does_not_scale_with_result_size(client, register_user):
+    """Тот же класс N+1 — member.user через ленивую связь давал отдельный запрос
+    на каждого участника, не подгружался вместе со списком."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    headers_creator = register_user("Создатель")
+    community = client.post(
+        "/api/communities", json={"name": "Тестовое сообщество"}, headers=headers_creator
+    ).json()
+
+    for i in range(3):
+        headers_member = register_user(f"Участник{i}")
+        client.post(f"/api/communities/{community['id']}/join", headers=headers_member)
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get(f"/api/communities/{community['id']}/members")
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 4  # создатель + 3 участника
+    assert query_count <= 2  # 1 запрос участников (с joinedload user) — без отдельных на каждого

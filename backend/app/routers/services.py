@@ -53,6 +53,7 @@ def become_provider(
 def list_reviews(provider_id: str, db: Session = Depends(get_db)):
     return (
         db.query(ServiceReview)
+        .options(joinedload(ServiceReview.author))
         .filter(ServiceReview.provider_id == provider_id)
         .order_by(ServiceReview.created_at.desc())
         .all()

@@ -208,7 +208,13 @@ def delete_post(post_id: str, db: Session = Depends(get_db), user: User = Depend
 
 @router.get("/{post_id}/comments", response_model=list[CommentOut])
 def list_comments(post_id: str, db: Session = Depends(get_db)):
-    return db.query(Comment).filter(Comment.post_id == post_id).order_by(Comment.created_at).all()
+    return (
+        db.query(Comment)
+        .options(joinedload(Comment.author))
+        .filter(Comment.post_id == post_id)
+        .order_by(Comment.created_at)
+        .all()
+    )
 
 
 @router.post("/{post_id}/comments", response_model=CommentOut)

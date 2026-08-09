@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import desc
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.security import get_current_user
@@ -25,6 +25,7 @@ def list_notifications(
 ):
     rows = (
         db.query(Notification)
+        .options(joinedload(Notification.actor), joinedload(Notification.post))
         .filter(Notification.user_id == user.id)
         .order_by(desc(Notification.created_at))
         .offset(offset)

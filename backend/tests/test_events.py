@@ -195,3 +195,35 @@ def test_list_events_query_count_does_not_scale_with_result_size(client, registe
 
     assert len(r.json()) == 3
     assert query_count <= 3
+
+
+def test_list_participants_query_count_does_not_scale_with_result_size(client, register_user):
+    """Тот же класс N+1 — participant.user через ленивую связь давал отдельный
+    запрос на каждого участника, не подгружался вместе со списком."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    headers_organizer = register_user("Организатор")
+    event = client.post(
+        "/api/events", json={"type": "event", "title": "Тест", "starts_at": "2027-01-01T18:00:00Z"},
+        headers=headers_organizer,
+    ).json()
+
+    for i in range(3):
+        headers_participant = register_user(f"Участник{i}")
+        client.post(f"/api/events/{event['id']}/join", headers=headers_participant)
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get(f"/api/events/{event['id']}/participants")
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 4  # организатор + 3 участника
+    assert query_count <= 2  # 1 запрос участников (с joinedload user) — без отдельных на каждого

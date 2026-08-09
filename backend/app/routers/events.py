@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import asc, func, or_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.rate_limit import event_limiter
@@ -179,6 +179,7 @@ def leave_event(event_id: str, db: Session = Depends(get_db), user: User = Depen
 def list_participants(event_id: str, db: Session = Depends(get_db)):
     return (
         db.query(EventParticipant)
+        .options(joinedload(EventParticipant.user))
         .filter(EventParticipant.event_id == event_id, EventParticipant.status == "going")
         .order_by(EventParticipant.joined_at)
         .all()

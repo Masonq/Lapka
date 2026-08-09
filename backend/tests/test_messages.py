@@ -146,3 +146,33 @@ def test_conversations_query_count_does_not_scale_with_partner_count(client, reg
     # батч непрочитанных + сама авторизация (get_current_user тоже обращается к базе).
     # Раньше было 1+2N — с 3 собеседниками это уже 7 и дальше растёт с каждым новым
     assert query_count <= 5
+
+
+def test_get_thread_query_count_does_not_scale_with_message_count(client, register_user_with_id):
+    """Тот же класс N+1 — message.sender через ленивую связь давал отдельный
+    запрос на каждое сообщение, не подгружался вместе со списком."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    headers_a, id_a = register_user_with_id()
+    headers_b, id_b = register_user_with_id()
+
+    for i in range(5):
+        client.post(f"/api/messages/{id_b}", json={"body": f"Сообщение {i}"}, headers=headers_a)
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get(f"/api/messages/{id_b}", headers=headers_a)
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 5
+    # 1 запрос собеседника + 1 запрос сообщений (с joinedload sender) + 1 UPDATE
+    # прочитанности + сама авторизация — небольшая константа, не растёт с числом сообщений
+    assert query_count <= 5

@@ -71,7 +71,10 @@ def list_saved_listings(db: Session = Depends(get_db), user: User = Depends(get_
     ]
     if not saved_listing_ids:
         return []
-    listings_by_id = {l.id: l for l in db.query(Listing).filter(Listing.id.in_(saved_listing_ids)).all()}
+    listings_by_id = {
+        l.id: l
+        for l in db.query(Listing).options(joinedload(Listing.seller)).filter(Listing.id.in_(saved_listing_ids)).all()
+    }
     saved_set = set(saved_listing_ids)
     ordered = [listings_by_id[lid] for lid in saved_listing_ids if lid in listings_by_id]
     return [_to_out(l, saved_set) for l in ordered]

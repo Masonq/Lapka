@@ -259,3 +259,35 @@ def test_deleting_listing_resolves_its_open_reports(client, register_user, regis
     assert len(reports) == 1
     assert reports[0]["is_resolved"] is True
     assert reports[0]["listing"] is None  # объявление удалено, но жалоба осталась для журнала
+
+
+def test_list_saved_listings_query_count_does_not_scale_with_result_size(client, register_user):
+    """Тот же класс N+1 — listing.seller через ленивую связь давал отдельный
+    запрос на каждое сохранённое объявление, не подгружался вместе со списком."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    headers_buyer = register_user("Покупатель")
+    for i in range(4):
+        headers_seller = register_user(f"Продавец{i}")
+        listing = client.post(
+            "/api/marketplace", json={"type": "sell", "title": f"Товар {i}", "price": 100}, headers=headers_seller
+        ).json()
+        client.post(f"/api/marketplace/{listing['id']}/save", headers=headers_buyer)
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get("/api/marketplace/saved", headers=headers_buyer)
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 4
+    # 1 запрос сохранённых id + 1 запрос объявлений (с joinedload seller) + сама
+    # авторизация — небольшая константа, не растёт с числом объявлений
+    assert query_count <= 3
