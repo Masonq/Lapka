@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import WeightChart from "../components/WeightChart";
 
 const HEALTH_CATEGORIES = [
   { value: "vaccination", label: "Вакцинация" },
@@ -231,6 +232,7 @@ export default function PetProfile() {
 
             {health === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
             {health?.length === 0 && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Записей пока нет</p>}
+            {health && <WeightChart records={health.filter((r) => r.category === "weight")} />}
             {health?.map((r) => (
               <div key={r.id} style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
