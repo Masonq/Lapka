@@ -258,6 +258,7 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 3px;
   padding: 9px 4px 8px;
   border-radius: var(--radius-pill);
@@ -287,6 +288,7 @@ a {
   color: #FFFFFF;
   box-shadow: 0 6px 14px rgba(184, 90, 33, 0.38);
   padding: 0;
+  justify-content: center;
 }
 
 .tab-item-primary:active {
