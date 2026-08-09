@@ -152,3 +152,31 @@ def test_post_in_community_works_for_member(client, register_user):
     r = client.get("/api/posts", params={"community_id": community["id"]})
     assert len(r.json()) == 1
     assert r.json()[0]["title"] == "Пост в сообществе"
+
+
+def test_list_communities_query_count_does_not_scale_with_result_size(client, register_user):
+    """Раньше подсчёт участников (len(community.members)) делался внутри цикла по
+    результатам — отдельный SQL-запрос на каждое сообщество (N+1). Проверяем, что число
+    запросов на список постоянно, а не растёт вместе с количеством сообществ."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    headers = register_user()
+    for i in range(3):
+        client.post("/api/communities", json={"name": f"Сообщество {i}"}, headers=headers)
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get("/api/communities")
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 3
+    # 1 запрос списка + 1 батч подписок + 1 батч подсчёта участников = 3, а не 2+N
+    assert query_count <= 3

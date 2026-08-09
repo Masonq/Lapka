@@ -242,3 +242,33 @@ def test_comment_on_nonexistent_post_404(client, register_user):
     headers = register_user()
     r = client.post("/api/posts/does-not-exist/comments", json={"body": "текст"}, headers=headers)
     assert r.status_code == 404
+
+
+def test_list_posts_query_count_does_not_scale_with_result_size(client, register_user):
+    """Раньше на каждый пост уходило по одному запросу за автором (ленивая связь) и
+    по одному за подсчётом комментариев (len(post.comments)) — 11 запросов на 5 постов
+    от разных авторов. Самый нагруженный эндпоинт всего приложения (лента), поэтому
+    важнее всего, чтобы число запросов не росло вместе с числом постов."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    for i in range(5):
+        headers = register_user(f"Автор{i}")
+        client.post("/api/posts", json={"type": "general", "title": f"Пост {i}", "body": "текст"}, headers=headers)
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get("/api/posts")
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 5
+    # 1 запрос постов (с joinedload автора — без отдельных запросов) + 1 батч комментариев.
+    # Без авторизации get_current_user_optional не трогает базу вовсе, если токена нет
+    assert query_count <= 3

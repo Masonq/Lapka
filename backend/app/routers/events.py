@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import asc
+from sqlalchemy import asc, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -14,9 +14,14 @@ from app.schemas.schemas import EventCreate, EventOut, EventParticipantOut
 router = APIRouter(prefix="/api/events", tags=["events"])
 
 
-def _to_out(event: Event, going_ids: set[str]) -> EventOut:
+def _to_out(event: Event, going_ids: set[str], counts: dict[str, int] | None = None) -> EventOut:
     out = EventOut.model_validate(event)
-    out.participants_count = sum(1 for p in event.participants if p.status == "going")
+    # counts передаётся батчем в list_events — без него (create/get одного события)
+    # обход event.participants — единичный лишний запрос, не проблема на одном объекте
+    if counts is not None:
+        out.participants_count = counts.get(event.id, 0)
+    else:
+        out.participants_count = sum(1 for p in event.participants if p.status == "going")
     out.is_going = event.id in going_ids
     out.pet_name = event.pet.name if event.pet else None
     return out
@@ -51,7 +56,24 @@ def list_events(
             )
             .all()
         }
-    return [_to_out(e, going_ids) for e in events]
+
+    # один агрегирующий запрос вместо N+1 (было: отдельный запрос на каждое событие
+    # через event.participants внутри цикла — та же проблема, что нашлась и в communities.py)
+    counts = {}
+    if events:
+        rows = (
+            db.query(EventParticipant.event_id, func.count(EventParticipant.id))
+            .filter(
+                EventParticipant.event_id.in_([e.id for e in events]),
+                EventParticipant.status == "going",
+            )
+            .group_by(EventParticipant.event_id)
+            .all()
+        )
+        counts = {eid: 0 for eid in [e.id for e in events]}
+        counts.update(dict(rows))
+
+    return [_to_out(e, going_ids, counts) for e in events]
 
 
 @router.post("", response_model=EventOut)

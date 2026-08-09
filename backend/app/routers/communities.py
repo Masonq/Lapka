@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import desc, or_
+from sqlalchemy import desc, func, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -16,9 +16,11 @@ router = APIRouter(prefix="/api/communities", tags=["communities"])
 community_limiter = RateLimiter(max_actions=3, window_seconds=3600)  # 3 сообщества в час на пользователя
 
 
-def _to_out(community: Community, member_ids: set[str]) -> CommunityOut:
+def _to_out(community: Community, member_ids: set[str], counts: dict[str, int] | None = None) -> CommunityOut:
     out = CommunityOut.model_validate(community)
-    out.members_count = len(community.members)
+    # counts передаётся батчем в list_communities (см. ниже) — без него (создание/detail
+    # одного сообщества) len(community.members) — один лишний запрос, не проблема на единичном объекте
+    out.members_count = counts[community.id] if counts is not None else len(community.members)
     out.is_member = community.id in member_ids
     return out
 
@@ -44,7 +46,19 @@ def list_communities(
             row.community_id
             for row in db.query(CommunityMember.community_id).filter(CommunityMember.user_id == user.id).all()
         }
-    return [_to_out(c, member_ids) for c in communities]
+
+    # один агрегирующий запрос на все сообщества разом — раньше len(community.members)
+    # внутри цикла давал отдельный SQL-запрос на каждое сообщество (N+1, проверено:
+    # 3 сообщества давали 5 запросов вместо 2)
+    counts = dict(
+        db.query(CommunityMember.community_id, func.count(CommunityMember.id))
+        .filter(CommunityMember.community_id.in_([c.id for c in communities]))
+        .group_by(CommunityMember.community_id)
+        .all()
+    ) if communities else {}
+    counts = {cid: counts.get(cid, 0) for cid in [c.id for c in communities]}
+
+    return [_to_out(c, member_ids, counts) for c in communities]
 
 
 @router.post("", response_model=CommunityOut)

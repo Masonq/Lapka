@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.rate_limit import provider_limiter, review_limiter
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/services", tags=["services"])
 
 @router.get("", response_model=list[ServiceProviderOut])
 def list_providers(type: Optional[str] = None, db: Session = Depends(get_db)):
-    q = db.query(ServiceProvider)
+    q = db.query(ServiceProvider).options(joinedload(ServiceProvider.user))
     if type:
         try:
             q = q.filter(ServiceProvider.service_type == ServiceType(type))

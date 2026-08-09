@@ -91,3 +91,29 @@ def test_list_reviews_for_provider_without_reviews_is_empty(client, register_use
     r = client.get(f"/api/services/{provider['id']}/reviews")
     assert r.status_code == 200
     assert r.json() == []
+
+
+def test_list_providers_query_count_does_not_scale_with_result_size(client, register_user):
+    """Тот же класс N+1, что уже находил в posts.py/communities.py/events.py/messages.py —
+    provider.user через ленивую связь давал отдельный запрос на каждого исполнителя."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    for i in range(3):
+        headers = register_user(f"Исполнитель{i}")
+        client.post("/api/services", json={"service_type": "sitter", "description": "Ситтер"}, headers=headers)
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get("/api/services")
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 3
+    assert query_count <= 2  # 1 запрос провайдеров (с joinedload user) — без отдельных на каждого

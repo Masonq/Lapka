@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import desc, or_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.rate_limit import listing_limiter
@@ -34,7 +34,7 @@ def list_listings(
     db: Session = Depends(get_db),
     user: Optional[User] = Depends(get_current_user_optional),
 ):
-    query = db.query(Listing)
+    query = db.query(Listing).options(joinedload(Listing.seller))
     if not include_sold:
         query = query.filter(Listing.is_sold.is_(False))
     if type:

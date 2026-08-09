@@ -115,3 +115,34 @@ def test_third_party_cannot_read_thread_without_being_participant(client, regist
 
     r = client.get(f"/api/messages/{id_b}", headers=headers_c)
     assert r.json() == []
+
+
+def test_conversations_query_count_does_not_scale_with_partner_count(client, register_user_with_id):
+    """Раньше на каждого собеседника внутри цикла делался отдельный .count() плюс
+    обращение к m.sender/m.recipient (ленивая загрузка) — тот же класс N+1, что уже
+    находили и чинили в communities.py и events.py."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    headers_me, my_id = register_user_with_id()
+    for i in range(3):
+        _, partner_id = register_user_with_id()
+        client.post(f"/api/messages/{partner_id}", json={"body": f"Привет {i}"}, headers=headers_me)
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get("/api/messages/conversations", headers=headers_me)
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 3
+    # Постоянное небольшое число, не зависящее от N: список сообщений + батч пользователей +
+    # батч непрочитанных + сама авторизация (get_current_user тоже обращается к базе).
+    # Раньше было 1+2N — с 3 собеседниками это уже 7 и дальше растёт с каждым новым
+    assert query_count <= 5

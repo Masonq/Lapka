@@ -153,3 +153,32 @@ def test_list_participants(client, register_user):
     r = client.get(f"/api/events/{event['id']}/participants")
     names = {p["user"]["display_name"] for p in r.json()}
     assert names == {"Организатор", "Участник"}
+
+
+def test_list_events_query_count_does_not_scale_with_result_size(client, register_user):
+    """Тот же N+1, что нашёлся и починился в communities.py — подсчёт участников
+    (event.participants внутри цикла) давал отдельный запрос на каждое событие."""
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    headers = register_user()
+    for i in range(3):
+        client.post(
+            "/api/events", json={"type": "event", "title": f"Событие {i}", "starts_at": "2026-09-01T18:00:00Z"},
+            headers=headers,
+        )
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get("/api/events")
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert len(r.json()) == 3
+    assert query_count <= 3

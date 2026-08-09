@@ -1,12 +1,12 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import desc
-from sqlalchemy.orm import Session
+from sqlalchemy import desc, func
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.security import get_current_admin
-from app.models.models import AuditLog, Pet, Post, Report, ServiceProvider, User
+from app.models.models import AuditLog, Comment, Pet, Post, Report, ServiceProvider, User
 from app.schemas.schemas import AdminActionResult, AdminOverview, AuditLogOut, ReportQueueItem
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -33,16 +33,27 @@ def list_reports(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin),
 ):
-    query = db.query(Report)
+    query = db.query(Report).options(joinedload(Report.reporter), joinedload(Report.post))
     if resolved is not None:
         query = query.filter(Report.is_resolved.is_(resolved))
     reports = query.order_by(desc(Report.created_at)).all()
+
+    post_ids = [r.post_id for r in reports if r.post_id]
+    comment_counts = {}
+    if post_ids:
+        rows = (
+            db.query(Comment.post_id, func.count(Comment.id))
+            .filter(Comment.post_id.in_(post_ids))
+            .group_by(Comment.post_id)
+            .all()
+        )
+        comment_counts = dict(rows)
 
     items = []
     for r in reports:
         item = ReportQueueItem.model_validate(r)
         if r.post:
-            item.post.comments_count = len(r.post.comments)
+            item.post.comments_count = comment_counts.get(r.post_id, 0)
         items.append(item)
     return items
 
@@ -80,5 +91,11 @@ def admin_delete_post(post_id: str, db: Session = Depends(get_db), admin: User =
 
 @router.get("/audit-log", response_model=list[AuditLogOut])
 def audit_log(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
-    rows = db.query(AuditLog).order_by(desc(AuditLog.created_at)).limit(200).all()
+    rows = (
+        db.query(AuditLog)
+        .options(joinedload(AuditLog.admin))
+        .order_by(desc(AuditLog.created_at))
+        .limit(200)
+        .all()
+    )
     return rows

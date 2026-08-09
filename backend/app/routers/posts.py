@@ -1,9 +1,9 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import desc, or_
+from sqlalchemy import desc, func, or_
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.rate_limit import post_limiter, comment_limiter, report_limiter
@@ -14,9 +14,11 @@ from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, 
 router = APIRouter(prefix="/api/posts", tags=["posts"])
 
 
-def _to_out(post: Post, saved_ids: set[str] | None = None) -> PostOut:
+def _to_out(post: Post, saved_ids: set[str] | None = None, comments_count: int | None = None) -> PostOut:
     out = PostOut.model_validate(post)
-    out.comments_count = len(post.comments)
+    # comments_count передаётся батчем в list_posts (см. ниже) — без него (создание/
+    # get одного поста) len(post.comments) — единичный лишний запрос, не проблема
+    out.comments_count = comments_count if comments_count is not None else len(post.comments)
     out.is_saved = post.id in saved_ids if saved_ids is not None else False
     return out
 
@@ -33,7 +35,7 @@ def list_posts(
     db: Session = Depends(get_db),
     user: Optional[User] = Depends(get_current_user_optional),
 ):
-    query = db.query(Post)
+    query = db.query(Post).options(joinedload(Post.author))
     if type:
         try:
             query = query.filter(Post.type == PostType(type))
@@ -59,15 +61,29 @@ def list_posts(
     posts = query.order_by(desc(Post.created_at)).offset(offset).limit(limit).all()
 
     saved_ids = set()
-    if user and posts:
+    comment_counts: dict[str, int] = {}
+    if posts:
         post_ids = [p.id for p in posts]
-        saved_ids = {
-            row.post_id
-            for row in db.query(SavedPost.post_id)
-            .filter(SavedPost.user_id == user.id, SavedPost.post_id.in_(post_ids))
+        if user:
+            saved_ids = {
+                row.post_id
+                for row in db.query(SavedPost.post_id)
+                .filter(SavedPost.user_id == user.id, SavedPost.post_id.in_(post_ids))
+                .all()
+            }
+        # один агрегирующий запрос вместо len(post.comments) внутри цикла (было: отдельный
+        # запрос на каждый пост — тот же класс N+1, что уже находили и чинили в
+        # communities.py, events.py, messages.py — здесь, в ленте, самом нагруженном
+        # эндпоинте всего приложения, было 11 запросов на 5 постов вместо 3)
+        rows = (
+            db.query(Comment.post_id, func.count(Comment.id))
+            .filter(Comment.post_id.in_(post_ids))
+            .group_by(Comment.post_id)
             .all()
-        }
-    return [_to_out(p, saved_ids) for p in posts]
+        )
+        comment_counts = dict(rows)
+
+    return [_to_out(p, saved_ids, comment_counts.get(p.id, 0)) for p in posts]
 
 
 @router.post("", response_model=PostOut)
@@ -117,11 +133,20 @@ def list_saved_posts(db: Session = Depends(get_db), user: User = Depends(get_cur
     ]
     if not saved_post_ids:
         return []
-    posts_by_id = {p.id: p for p in db.query(Post).filter(Post.id.in_(saved_post_ids)).all()}
+    posts_by_id = {
+        p.id: p
+        for p in db.query(Post).options(joinedload(Post.author)).filter(Post.id.in_(saved_post_ids)).all()
+    }
     saved_set = set(saved_post_ids)
+    comment_counts = dict(
+        db.query(Comment.post_id, func.count(Comment.id))
+        .filter(Comment.post_id.in_(saved_post_ids))
+        .group_by(Comment.post_id)
+        .all()
+    )
     # сохраняем порядок "сохранено недавно — выше", а не порядок публикации
     ordered = [posts_by_id[pid] for pid in saved_post_ids if pid in posts_by_id]
-    return [_to_out(p, saved_set) for p in ordered]
+    return [_to_out(p, saved_set, comment_counts.get(p.id, 0)) for p in ordered]
 
 
 @router.get("/{post_id}", response_model=PostOut)
