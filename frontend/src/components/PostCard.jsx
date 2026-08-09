@@ -28,7 +28,6 @@ export default function PostCard({ post }) {
   const { showToast } = useToast();
   const [saved, setSaved] = useState(post.is_saved);
   const [busy, setBusy] = useState(false);
-  const showTrag = (post.type === "lost" || post.type === "found") && post.last_seen_location;
 
   async function toggleSave(e) {
     e.preventDefault(); // не даём сработать вложенной ссылке на пост
@@ -73,14 +72,6 @@ export default function PostCard({ post }) {
         <p className="post-body">
           {post.body.length > 140 ? `${post.body.slice(0, 140)}…` : post.body}
         </p>
-
-        {showTrag && (
-          <div className="trag">
-            <span className="trag-dot" />
-            <span className="trag-dot" />
-            <span className="trag-dot" />
-          </div>
-        )}
       </Link>
 
       <div className="post-meta">

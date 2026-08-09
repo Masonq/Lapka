@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, ShieldAlert, Flag, Trash2, X, BadgeCheck, Wrench, Users, Search } from "lucide-react";
+import { ArrowLeft, ShieldAlert, Flag, Trash2, X, BadgeCheck, Wrench, Users } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useSearchContext } from "../SearchContext";
 
 export default function Admin() {
   useDocumentTitle("Админка");
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { isAuthed } = useAuth();
+  const { setSearchConfig } = useSearchContext();
   const [me, setMe] = useState(null);
   const [overview, setOverview] = useState(null);
   const [reports, setReports] = useState(null);
@@ -25,6 +27,12 @@ export default function Admin() {
     }, 350);
     return () => clearTimeout(timer);
   }, [me, userQuery]);
+
+  useEffect(() => {
+    if (!me?.is_admin) return;
+    setSearchConfig({ value: userQuery, onChange: setUserQuery, placeholder: "Искать по имени или почте…" });
+    return () => setSearchConfig(null);
+  }, [me, userQuery, setSearchConfig]);
 
   useEffect(() => {
     if (!isAuthed) return;
@@ -192,15 +200,6 @@ export default function Admin() {
         <Users size={16} /> Пользователи
       </h3>
 
-      <div className="search-bar" style={{ marginBottom: 12 }}>
-        <Search size={17} strokeWidth={2.2} />
-        <input
-          value={userQuery}
-          onChange={(e) => setUserQuery(e.target.value)}
-          placeholder="Искать по имени или почте…"
-          aria-label="Поиск пользователей"
-        />
-      </div>
 
       {users?.length === 0 && (
         <div className="empty-state" style={{ padding: "24px 20px" }}>Никого не нашлось</div>

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, AlertTriangle, MapPinCheck, Heart } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
+import { useSearchContext } from "../SearchContext";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -16,22 +16,17 @@ const FILTERS = [
   { value: "general", label: "Общее" },
 ];
 
-const QUICK_ACTIONS = [
-  { type: "lost", label: "Потерялся", icon: AlertTriangle, tint: "var(--red-tint)", color: "var(--red)" },
-  { type: "found", label: "Нашёлся", icon: MapPinCheck, tint: "var(--green-tint)", color: "var(--green-strong)" },
-  { type: "adopt", label: "Ищет дом", icon: Heart, tint: "var(--primary-tint)", color: "#95491B" },
-];
 
 const PAGE_SIZE = 20;
 
 export default function Feed() {
   useDocumentTitle("Лента");
   const { isAuthed } = useAuth();
+  const { setSearchConfig } = useSearchContext();
   const [feedTab, setFeedTab] = useState("for-you");
   const [posts, setPosts] = useState([]);
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -41,6 +36,11 @@ export default function Feed() {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 350);
     return () => clearTimeout(t);
   }, [search]);
+
+  useEffect(() => {
+    setSearchConfig({ value: search, onChange: setSearch, placeholder: "Искать по ленте: кличка, район…" });
+    return () => setSearchConfig(null);
+  }, [search, setSearchConfig]);
 
   function buildParams(offset) {
     const params = { limit: PAGE_SIZE, offset };
@@ -78,24 +78,6 @@ export default function Feed() {
 
 
       {isAuthed && (
-        <div style={{ display: "flex", gap: 10, padding: "4px 0 16px" }}>
-          {QUICK_ACTIONS.map(({ type, label, icon: Icon, tint, color }) => (
-            <Link
-              key={type}
-              to={`/new-post?type=${type}`}
-              style={{
-                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
-                padding: "12px 4px", borderRadius: 16, background: tint, color,
-              }}
-            >
-              <Icon size={19} strokeWidth={2.2} />
-              <span style={{ fontSize: 11, fontWeight: 700 }}>{label}</span>
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {isAuthed && (
         <div style={{ display: "flex", gap: 4, padding: "0 0 12px" }}>
           <button
             className={`chip${feedTab === "for-you" ? " active" : ""}`}
@@ -110,33 +92,6 @@ export default function Feed() {
             style={{ flex: 1 }}
           >
             Подписки
-          </button>
-        </div>
-      )}
-
-      {searchOpen ? (
-        <div className="search-bar sticky-search">
-          <Search size={17} strokeWidth={2.2} />
-          <input
-            autoFocus
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onBlur={() => !search && setSearchOpen(false)}
-            placeholder="Искать по ленте: кличка, район…"
-            aria-label="Поиск по ленте"
-          />
-          <button
-            className="search-clear"
-            onClick={() => { setSearch(""); setSearchOpen(false); }}
-            aria-label="Закрыть поиск"
-          >
-            <X size={14} strokeWidth={2.4} />
-          </button>
-        </div>
-      ) : (
-        <div className="sticky-search" style={{ textAlign: "right", marginBottom: 14, background: "var(--bg)" }}>
-          <button className="icon-btn" onClick={() => setSearchOpen(true)} aria-label="Открыть поиск по ленте">
-            <Search size={17} strokeWidth={2.2} />
           </button>
         </div>
       )}

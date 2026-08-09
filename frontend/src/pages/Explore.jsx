@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, MapPin, CalendarDays, ShoppingBag, Heart, ChevronRight, PawPrint } from "lucide-react";
+import { MapPin, CalendarDays, ShoppingBag, Heart, ChevronRight, PawPrint } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
 import ProviderCard from "../components/ProviderCard";
 import PostCard from "../components/PostCard";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useSearchContext } from "../SearchContext";
 import { pluralize } from "../pluralize";
 
 const SERVICE_TYPES = [
@@ -29,6 +30,7 @@ const SEARCH_TABS = [
 export default function Explore() {
   useDocumentTitle("Поиск");
   const { isAuthed } = useAuth();
+  const { setSearchConfig } = useSearchContext();
 
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -50,6 +52,11 @@ export default function Explore() {
     const t = setTimeout(() => setDebouncedQuery(query.trim()), 350);
     return () => clearTimeout(t);
   }, [query]);
+
+  useEffect(() => {
+    setSearchConfig({ value: query, onChange: setQuery, placeholder: "Искать людей, питомцев, посты, сообщества…" });
+    return () => setSearchConfig(null);
+  }, [query, setSearchConfig]);
 
   useEffect(() => {
     if (!debouncedQuery) {
@@ -86,16 +93,6 @@ export default function Explore() {
     <div>
       <div className="page-header">
         <span className="page-title">Поиск</span>
-      </div>
-
-      <div className="search-bar" style={{ marginBottom: isSearching ? 12 : 16 }}>
-        <Search size={17} strokeWidth={2.2} />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Искать людей, питомцев, посты, сообщества…"
-          aria-label="Поиск"
-        />
       </div>
 
       {isSearching && (

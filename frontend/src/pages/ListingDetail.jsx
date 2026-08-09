@@ -97,7 +97,17 @@ export default function ListingDetail() {
       </div>
 
       <div className="detail-shell">
-        <div className="card" style={{ borderRadius: 20, padding: 20, marginBottom: 16 }}>
+        <div className="card" style={{ borderRadius: 20, padding: 20, marginBottom: 16, position: "relative" }}>
+          {isAuthed && !isOwner && !reported && (
+            <button className="post-save-btn" style={{ right: 12, top: 12 }} onClick={() => setShowReportForm((v) => !v)} aria-label="Пожаловаться">
+              <Flag size={16} />
+            </button>
+          )}
+          {reported && (
+            <span className="post-save-btn" style={{ right: 12, top: 12, color: "var(--text-faint)" }} aria-label="Жалоба отправлена">
+              <Flag size={16} />
+            </span>
+          )}
           {listing.photo_url && (
             <img src={listing.photo_url} alt={listing.title} className="post-card-photo" style={{ marginBottom: 14 }} />
           )}
@@ -148,16 +158,6 @@ export default function ListingDetail() {
               <button className="btn btn-ghost" style={{ color: "var(--red)" }} onClick={remove}>
                 <Trash2 size={16} /> Удалить
               </button>
-            )}
-            {isAuthed && !isOwner && !reported && (
-              <button className="btn btn-ghost" onClick={() => setShowReportForm((v) => !v)}>
-                <Flag size={16} /> Пожаловаться
-              </button>
-            )}
-            {reported && (
-              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-faint)" }}>
-                <Flag size={14} /> Жалоба отправлена
-              </span>
             )}
           </div>
 

@@ -16,14 +16,12 @@ export default function Profile() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [me, setMe] = useState(null);
-  const [petsCount, setPetsCount] = useState(null);
   const [followersCount, setFollowersCount] = useState(null);
   const [followingCount, setFollowingCount] = useState(null);
 
   useEffect(() => {
     if (!isAuthed) return;
     api.me().then(setMe).catch(() => setMe(null));
-    api.myPets().then((pets) => setPetsCount(pets.length)).catch(() => setPetsCount(null));
   }, [isAuthed]);
 
   useEffect(() => {
@@ -86,7 +84,6 @@ export default function Profile() {
           </div>
           <div style={{ flex: 1 }}>
             <div className="subhead" style={{ fontSize: 14 }}>Мои питомцы</div>
-            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{petsCount === null ? "…" : petsCount === 0 ? "Пока нет ни одного" : `${petsCount}`}</div>
           </div>
           <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
         </Link>

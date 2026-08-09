@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Users, Search, Plus } from "lucide-react";
+import { ArrowLeft, Users, Plus } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useSearchContext } from "../SearchContext";
 import { pluralize } from "../pluralize";
 
 export default function Communities() {
@@ -12,6 +13,7 @@ export default function Communities() {
   const navigate = useNavigate();
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
+  const { setSearchConfig } = useSearchContext();
   const [communities, setCommunities] = useState(null);
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -28,6 +30,11 @@ export default function Communities() {
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
+
+  useEffect(() => {
+    setSearchConfig({ value: query, onChange: setQuery, placeholder: "Искать сообщества…" });
+    return () => setSearchConfig(null);
+  }, [query, setSearchConfig]);
 
   async function submit(e) {
     e.preventDefault();
@@ -97,16 +104,6 @@ export default function Communities() {
           </button>
         </form>
       )}
-
-      <div className="search-bar" style={{ marginBottom: 16 }}>
-        <Search size={17} strokeWidth={2.2} />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Искать сообщества…"
-          aria-label="Поиск сообществ"
-        />
-      </div>
 
       {communities === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
 
