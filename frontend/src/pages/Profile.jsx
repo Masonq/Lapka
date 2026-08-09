@@ -4,6 +4,7 @@ import { LogOut, UserCircle, PawPrint, Bookmark, Settings as SettingsIcon, Shiel
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { pluralize } from "../pluralize";
 
 export default function Profile() {
   const { isAuthed, userId, login, register, logout } = useAuth();
@@ -54,11 +55,13 @@ export default function Profile() {
             <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{me?.city}</div>
             {userId && (
               <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
-                <Link to={`/users/${userId}/connections?mode=followers`} style={{ fontSize: 13, color: "var(--text)" }}>
-                  <b>{followersCount === null ? "…" : followersCount}</b> подписчиков
+                <Link to={`/users/${userId}/connections?mode=followers`} style={{ fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
+                  <b>{followersCount === null ? "…" : followersCount}</b>{" "}
+                  {followersCount === null ? "подписчиков" : pluralize(followersCount, ["подписчик", "подписчика", "подписчиков"])}
                 </Link>
-                <Link to={`/users/${userId}/connections?mode=following`} style={{ fontSize: 13, color: "var(--text)" }}>
-                  <b>{followingCount === null ? "…" : followingCount}</b> подписок
+                <Link to={`/users/${userId}/connections?mode=following`} style={{ fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
+                  <b>{followingCount === null ? "…" : followingCount}</b>{" "}
+                  {followingCount === null ? "подписок" : pluralize(followingCount, ["подписка", "подписки", "подписок"])}
                 </Link>
               </div>
             )}

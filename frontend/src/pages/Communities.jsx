@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { pluralize } from "../pluralize";
 
 export default function Communities() {
   useDocumentTitle("Сообщества");
@@ -134,7 +135,7 @@ export default function Communities() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="subhead" style={{ fontSize: 15 }}>{c.name}</div>
                 <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                  {c.members_count} {c.members_count === 1 ? "участник" : "участников"}
+                  {c.members_count} {pluralize(c.members_count, ["участник", "участника", "участников"])}
                   {c.city ? ` · ${c.city}` : ""}
                 </div>
               </div>

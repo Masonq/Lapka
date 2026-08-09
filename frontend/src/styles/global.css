@@ -227,6 +227,17 @@ a {
 
 /* --- Капсульная нижняя навигация --- */
 
+.bottom-scrim {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 110px;
+  background: linear-gradient(to bottom, transparent, var(--bg) 60%);
+  z-index: 25;
+  pointer-events: none;
+}
+
 .tab-bar {
   position: fixed;
   left: 50%;
@@ -677,6 +688,10 @@ a {
   overflow-x: auto;
   padding: 4px 0 16px;
   scrollbar-width: none;
+  /* Мягкое затухание у правого края — подсказывает, что строку можно прокрутить,
+     вместо жёсткого обрезания последнего чипа посередине */
+  mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%);
 }
 
 .chip-row::-webkit-scrollbar {
@@ -775,7 +790,8 @@ a {
   }
 
   /* Капсульная навигация — паттерн для тач-экрана, на десктопе её заменяет верхнее меню */
-  .tab-bar {
+  .tab-bar,
+  .bottom-scrim {
     display: none;
   }
 

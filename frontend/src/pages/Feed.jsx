@@ -6,6 +6,7 @@ import { useAuth } from "../AuthContext";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { pluralize } from "../pluralize";
 
 const FILTERS = [
   { value: "", label: "Все" },
@@ -90,7 +91,9 @@ export default function Feed() {
               style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer" }}
             >
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--red)" }} />
-              <span style={{ fontSize: 13, fontWeight: 700 }}>{pulse.active_lost_count} потеряшек</span>
+              <span style={{ fontSize: 13, fontWeight: 700 }}>
+                {pulse.active_lost_count} {pluralize(pulse.active_lost_count, ["потеряшка", "потеряшки", "потеряшек"])}
+              </span>
             </button>
           )}
           {pulse.active_found_count > 0 && (
@@ -99,13 +102,17 @@ export default function Feed() {
               style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer" }}
             >
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green-strong)" }} />
-              <span style={{ fontSize: 13, fontWeight: 700 }}>{pulse.active_found_count} находок</span>
+              <span style={{ fontSize: 13, fontWeight: 700 }}>
+                {pulse.active_found_count} {pluralize(pulse.active_found_count, ["находка", "находки", "находок"])}
+              </span>
             </button>
           )}
           {pulse.upcoming_events_count > 0 && (
-            <Link to="/events" style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--text)" }}>
+            <Link to="/events" style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--text)", textDecoration: "none" }}>
               <CalendarDays size={14} style={{ color: "var(--text-muted)" }} />
-              <span style={{ fontSize: 13, fontWeight: 700 }}>{pulse.upcoming_events_count} событий</span>
+              <span style={{ fontSize: 13, fontWeight: 700 }}>
+                {pulse.upcoming_events_count} {pluralize(pulse.upcoming_events_count, ["событие", "события", "событий"])}
+              </span>
             </Link>
           )}
         </div>

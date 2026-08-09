@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { pluralize } from "../pluralize";
 import PostCard from "../components/PostCard";
 
 export default function UserProfile() {
@@ -91,11 +92,11 @@ export default function UserProfile() {
               <div className="subhead" style={{ fontSize: 18 }}>{user.display_name}</div>
               <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{user.city}</div>
               <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
-                <Link to={`/users/${id}/connections?mode=followers`} style={{ fontSize: 13, color: "var(--text)" }}>
-                  <b>{followers.length}</b> {followers.length === 1 ? "подписчик" : "подписчиков"}
+                <Link to={`/users/${id}/connections?mode=followers`} style={{ fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
+                  <b>{followers.length}</b> {pluralize(followers.length, ["подписчик", "подписчика", "подписчиков"])}
                 </Link>
-                <Link to={`/users/${id}/connections?mode=following`} style={{ fontSize: 13, color: "var(--text)" }}>
-                  <b>{followingList.length}</b> подписок
+                <Link to={`/users/${id}/connections?mode=following`} style={{ fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
+                  <b>{followingList.length}</b> {pluralize(followingList.length, ["подписка", "подписки", "подписок"])}
                 </Link>
               </div>
             </div>

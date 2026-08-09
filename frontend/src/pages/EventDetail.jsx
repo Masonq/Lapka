@@ -95,7 +95,7 @@ export default function EventDetail() {
             </p>
           )}
 
-          <Link to={`/users/${event.organizer.id}`} style={{ fontSize: 13, color: "var(--text-faint)", display: "block", marginBottom: 14 }}>
+          <Link to={`/users/${event.organizer.id}`} style={{ fontSize: 13, color: "var(--text-faint)", display: "block", marginBottom: 14, textDecoration: "none" }}>
             Организатор: {event.organizer.display_name}
           </Link>
 

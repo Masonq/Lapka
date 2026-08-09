@@ -8,6 +8,7 @@ import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
 import ProviderCard from "../components/ProviderCard";
 import PostCard from "../components/PostCard";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { pluralize } from "../pluralize";
 
 const SERVICE_TYPES = [
   { value: "", label: "Все" },
@@ -218,7 +219,7 @@ export default function Explore() {
                   </div>
                   <div>
                     <div className="subhead" style={{ fontSize: 14 }}>{c.name}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.members_count} участников</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.members_count} {pluralize(c.members_count, ["участник", "участника", "участников"])}</div>
                   </div>
                 </Link>
               ))}
@@ -295,7 +296,7 @@ export default function Explore() {
             <>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                 <h3 className="subhead" style={{ margin: 0 }}>Сообщества</h3>
-                <Link to="/communities" style={{ display: "flex", alignItems: "center", fontSize: 13, color: "var(--text-muted)" }}>
+                <Link to="/communities" style={{ display: "flex", alignItems: "center", fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>
                   Все <ChevronRight size={14} />
                 </Link>
               </div>
@@ -312,7 +313,7 @@ export default function Explore() {
                     </div>
                     <div style={{ minWidth: 0 }}>
                       <div className="subhead" style={{ fontSize: 13 }}>{c.name}</div>
-                      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.members_count} участников</div>
+                      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.members_count} {pluralize(c.members_count, ["участник", "участника", "участников"])}</div>
                     </div>
                   </Link>
                 ))}

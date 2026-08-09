@@ -124,7 +124,7 @@ export default function ListingDetail() {
             </p>
           )}
 
-          <Link to={`/users/${listing.seller.id}`} style={{ fontSize: 13, color: "var(--text-faint)", display: "block", marginBottom: 14 }}>
+          <Link to={`/users/${listing.seller.id}`} style={{ fontSize: 13, color: "var(--text-faint)", display: "block", marginBottom: 14, textDecoration: "none" }}>
             {listing.type === "wanted" ? "Ищет" : "Продавец"}: {listing.seller.display_name}
           </Link>
 

@@ -176,7 +176,7 @@ export default function Pets() {
                 borderRadius: 20, padding: "14px 16px",
                 display: "flex", alignItems: "center", gap: 12,
               }}>
-                <Link to={`/pets/${pet.id}`} style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0 }}>
+                <Link to={`/pets/${pet.id}`} style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0, textDecoration: "none", color: "inherit" }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: "50%", background: avatarTint, color: avatarColor,
                     display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden",

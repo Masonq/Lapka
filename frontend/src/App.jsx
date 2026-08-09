@@ -118,6 +118,7 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
 
+      <div className="bottom-scrim" />
       <TabBar unreadMessages={unreadMessages} />
     </div>
   );
