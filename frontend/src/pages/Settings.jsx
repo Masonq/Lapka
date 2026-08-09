@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, KeyRound, Trash2, UserX, ShieldCheck } from "lucide-react";
+import { ArrowLeft, KeyRound, Trash2, UserX, ShieldCheck, Wrench, Sparkles } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+
+const SERVICE_TYPES = [
+  { value: "sitter", label: "Ситтер" },
+  { value: "boarding", label: "Передержка" },
+  { value: "trainer", label: "Кинолог" },
+  { value: "vet", label: "Ветеринар" },
+  { value: "groomer", label: "Грумер" },
+];
 
 export default function Settings() {
   useDocumentTitle("Настройки");
@@ -18,6 +26,36 @@ export default function Settings() {
   const [changingPassword, setChangingPassword] = useState(false);
 
   const [blockedUsers, setBlockedUsers] = useState(null);
+
+  const [isProvider, setIsProvider] = useState(null);
+  const [showProviderForm, setShowProviderForm] = useState(false);
+  const [providerForm, setProviderForm] = useState({ service_type: "sitter", description: "", price_from: "", contact: "" });
+  const [providerError, setProviderError] = useState("");
+  const [submittingProvider, setSubmittingProvider] = useState(false);
+
+  useEffect(() => {
+    api.me().then((me) => setIsProvider(me.is_service_provider)).catch(() => setIsProvider(false));
+  }, []);
+
+  async function submitProvider(e) {
+    e.preventDefault();
+    setProviderError("");
+    setSubmittingProvider(true);
+    try {
+      await api.becomeProvider({
+        ...providerForm,
+        price_from: providerForm.price_from ? Number(providerForm.price_from) : undefined,
+      });
+      setIsProvider(true);
+      setShowProviderForm(false);
+      showToast("Анкета опубликована — теперь ты в каталоге услуг");
+    } catch (err) {
+      setProviderError(err.message);
+      showToast(err.message, "error");
+    } finally {
+      setSubmittingProvider(false);
+    }
+  }
 
   const [showDeleteForm, setShowDeleteForm] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
@@ -82,6 +120,99 @@ export default function Settings() {
       </div>
 
       <div className="detail-shell">
+        {isProvider === false && !showProviderForm && (
+          <div
+            className="card"
+            style={{
+              borderRadius: 20, padding: 20, marginBottom: 16, position: "relative", overflow: "hidden",
+              background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%)", color: "#fff", border: "none",
+            }}
+          >
+            <Sparkles size={80} strokeWidth={1.2} style={{ position: "absolute", top: -16, right: -16, opacity: 0.25 }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <Wrench size={18} />
+              <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>Оказываешь услуги для питомцев?</h3>
+            </div>
+            <p style={{ fontSize: 13, opacity: 0.92, margin: "0 0 16px", maxWidth: 320 }}>
+              Ситтер, передержка, кинолог, ветеринар или грумер — регистрация в каталоге услуг
+              бесплатная, тебя увидят все владельцы животных в городе.
+            </p>
+            <button
+              className="btn"
+              style={{ background: "#fff", color: "var(--primary-strong)", fontWeight: 800 }}
+              onClick={() => setShowProviderForm(true)}
+            >
+              <Wrench size={15} /> Стать исполнителем
+            </button>
+          </div>
+        )}
+
+        {isProvider === true && !showProviderForm && (
+          <div className="card" style={{
+            borderRadius: 20, padding: 16, marginBottom: 16, display: "flex", alignItems: "center", gap: 10,
+          }}>
+            <ShieldCheck size={18} style={{ color: "var(--green-strong)" }} />
+            <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
+              Ты уже в каталоге услуг — анкета видна всем в разделе «Поиск»
+            </div>
+          </div>
+        )}
+
+        {showProviderForm && (
+          <form onSubmit={submitProvider} className="card" style={{ borderRadius: 20, padding: 18, marginBottom: 16 }}>
+            <h3 className="subhead" style={{ fontSize: 15, marginBottom: 12 }}>Анкета исполнителя</h3>
+            <div className="field">
+              <label id="settings-service-type-label">Вид услуги</label>
+              <div className="chip-row" role="group" aria-labelledby="settings-service-type-label" style={{ paddingBottom: 2 }}>
+                {SERVICE_TYPES.map((t) => (
+                  <button
+                    key={t.value}
+                    type="button"
+                    className={`chip${providerForm.service_type === t.value ? " active" : ""}`}
+                    onClick={() => setProviderForm({ ...providerForm, service_type: t.value })}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="settings-service-description">Описание</label>
+              <textarea
+                id="settings-service-description" rows={3} required
+                value={providerForm.description}
+                onChange={(e) => setProviderForm({ ...providerForm, description: e.target.value })}
+                placeholder="Опыт, район работы, что входит в услугу"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="settings-service-price">Цена от (динары)</label>
+              <input
+                id="settings-service-price" type="number" min="0"
+                value={providerForm.price_from}
+                onChange={(e) => setProviderForm({ ...providerForm, price_from: e.target.value })}
+                placeholder="800"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="settings-service-contact">Контакт (телефон/telegram)</label>
+              <input
+                id="settings-service-contact"
+                value={providerForm.contact}
+                onChange={(e) => setProviderForm({ ...providerForm, contact: e.target.value })}
+                placeholder="+381 6X XXX XXXX или @username"
+              />
+            </div>
+            {providerError && <p style={{ color: "var(--red)", fontSize: 13 }}>{providerError}</p>}
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="btn btn-primary" disabled={submittingProvider}>
+                {submittingProvider ? "Публикуем…" : "Опубликовать анкету"}
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={() => setShowProviderForm(false)}>Отмена</button>
+            </div>
+          </form>
+        )}
+
         <div className="card" style={{ borderRadius: 20, padding: 18, marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <KeyRound size={17} />

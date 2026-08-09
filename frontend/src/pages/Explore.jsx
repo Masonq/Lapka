@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Search, MapPin, CalendarDays, ShoppingBag, Heart, ChevronRight, PawPrint } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
-import { useToast } from "../ToastContext";
 import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
 import ProviderCard from "../components/ProviderCard";
 import PostCard from "../components/PostCard";
@@ -30,7 +29,6 @@ const SEARCH_TABS = [
 export default function Explore() {
   useDocumentTitle("Поиск");
   const { isAuthed } = useAuth();
-  const { showToast } = useToast();
 
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -41,9 +39,6 @@ export default function Explore() {
   const [providers, setProviders] = useState([]);
   const [serviceFilter, setServiceFilter] = useState("");
   const [loadingServices, setLoadingServices] = useState(true);
-  const [showProviderForm, setShowProviderForm] = useState(false);
-  const [form, setForm] = useState({ service_type: "sitter", description: "", price_from: "", contact: "" });
-  const [formError, setFormError] = useState("");
 
   const [communities, setCommunities] = useState([]);
 
@@ -84,23 +79,6 @@ export default function Explore() {
   }
 
   useEffect(loadServices, [serviceFilter]);
-
-  async function submitProvider(e) {
-    e.preventDefault();
-    setFormError("");
-    try {
-      await api.becomeProvider({
-        ...form,
-        price_from: form.price_from ? Number(form.price_from) : undefined,
-      });
-      setShowProviderForm(false);
-      showToast("Анкета опубликована");
-      loadServices();
-    } catch (err) {
-      setFormError(err.message);
-      showToast(err.message, "error");
-    }
-  }
 
   const isSearching = debouncedQuery.length > 0;
 
@@ -346,45 +324,6 @@ export default function Explore() {
               </button>
             ))}
           </div>
-          {isAuthed && (
-            <button className="btn btn-ghost btn-block" style={{ marginBottom: 10 }} onClick={() => setShowProviderForm((v) => !v)}>
-              Стать исполнителем
-            </button>
-          )}
-
-          {showProviderForm && (
-            <form onSubmit={submitProvider} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
-              <div className="field">
-                <label id="explore-service-type-label">Вид услуги</label>
-                <div className="chip-row" role="group" aria-labelledby="explore-service-type-label" style={{ paddingBottom: 2 }}>
-                  {SERVICE_TYPES.filter((t) => t.value).map((t) => (
-                    <button
-                      key={t.value}
-                      type="button"
-                      className={`chip${form.service_type === t.value ? " active" : ""}`}
-                      onClick={() => setForm({ ...form, service_type: t.value })}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="field">
-                <label htmlFor="explore-service-description">Описание</label>
-                <textarea id="explore-service-description" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required placeholder="Опыт, район работы, что входит в услугу" />
-              </div>
-              <div className="field">
-                <label htmlFor="explore-service-price">Цена от (динары)</label>
-                <input id="explore-service-price" type="number" min="0" value={form.price_from} onChange={(e) => setForm({ ...form, price_from: e.target.value })} placeholder="800" />
-              </div>
-              <div className="field">
-                <label htmlFor="explore-service-contact">Контакт (телефон/telegram)</label>
-                <input id="explore-service-contact" value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="+381 6X XXX XXXX или @username" />
-              </div>
-              {formError && <p style={{ color: "var(--red)", fontSize: 13 }}>{formError}</p>}
-              <button className="btn btn-primary btn-block">Опубликовать анкету</button>
-            </form>
-          )}
 
           {loadingServices && (
             <div className="card-grid" style={{ marginBottom: 24 }}>

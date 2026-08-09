@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, UserCircle, PawPrint, Bookmark, Settings as SettingsIcon, ShieldAlert, ChevronRight } from "lucide-react";
+import { LogOut, PawPrint, Bookmark, Settings as SettingsIcon, ShieldAlert, ChevronRight } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -39,36 +39,40 @@ export default function Profile() {
           <span className="page-title">Профиль</span>
         </div>
 
-        <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
-          <div style={{
-            width: 52, height: 52, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, flexShrink: 0, overflow: "hidden",
-          }}>
-            {me?.avatar_url ? (
-              <img src={me.avatar_url} alt={me.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              me?.display_name?.[0]?.toUpperCase() || "•"
-            )}
-          </div>
-          <div style={{ flex: 1 }}>
-            <div className="subhead" style={{ fontSize: 16 }}>{me?.display_name || "Ты в PetSocial"}</div>
-            <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{me?.city}</div>
-            {userId && (
-              <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
-                <Link to={`/users/${userId}/connections?mode=followers`} style={{ fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
-                  <b>{followersCount === null ? "…" : followersCount}</b>{" "}
-                  {followersCount === null ? "подписчиков" : pluralize(followersCount, ["подписчик", "подписчика", "подписчиков"])}
-                </Link>
-                <Link to={`/users/${userId}/connections?mode=following`} style={{ fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
-                  <b>{followingCount === null ? "…" : followingCount}</b>{" "}
-                  {followingCount === null ? "подписок" : pluralize(followingCount, ["подписка", "подписки", "подписок"])}
-                </Link>
+        <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", flexDirection: "column", gap: 10, marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <Link to={`/users/${userId}`} style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0, textDecoration: "none", color: "inherit" }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, flexShrink: 0, overflow: "hidden",
+              }}>
+                {me?.avatar_url ? (
+                  <img src={me.avatar_url} alt={me.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  me?.display_name?.[0]?.toUpperCase() || "•"
+                )}
               </div>
-            )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="subhead" style={{ fontSize: 16 }}>{me?.display_name || "Ты в PetSocial"}</div>
+                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{me?.city}</div>
+              </div>
+            </Link>
+            <button className="btn btn-ghost" onClick={logout} aria-label="Выйти">
+              <LogOut size={16} />
+            </button>
           </div>
-          <button className="btn btn-ghost" onClick={logout} aria-label="Выйти">
-            <LogOut size={16} />
-          </button>
+          {userId && (
+            <div style={{ display: "flex", gap: 12 }}>
+              <Link to={`/users/${userId}/connections?mode=followers`} style={{ fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
+                <b>{followersCount === null ? "…" : followersCount}</b>{" "}
+                {followersCount === null ? "подписчиков" : pluralize(followersCount, ["подписчик", "подписчика", "подписчиков"])}
+              </Link>
+              <Link to={`/users/${userId}/connections?mode=following`} style={{ fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
+                <b>{followingCount === null ? "…" : followingCount}</b>{" "}
+                {followingCount === null ? "подписок" : pluralize(followingCount, ["подписка", "подписки", "подписок"])}
+              </Link>
+            </div>
+          )}
         </div>
 
         <Link to="/pets" className="card" style={{
@@ -100,10 +104,6 @@ export default function Profile() {
             <div className="subhead" style={{ fontSize: 14 }}>Сохранённое</div>
           </div>
           <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
-        </Link>
-
-        <Link to={`/users/${userId}`} className="btn btn-ghost btn-block" style={{ marginBottom: 10 }}>
-          <UserCircle size={16} /> Открыть свой публичный профиль
         </Link>
 
         <Link to="/settings" className="btn btn-ghost btn-block">
