@@ -28,7 +28,7 @@ if os.getenv("JWT_SECRET", "change-me-in-production") == "change-me-in-productio
 
 # По умолчанию — только локальная разработка (Vite dev-сервер). В проде задаётся
 # явно через ALLOWED_ORIGINS в docker-compose.yml (см. deploy/setup.sh), например
-# ALLOWED_ORIGINS=https://lapa.flatro.app — так с чужого сайта не дёрнуть наш API
+# ALLOWED_ORIGINS=https://lapki.info — так с чужого сайта не дёрнуть наш API
 # из браузера от имени залогиненного пользователя, даже если у него украли токен через XSS
 _default_origins = "http://localhost:5173,http://127.0.0.1:5173"
 allowed_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", _default_origins).split(",") if o.strip()]

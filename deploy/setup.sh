@@ -19,4 +19,4 @@ ln -sf /etc/nginx/sites-available/lapabg.conf /etc/nginx/sites-enabled/lapabg.co
 nginx -t && systemctl reload nginx
 
 echo "Готово: http://$(curl -s ifconfig.me)"
-echo "SSL и домен — отдельным шагом, когда lapa.flatro.app будет указывать на этот сервер: bash deploy/enable-ssl.sh"
+echo "SSL и домен — отдельным шагом, когда lapki.info будет указывать на этот сервер: bash deploy/enable-ssl.sh"
