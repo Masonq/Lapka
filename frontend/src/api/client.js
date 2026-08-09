@@ -197,5 +197,9 @@ export const api = {
   addHealthRecord: (petId, data) => request(`/pets/${petId}/health`, { method: "POST", body: data, auth: true }),
   deleteHealthRecord: (petId, recordId) => request(`/pets/${petId}/health/${recordId}`, { method: "DELETE", auth: true }),
 
+  stories: () => request("/stories", { auth: true }),
+  createStory: (photo_url) => request("/stories", { method: "POST", body: { photo_url }, auth: true }),
+  deleteStory: (id) => request(`/stories/${id}`, { method: "DELETE", auth: true }),
+
   uploadImage,
 };

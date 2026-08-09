@@ -5,6 +5,7 @@ import { useAuth } from "../AuthContext";
 import { useSearchContext } from "../SearchContext";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import StoriesRow from "../components/StoriesRow";
 import { useDocumentTitle } from "../useDocumentTitle";
 
 const FILTERS = [
@@ -75,7 +76,24 @@ export default function Feed() {
 
   return (
     <div>
+      <StoriesRow />
 
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 0 14px", scrollbarWidth: "none" }}>
+        <div style={{
+          flexShrink: 0, width: 260, borderRadius: 18, padding: 16,
+          background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%)", color: "#fff",
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>PetSocial — свои для своих</div>
+          <div style={{ fontSize: 12, opacity: 0.9 }}>Потеряшки, находки, пристройство и соседи с животными — всё в одном месте в Белграде</div>
+        </div>
+        <Link to="/settings" style={{
+          flexShrink: 0, width: 260, borderRadius: 18, padding: 16, textDecoration: "none",
+          background: "var(--surface)", border: "1px solid var(--border)", display: "block",
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4, color: "var(--text)" }}>Оказываешь услуги питомцам?</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Регистрация в каталоге бесплатная — станьте исполнителем в Настройках</div>
+        </Link>
+      </div>
 
       {isAuthed && (
         <div style={{ display: "flex", gap: 4, padding: "0 0 12px" }}>
