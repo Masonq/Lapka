@@ -129,6 +129,7 @@ class ServiceProvider(Base):
     contact = Column(String(200), nullable=True)
     rating_avg = Column(Float, default=0.0)
     rating_count = Column(Integer, default=0)
+    is_verified = Column(Boolean, default=False)  # раздел 18 блюпринта — проставляет только админ
 
     user = relationship("User", back_populates="service_profile")
     reviews = relationship("ServiceReview", back_populates="provider", cascade="all, delete-orphan")

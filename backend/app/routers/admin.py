@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.db import get_db
 from app.core.security import get_current_admin
 from app.models.models import AuditLog, Comment, Listing, Pet, Post, Report, ServiceProvider, User
-from app.schemas.schemas import AdminActionResult, AdminOverview, AuditLogOut, ReportQueueItem
+from app.schemas.schemas import AdminActionResult, AdminOverview, AuditLogOut, ReportQueueItem, ServiceProviderOut
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -119,3 +119,33 @@ def audit_log(db: Session = Depends(get_db), admin: User = Depends(get_current_a
         .all()
     )
     return rows
+
+
+@router.get("/service-providers", response_model=list[ServiceProviderOut])
+def list_service_providers(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+    return (
+        db.query(ServiceProvider)
+        .options(joinedload(ServiceProvider.user))
+        .order_by(ServiceProvider.is_verified, desc(ServiceProvider.rating_avg))
+        .all()
+    )
+
+
+@router.patch("/service-providers/{provider_id}/verify", response_model=ServiceProviderOut)
+def toggle_verify_provider(
+    provider_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)
+):
+    """Раздел 18 блюпринта — verified badge. Переключатель (не только 'включить') —
+    удобно снять статус, если позже выяснится, что подтверждали ошибочно."""
+    provider = db.query(ServiceProvider).filter(ServiceProvider.id == provider_id).first()
+    if not provider:
+        raise HTTPException(status_code=404, detail="Анкета исполнителя не найдена")
+
+    provider.is_verified = not provider.is_verified
+    _log(
+        db, admin, "verify_provider" if provider.is_verified else "unverify_provider",
+        "service_provider", provider_id,
+    )
+    db.commit()
+    db.refresh(provider)
+    return provider

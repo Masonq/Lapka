@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, ShieldAlert, Flag, Trash2, X } from "lucide-react";
+import { ArrowLeft, ShieldAlert, Flag, Trash2, X, BadgeCheck, Wrench } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -14,6 +14,7 @@ export default function Admin() {
   const [me, setMe] = useState(null);
   const [overview, setOverview] = useState(null);
   const [reports, setReports] = useState(null);
+  const [providers, setProviders] = useState(null);
 
   useEffect(() => {
     if (!isAuthed) return;
@@ -23,6 +24,7 @@ export default function Admin() {
   function load() {
     api.adminOverview().then(setOverview).catch(() => setOverview(null));
     api.adminReports(false).then(setReports).catch(() => setReports([]));
+    api.adminServiceProviders().then(setProviders).catch(() => setProviders([]));
   }
 
   useEffect(() => {
@@ -44,6 +46,12 @@ export default function Admin() {
   async function removeListing(id) {
     await api.adminDeleteListing(id);
     showToast("Объявление удалено");
+    load();
+  }
+
+  async function toggleVerify(id) {
+    const result = await api.adminToggleVerifyProvider(id);
+    showToast(result.is_verified ? "Исполнитель подтверждён" : "Подтверждение снято");
     load();
   }
 
@@ -136,6 +144,37 @@ export default function Admin() {
               </button>
             )}
           </div>
+        </div>
+      ))}
+
+      <h3 className="subhead" style={{ margin: "24px 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+        <Wrench size={16} /> Исполнители услуг
+      </h3>
+
+      {providers?.length === 0 && (
+        <div className="empty-state" style={{ padding: "24px 20px" }}>Пока никто не зарегистрировался</div>
+      )}
+
+      {providers?.map((p) => (
+        <div key={p.id} className="card" style={{
+          borderRadius: 16, padding: 14, marginBottom: 8, display: "flex", alignItems: "center", gap: 10,
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <Link to={`/users/${p.user.id}`} className="subhead" style={{ fontSize: 14 }}>{p.user.display_name}</Link>
+              {p.is_verified && <BadgeCheck size={14} style={{ color: "var(--green-strong)" }} />}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+              {p.service_type}{p.rating_count > 0 ? ` · ★ ${p.rating_avg} (${p.rating_count})` : ""}
+            </div>
+          </div>
+          <button
+            className={p.is_verified ? "btn btn-ghost" : "btn"}
+            style={!p.is_verified ? { background: "var(--green-strong)", color: "#fff" } : undefined}
+            onClick={() => toggleVerify(p.id)}
+          >
+            <BadgeCheck size={14} /> {p.is_verified ? "Снять" : "Подтвердить"}
+          </button>
         </div>
       ))}
     </div>

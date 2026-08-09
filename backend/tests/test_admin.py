@@ -153,3 +153,65 @@ def test_list_reports_query_count_does_not_scale_with_result_size(client, regist
     # 1 запрос жалоб (с joinedload reporter+post) + 1 батч комментариев + 1 на авторизацию
     # админа (get_current_admin тоже обращается к базе) — константа, не растёт с числом жалоб
     assert query_count <= 4
+
+
+def test_admin_can_verify_provider(client, register_user, register_admin):
+    headers_admin, _ = register_admin()
+    headers_provider = register_user()
+    client.post(
+        "/api/services", json={"service_type": "sitter", "description": "Выгул собак"}, headers=headers_provider
+    )
+
+    r = client.get("/api/admin/service-providers", headers=headers_admin)
+    assert r.status_code == 200
+    provider_id = r.json()[0]["id"]
+    assert r.json()[0]["is_verified"] is False
+
+    r = client.patch(f"/api/admin/service-providers/{provider_id}/verify", headers=headers_admin)
+    assert r.status_code == 200
+    assert r.json()["is_verified"] is True
+
+    # публичный список услуг тоже отражает верификацию
+    r = client.get("/api/services")
+    assert r.json()[0]["is_verified"] is True
+
+
+def test_verify_provider_toggles_back(client, register_user, register_admin):
+    headers_admin, _ = register_admin()
+    headers_provider = register_user()
+    client.post(
+        "/api/services", json={"service_type": "vet", "description": "Ветеринар"}, headers=headers_provider
+    )
+    provider_id = client.get("/api/admin/service-providers", headers=headers_admin).json()[0]["id"]
+
+    client.patch(f"/api/admin/service-providers/{provider_id}/verify", headers=headers_admin)
+    r = client.patch(f"/api/admin/service-providers/{provider_id}/verify", headers=headers_admin)
+    assert r.json()["is_verified"] is False
+
+
+def test_verify_provider_requires_admin(client, register_user):
+    headers = register_user()
+    client.post("/api/services", json={"service_type": "vet", "description": "Ветеринар"}, headers=headers)
+    r = client.patch("/api/admin/service-providers/does-not-exist/verify", headers=headers)
+    assert r.status_code == 403
+
+
+def test_verify_nonexistent_provider_404(client, register_admin):
+    headers_admin, _ = register_admin()
+    r = client.patch("/api/admin/service-providers/does-not-exist/verify", headers=headers_admin)
+    assert r.status_code == 404
+
+
+def test_verify_provider_writes_audit_log(client, register_user, register_admin):
+    headers_admin, _ = register_admin()
+    headers_provider = register_user()
+    client.post(
+        "/api/services", json={"service_type": "groomer", "description": "Грумер"}, headers=headers_provider
+    )
+    provider_id = client.get("/api/admin/service-providers", headers=headers_admin).json()[0]["id"]
+
+    client.patch(f"/api/admin/service-providers/{provider_id}/verify", headers=headers_admin)
+
+    r = client.get("/api/admin/audit-log", headers=headers_admin)
+    entries = r.json()
+    assert any(e["action"] == "verify_provider" for e in entries)

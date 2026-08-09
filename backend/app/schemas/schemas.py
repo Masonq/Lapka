@@ -149,6 +149,7 @@ class ServiceProviderOut(BaseModel):
     contact: Optional[str] = None
     rating_avg: float
     rating_count: int
+    is_verified: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 

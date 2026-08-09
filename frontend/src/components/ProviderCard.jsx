@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Star, Phone, ChevronDown, ChevronUp } from "lucide-react";
+import { Star, Phone, ChevronDown, ChevronUp, BadgeCheck } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -63,8 +63,11 @@ export default function ProviderCard({ provider, onReviewed }) {
           <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
             {TYPE_RU[provider.service_type]}
           </span>
-          <div className="subhead" style={{ marginTop: 6 }}>
+          <div className="subhead" style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 4 }}>
             <Link to={`/users/${provider.user.id}`} className="post-meta-author">{provider.user.display_name}</Link>
+            {provider.is_verified && (
+              <BadgeCheck size={15} style={{ color: "var(--green-strong)", flexShrink: 0 }} aria-label="Подтверждённый исполнитель" />
+            )}
           </div>
         </div>
         {provider.rating_count > 0 && (
