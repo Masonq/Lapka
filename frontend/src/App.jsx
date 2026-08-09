@@ -74,7 +74,7 @@ export default function App() {
           ))}
         </nav>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: "auto" }}>
           <Link to="/create" className="btn btn-primary desktop-only" style={{ padding: "9px 16px" }}>
             <PlusCircle size={16} strokeWidth={2.4} /> Добавить
           </Link>

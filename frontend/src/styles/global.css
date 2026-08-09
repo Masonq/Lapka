@@ -108,6 +108,9 @@ a {
   display: flex;
   align-items: baseline;
   gap: 9px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .brand {
@@ -118,7 +121,7 @@ a {
 }
 
 .brand-logo {
-  height: 34px;
+  height: 40px;
   width: auto;
   display: block;
 }
@@ -792,6 +795,11 @@ a {
     margin: 0 -24px 20px;
     padding: 14px 20px;
     border-radius: 0 0 24px 24px;
+  }
+
+  .brand-block {
+    position: static;
+    transform: none;
   }
 
   .desktop-nav {
