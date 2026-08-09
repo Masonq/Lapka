@@ -323,24 +323,22 @@ export default function Explore() {
 
           <h3 className="subhead" style={{ marginBottom: 10 }}>Услуги для питомцев</h3>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-            <div className="chip-row" style={{ padding: 0, flex: 1 }}>
-              {SERVICE_TYPES.map((t) => (
-                <button
-                  key={t.value}
-                  className={`chip${serviceFilter === t.value ? " active" : ""}`}
-                  onClick={() => setServiceFilter(t.value)}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-            {isAuthed && (
-              <button className="btn btn-ghost" style={{ marginLeft: 8, flexShrink: 0 }} onClick={() => setShowProviderForm((v) => !v)}>
-                Стать исполнителем
+          <div className="chip-row" style={{ padding: 0, marginBottom: 10 }}>
+            {SERVICE_TYPES.map((t) => (
+              <button
+                key={t.value}
+                className={`chip${serviceFilter === t.value ? " active" : ""}`}
+                onClick={() => setServiceFilter(t.value)}
+              >
+                {t.label}
               </button>
-            )}
+            ))}
           </div>
+          {isAuthed && (
+            <button className="btn btn-ghost btn-block" style={{ marginBottom: 10 }} onClick={() => setShowProviderForm((v) => !v)}>
+              Стать исполнителем
+            </button>
+          )}
 
           {showProviderForm && (
             <form onSubmit={submitProvider} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
