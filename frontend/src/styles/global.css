@@ -474,6 +474,12 @@ a {
   color: var(--text-faint);
 }
 
+.sticky-search {
+  position: sticky;
+  top: 66px;
+  z-index: 15;
+}
+
 .search-bar input {
   flex: 1;
   border: none;
