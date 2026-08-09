@@ -33,7 +33,7 @@
 | 28 | Дизайн-система | 🟡 | Палитра под `design-reference.png` — тёплый оранжевый, снят пипеткой по пикселям. Применено к существующим экранам. Нет: левый сайдбар на десктопе (сейчас верхнее меню), ~25 нереализованных экранов referencе (сторис/сообщества/чат/здоровье/карта/marketplace) без своего дизайна, т.к. бэкенда под них нет |
 | 29 | API/backend layers | 🟡 | Auth, User/Pet, Social (posts/comments/follows), Services — есть. Community/Messaging/Discovery-Geo/Events-Walks/Marketplace/Moderation/Notification/Billing domains — нет |
 | 30 | Sprint Plan | — | Ориентир, не чеклист к вычёркиванию построчно |
-| 31 | MVP Release Gates | 🟡 | Есть: тесты (209), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации, все списочные эндпоинты проверены на N+1 (posts/communities/events/messages/services/admin — везде joinedload/батч-агрегаты вместо ленивой загрузки в цикле, закреплено тестами на реальное число SQL-запросов), реальный деплой на VPS. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups |
+| 31 | MVP Release Gates | 🟡 | Есть: тесты (209), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации, все списочные эндпоинты проверены на N+1, реальный деплой на VPS, бэкапы (deploy/backup.sh — БД+файлы, ротация 14 дней, cron-инструкция) + проверенный deploy/restore.sh. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, off-site копия бэкапов (только локально на том же сервере — честно отмечено в самом скрипте) |
 | 32–34 | Roadmap / KPI | — | Ориентир на будущее, не задача для кода |
 
 ## Что реально сделано сверх блюпринта
