@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.db import Base, engine
-from app.routers import admin, auth, communities, events, follows, messages, notifications, pets, posts, services, uploads, users
+from app.routers import admin, auth, communities, events, follows, marketplace, messages, notifications, pets, posts, services, uploads, users
 
 logger = logging.getLogger("lapabg")
 
@@ -53,6 +53,7 @@ app.include_router(admin.router)
 app.include_router(communities.router)
 app.include_router(messages.router)
 app.include_router(events.router)
+app.include_router(marketplace.router)
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)

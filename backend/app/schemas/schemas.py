@@ -336,3 +336,32 @@ class HealthRecordOut(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- Marketplace ----------
+
+class ListingCreate(BaseModel):
+    type: str  # sell / wanted / give_away
+    category: Optional[str] = Field(None, max_length=40)
+    title: str = Field(..., min_length=2, max_length=200)
+    description: Optional[str] = Field(None, max_length=2000)
+    price: Optional[int] = Field(None, ge=0)
+    photo_url: Optional[str] = Field(None, max_length=500)
+    city: Optional[str] = Field(None, max_length=80)
+
+
+class ListingOut(BaseModel):
+    id: str
+    type: str
+    category: Optional[str] = None
+    title: str
+    description: Optional[str] = None
+    price: Optional[int] = None
+    photo_url: Optional[str] = None
+    city: Optional[str] = None
+    is_sold: bool
+    seller: UserOut
+    is_saved: bool = False
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

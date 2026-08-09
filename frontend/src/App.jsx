@@ -20,6 +20,9 @@ import Nearby from "./pages/Nearby";
 import MessageThread from "./pages/MessageThread";
 import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
+import Marketplace from "./pages/Marketplace";
+import NewListing from "./pages/NewListing";
+import ListingDetail from "./pages/ListingDetail";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
@@ -105,6 +108,9 @@ export default function App() {
         <Route path="/messages/:userId" element={<MessageThread />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
+        <Route path="/marketplace" element={<Marketplace />} />
+        <Route path="/marketplace/new" element={<NewListing />} />
+        <Route path="/marketplace/:id" element={<ListingDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />

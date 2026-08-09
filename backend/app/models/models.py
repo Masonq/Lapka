@@ -319,3 +319,34 @@ class HealthRecord(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     pet = relationship("Pet")
+
+
+class Listing(Base):
+    """Объявление барахолки — раздел 20 блюпринта. Категории Wanted/Sell/Give away
+    из типа объявления, а не отдельного домена."""
+
+    __tablename__ = "listings"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    seller_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    type = Column(String(20), nullable=False)  # sell / wanted / give_away
+    category = Column(String(40), nullable=True)  # корм / игрушки / аксессуары / переноски / другое
+    title = Column(String(200), nullable=False)
+    description = Column(String(2000), nullable=True)
+    price = Column(Integer, nullable=True)  # в динарах; пусто для wanted/give_away
+    photo_url = Column(String(500), nullable=True)
+    city = Column(String(80), nullable=True)
+    is_sold = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    seller = relationship("User")
+
+
+class SavedListing(Base):
+    __tablename__ = "saved_listings"
+    __table_args__ = (UniqueConstraint("user_id", "listing_id", name="uq_user_saved_listing"),)
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    listing_id = Column(UUID(as_uuid=False), ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

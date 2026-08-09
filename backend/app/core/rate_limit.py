@@ -69,3 +69,4 @@ login_limiter = RateLimiter(max_actions=10, window_seconds=900)     # 10 поп�
 register_limiter = RateLimiter(max_actions=5, window_seconds=3600)  # 5 регистраций за час с одного IP
 report_limiter = RateLimiter(max_actions=10, window_seconds=3600)   # 10 жалоб за час на пользователя
 event_limiter = RateLimiter(max_actions=5, window_seconds=3600)     # 5 событий/прогулок в час на пользователя
+listing_limiter = RateLimiter(max_actions=10, window_seconds=3600)  # 10 объявлений в час на пользователя

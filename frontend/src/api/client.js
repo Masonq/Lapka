@@ -148,6 +148,18 @@ export const api = {
   leaveEvent: (id) => request(`/events/${id}/leave`, { method: "DELETE", auth: true }),
   eventParticipants: (id) => request(`/events/${id}/participants`),
 
+  listings: (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return request(`/marketplace${qs ? `?${qs}` : ""}`, { auth: true });
+  },
+  listing: (id) => request(`/marketplace/${id}`, { auth: true }),
+  createListing: (data) => request("/marketplace", { method: "POST", body: data, auth: true }),
+  markListingSold: (id) => request(`/marketplace/${id}/mark-sold`, { method: "PATCH", auth: true }),
+  deleteListing: (id) => request(`/marketplace/${id}`, { method: "DELETE", auth: true }),
+  saveListing: (id) => request(`/marketplace/${id}/save`, { method: "POST", auth: true }),
+  unsaveListing: (id) => request(`/marketplace/${id}/save`, { method: "DELETE", auth: true }),
+  savedListings: () => request("/marketplace/saved", { auth: true }),
+
   petHealth: (petId) => request(`/pets/${petId}/health`, { auth: true }),
   addHealthRecord: (petId, data) => request(`/pets/${petId}/health`, { method: "POST", body: data, auth: true }),
   deleteHealthRecord: (petId, recordId) => request(`/pets/${petId}/health/${recordId}`, { method: "DELETE", auth: true }),

@@ -20,7 +20,6 @@ const SERVICE_TYPES = [
 
 const UPCOMING = [
   { icon: Heart, label: "Приюты и пристройство", desc: "Питомцы, которым ищут дом" },
-  { icon: ShoppingBag, label: "Барахолка", desc: "Купить/продать/отдать даром" },
 ];
 
 export default function Explore() {
@@ -153,6 +152,22 @@ export default function Explore() {
             <div style={{ flex: 1 }}>
               <div className="subhead" style={{ fontSize: 14 }}>Прогулки и события</div>
               <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Совместные выгулы и встречи</div>
+            </div>
+            <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
+          </Link>
+
+          <Link to="/marketplace" className="card" style={{
+            borderRadius: 20, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", gap: 12,
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <ShoppingBag size={17} strokeWidth={2.2} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div className="subhead" style={{ fontSize: 14 }}>Барахолка</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Купить, продать, отдать даром</div>
             </div>
             <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
           </Link>

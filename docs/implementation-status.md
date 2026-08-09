@@ -13,7 +13,7 @@
 | 6 | Pet Profile | ✅ | Публичная страница `/pets/:id`: аватар, факты, город/активность, характер, карточка владельца. Нет: Stats (posts/friends/followers у питомца), Tabs (Photos/Friends/Health), QR Pet ID, Follow/Message — питомец пока не самостоятельный социальный объект (нет подписок/сообщений на питомца, только на владельца) |
 | 7 | Feed / Post Detail | ✅ | Есть свой URL, автор, медиа (одно фото), caption, локация, комментарии, save (закладка + страница "Сохранённое"), report (жалоба сохраняется в БД, очереди разбора пока нет — см. раздел 24-25), delete. Нет: карусель медиа (только 1 фото), reactions (только комментарии), edit поста, mute/hide |
 | 8 | Create Center | ✅ | Сделано — типы скрываются, а не блокируются. Реализовано: lost/found/adopt/question/general. Нет: Story/Poll/Walk/Event/Listing/Review |
-| 9 | Explore | 🟡 | Поиск + услуги + реальные блоки Рядом (по городу), Прогулки и события, сообществ (превью 3 + ссылка) работают. Adoption/Marketplace — честные заглушки "скоро" |
+| 9 | Explore | 🟡 | Поиск + услуги + реальные блоки Рядом (по городу), Прогулки и события, Барахолка, сообществ (превью 3 + ссылка) работают. Adoption — честная заглушка "скоро" |
 | 10 | Search | 🟡 | Есть autocomplete-подобный debounce-поиск по постам. Нет: вкладок People/Pets/Communities/Events, фильтров, recent/saved searches |
 | 11 | Nearby | 🟡 | По городу (не по точным координатам — блюпринт прямо это запрещает, а геолокации/карты у нас нет): публичный список питомцев с фильтром по городу. Нет: Map/List toggle, distance filter, species/breed/age/activity фильтры, Start Walk CTA, nearby events/places |
 | 12–13 | Communities | 🟡 | Создание, поиск/фильтр по городу, вступление/выход (с защитой последнего админа и от гонки при параллельном вступлении), список участников с ролями, посты внутри сообщества (нужно членство для публикации). Нет: Chat/Guides/Media вкладок, pinned announcement, rules, moderators UI, health indicators, cover-изображения (только avatar_url) |
@@ -23,7 +23,7 @@
 | 17 | Lost & Found | ✅ | Основа продукта — типы lost/found, last_seen_location, фото, статус resolved. Нет: sighting reports, notify communities, status timeline |
 | 18 | Services / Business | 🟡 | Каталог услуг + отзывы + рейтинг работают. Нет: verified badge, часы работы, карта, booking (сам блюпринт помечает booking как Phase 3) |
 | 19 | Health | 🟡 | Вакцинации/обработка от паразитов/лекарства/вес/визиты к ветеринару, приватно (403 не владельцу, проверено тестом), не попадает в ленту/рекомендации (собственный роутер, отдельный от постов). Нет: дашборда с графиком веса, отдельного экрана документов, интеграции reminders с общим Notification |
-| 20 | Marketplace | ⬜ | Не начато |
+| 20 | Marketplace | 🟡 | Категории (продажа/ищут/отдам даром), поиск, фильтр по городу/категории, listing card/detail, save/report (report переиспользует общий /posts report пока не строили отдельно — TODO), create listing, seller profile через существующий /users/:id, chat через существующие личные сообщения. Нет: отдельного Wanted/Sell/Give away визуального разделения на 3 разные вкладки (объединено фильтром type), отдельного report для объявлений |
 | 21 | Notifications | 🟡 | Есть: колокольчик в шапке со счётчиком (опрос раз в 30с), список, mark all read/mark one read, триггеры на follow и comment. Нет: категорий All/Social/Messages/Pet/Local/Safety/System (у нас только 2 типа событий), realtime (только polling), notification settings |
 | 22 | Profile | 🟡 | Аватар/имя/город/питомцы/сохранённое/настройки/выход есть. Нет: privacy, security (кроме смены пароля), blocked users, followers/following счётчики на своей странице (есть только в публичном профиле) |
 | 23 | Settings | 🟡 | Смена пароля, удаление аккаунта (с каскадным удалением всех данных — питомцы/посты/комментарии/подписки/отзывы/уведомления). Нет: account (кроме пароля), notifications settings, location, language, appearance, data export, help & support |
@@ -33,7 +33,7 @@
 | 28 | Дизайн-система | 🟡 | Палитра под `design-reference.png` — тёплый оранжевый, снят пипеткой по пикселям. Применено к существующим экранам. Нет: левый сайдбар на десктопе (сейчас верхнее меню), ~25 нереализованных экранов referencе (сторис/сообщества/чат/здоровье/карта/marketplace) без своего дизайна, т.к. бэкенда под них нет |
 | 29 | API/backend layers | 🟡 | Auth, User/Pet, Social (posts/comments/follows), Services — есть. Community/Messaging/Discovery-Geo/Events-Walks/Marketplace/Moderation/Notification/Billing domains — нет |
 | 30 | Sprint Plan | — | Ориентир, не чеклист к вычёркиванию построчно |
-| 31 | MVP Release Gates | 🟡 | Есть: тесты (149), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
+| 31 | MVP Release Gates | 🟡 | Есть: тесты (164), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
 | 32–34 | Roadmap / KPI | — | Ориентир на будущее, не задача для кода |
 
 ## Что реально сделано сверх блюпринта
