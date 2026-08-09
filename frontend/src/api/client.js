@@ -150,6 +150,7 @@ export const api = {
   adminDeleteListing: (id) => request(`/admin/listings/${id}`, { method: "DELETE", auth: true }),
   adminAuditLog: () => request("/admin/audit-log", { auth: true }),
   adminServiceProviders: () => request("/admin/service-providers", { auth: true }),
+  adminUsers: (q) => request(`/admin/users${q ? `?q=${encodeURIComponent(q)}` : ""}`, { auth: true }),
   adminToggleVerifyProvider: (id) => request(`/admin/service-providers/${id}/verify`, { method: "PATCH", auth: true }),
 
   communities: (params = {}) => {

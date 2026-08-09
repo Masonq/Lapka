@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, ShieldAlert, Flag, Trash2, X, BadgeCheck, Wrench } from "lucide-react";
+import { ArrowLeft, ShieldAlert, Flag, Trash2, X, BadgeCheck, Wrench, Users, Search } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -15,6 +15,16 @@ export default function Admin() {
   const [overview, setOverview] = useState(null);
   const [reports, setReports] = useState(null);
   const [providers, setProviders] = useState(null);
+  const [users, setUsers] = useState(null);
+  const [userQuery, setUserQuery] = useState("");
+
+  useEffect(() => {
+    if (!me?.is_admin) return;
+    const timer = setTimeout(() => {
+      api.adminUsers(userQuery).then(setUsers).catch(() => setUsers([]));
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [me, userQuery]);
 
   useEffect(() => {
     if (!isAuthed) return;
@@ -175,6 +185,40 @@ export default function Admin() {
           >
             <BadgeCheck size={14} /> {p.is_verified ? "Снять" : "Подтвердить"}
           </button>
+        </div>
+      ))}
+
+      <h3 className="subhead" style={{ margin: "24px 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+        <Users size={16} /> Пользователи
+      </h3>
+
+      <div className="search-bar" style={{ marginBottom: 12 }}>
+        <Search size={17} strokeWidth={2.2} />
+        <input
+          value={userQuery}
+          onChange={(e) => setUserQuery(e.target.value)}
+          placeholder="Искать по имени или почте…"
+          aria-label="Поиск пользователей"
+        />
+      </div>
+
+      {users?.length === 0 && (
+        <div className="empty-state" style={{ padding: "24px 20px" }}>Никого не нашлось</div>
+      )}
+
+      {users?.map((u) => (
+        <div key={u.id} className="card" style={{
+          borderRadius: 16, padding: 14, marginBottom: 8, display: "flex", alignItems: "center", gap: 10,
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Link to={`/users/${u.id}`} className="subhead" style={{ fontSize: 14 }}>{u.display_name}</Link>
+              {u.is_admin && <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>admin</span>}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+              {u.email || "телеграм"} · {u.city} · {u.posts_count} постов · {u.pets_count} питомцев
+            </div>
+          </div>
         </div>
       ))}
     </div>
