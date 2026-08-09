@@ -12,6 +12,23 @@ export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+/**
+ * data.detail от FastAPI бывает либо строкой (большинство наших HTTPException),
+ * либо массивом объектов Pydantic-валидации (автоматические 422-ошибки,
+ * например "поле длиннее 200 символов"). Без этой функции массив просто
+ * кидался как есть — JS превращал его в "[object Object]" при выводе пользователю.
+ */
+function extractErrorDetail(data, fallback) {
+  const detail = data?.detail;
+  if (!detail) return fallback;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    const messages = detail.map((e) => (typeof e === "string" ? e : e.msg)).filter(Boolean);
+    return messages.length ? messages.join("; ") : fallback;
+  }
+  return fallback;
+}
+
 async function request(path, { method = "GET", body, auth = false } = {}) {
   const headers = { "Content-Type": "application/json" };
   if (auth) {
@@ -29,7 +46,7 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
     let detail = "Что-то пошло не так";
     try {
       const data = await res.json();
-      detail = data.detail || detail;
+      detail = extractErrorDetail(data, detail);
     } catch {
       // no-op
     }
@@ -55,7 +72,7 @@ async function uploadImage(file) {
     let detail = "Не удалось загрузить фото";
     try {
       const data = await res.json();
-      detail = data.detail || detail;
+      detail = extractErrorDetail(data, detail);
     } catch {
       // no-op
     }
