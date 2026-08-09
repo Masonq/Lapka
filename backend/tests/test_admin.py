@@ -215,3 +215,44 @@ def test_verify_provider_writes_audit_log(client, register_user, register_admin)
     r = client.get("/api/admin/audit-log", headers=headers_admin)
     entries = r.json()
     assert any(e["action"] == "verify_provider" for e in entries)
+
+
+def test_admin_list_users_query_count_does_not_scale_with_result_size(client, register_user, register_admin):
+    headers_admin, _ = register_admin()
+    for i in range(4):
+        register_user(f"Пользователь{i}")
+
+    from app.core.db import engine
+    from sqlalchemy import event as sa_event
+
+    query_count = 0
+
+    def count_queries(*args, **kwargs):
+        nonlocal query_count
+        query_count += 1
+
+    sa_event.listen(engine, "before_cursor_execute", count_queries)
+    try:
+        r = client.get("/api/admin/users", headers=headers_admin)
+    finally:
+        sa_event.remove(engine, "before_cursor_execute", count_queries)
+
+    assert r.status_code == 200
+    assert len(r.json()) == 5  # админ + 4
+    assert query_count <= 5
+
+
+def test_admin_users_search_by_name(client, register_user, register_admin):
+    headers_admin, _ = register_admin()
+    register_user("Уникальное Имя")
+    register_user("Другой")
+
+    r = client.get("/api/admin/users?q=Уникальное", headers=headers_admin)
+    assert len(r.json()) == 1
+    assert r.json()[0]["display_name"] == "Уникальное Имя"
+
+
+def test_admin_users_requires_admin(client, register_user):
+    headers = register_user()
+    r = client.get("/api/admin/users", headers=headers)
+    assert r.status_code == 403

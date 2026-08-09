@@ -395,3 +395,19 @@ class BlockedUserOut(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- Admin: Users ----------
+
+class AdminUserOut(BaseModel):
+    id: str
+    display_name: str
+    email: Optional[str] = None
+    city: str
+    is_admin: bool
+    is_service_provider: bool
+    created_at: datetime
+    posts_count: int = 0
+    pets_count: int = 0
+
+    model_config = ConfigDict(from_attributes=True)

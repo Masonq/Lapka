@@ -1,13 +1,13 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import desc, func
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.security import get_current_admin
 from app.models.models import AuditLog, Comment, Listing, Pet, Post, Report, ServiceProvider, User
-from app.schemas.schemas import AdminActionResult, AdminOverview, AuditLogOut, ReportQueueItem, ServiceProviderOut
+from app.schemas.schemas import AdminActionResult, AdminOverview, AdminUserOut, AuditLogOut, ReportQueueItem, ServiceProviderOut
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -119,6 +119,39 @@ def audit_log(db: Session = Depends(get_db), admin: User = Depends(get_current_a
         .all()
     )
     return rows
+
+
+@router.get("/users", response_model=list[AdminUserOut])
+def list_users(
+    q: Optional[str] = None,
+    limit: int = Query(30, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+):
+    query = db.query(User)
+    if q:
+        pattern = f"%{q.strip()}%"
+        query = query.filter((User.display_name.ilike(pattern)) | (User.email.ilike(pattern)))
+    users = query.order_by(desc(User.created_at)).offset(offset).limit(limit).all()
+    if not users:
+        return []
+
+    user_ids = [u.id for u in users]
+    posts_counts = dict(
+        db.query(Post.author_id, func.count(Post.id)).filter(Post.author_id.in_(user_ids)).group_by(Post.author_id).all()
+    )
+    pets_counts = dict(
+        db.query(Pet.owner_id, func.count(Pet.id)).filter(Pet.owner_id.in_(user_ids)).group_by(Pet.owner_id).all()
+    )
+
+    out = []
+    for u in users:
+        item = AdminUserOut.model_validate(u)
+        item.posts_count = posts_counts.get(u.id, 0)
+        item.pets_count = pets_counts.get(u.id, 0)
+        out.append(item)
+    return out
 
 
 @router.get("/service-providers", response_model=list[ServiceProviderOut])
