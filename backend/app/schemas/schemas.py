@@ -411,3 +411,19 @@ class AdminUserOut(BaseModel):
     pets_count: int = 0
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- Stories ----------
+
+class StoryCreate(BaseModel):
+    photo_url: str = Field(..., max_length=500)
+
+
+class StoryOut(BaseModel):
+    id: str
+    author: UserOut
+    photo_url: str
+    created_at: datetime
+    expires_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

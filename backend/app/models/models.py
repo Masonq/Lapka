@@ -388,3 +388,18 @@ class Block(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     blocked = relationship("User", foreign_keys=[blocked_id])
+
+
+class Story(Base):
+    """История — раздел 3 блюпринта. Живёт 24 часа, потом не показывается в ленте
+    (expires_at считается на бэкенде при создании, не полагаемся на фронтенд)."""
+
+    __tablename__ = "stories"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    author_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    photo_url = Column(String(500), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+
+    author = relationship("User")
