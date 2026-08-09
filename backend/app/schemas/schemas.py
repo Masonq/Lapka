@@ -272,3 +272,43 @@ class ConversationOut(BaseModel):
     last_message: str
     last_message_at: datetime
     unread_count: int = 0
+
+
+# ---------- Events / Walks ----------
+
+class EventCreate(BaseModel):
+    type: str  # walk / event
+    title: str = Field(..., min_length=2, max_length=200)
+    description: Optional[str] = Field(None, max_length=2000)
+    location: Optional[str] = Field(None, max_length=200)
+    starts_at: datetime
+    capacity: Optional[int] = Field(None, ge=1, le=1000)
+    pet_id: Optional[str] = None
+    community_id: Optional[str] = None
+
+
+class EventOut(BaseModel):
+    id: str
+    type: str
+    title: str
+    description: Optional[str] = None
+    location: Optional[str] = None
+    starts_at: datetime
+    capacity: Optional[int] = None
+    organizer: UserOut
+    pet_id: Optional[str] = None
+    pet_name: Optional[str] = None
+    community_id: Optional[str] = None
+    participants_count: int = 0
+    is_going: bool = False
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EventParticipantOut(BaseModel):
+    user: UserOut
+    status: str
+    joined_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

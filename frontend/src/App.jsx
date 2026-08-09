@@ -18,6 +18,8 @@ import Communities from "./pages/Communities";
 import CommunityDetail from "./pages/CommunityDetail";
 import Nearby from "./pages/Nearby";
 import MessageThread from "./pages/MessageThread";
+import Events from "./pages/Events";
+import EventDetail from "./pages/EventDetail";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
@@ -101,6 +103,8 @@ export default function App() {
         <Route path="/communities/:id" element={<CommunityDetail />} />
         <Route path="/nearby" element={<Nearby />} />
         <Route path="/messages/:userId" element={<MessageThread />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/users/:id" element={<UserProfile />} />
         <Route path="*" element={<NotFound />} />

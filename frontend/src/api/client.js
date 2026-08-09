@@ -138,5 +138,15 @@ export const api = {
   sendMessage: (userId, body) => request(`/messages/${userId}`, { method: "POST", body: { body }, auth: true }),
   unreadMessagesCount: () => request("/messages/unread-count", { auth: true }),
 
+  events: (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return request(`/events${qs ? `?${qs}` : ""}`, { auth: true });
+  },
+  event: (id) => request(`/events/${id}`, { auth: true }),
+  createEvent: (data) => request("/events", { method: "POST", body: data, auth: true }),
+  joinEvent: (id) => request(`/events/${id}/join`, { method: "POST", auth: true }),
+  leaveEvent: (id) => request(`/events/${id}/leave`, { method: "DELETE", auth: true }),
+  eventParticipants: (id) => request(`/events/${id}/participants`),
+
   uploadImage,
 };

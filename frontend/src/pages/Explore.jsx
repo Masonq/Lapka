@@ -19,7 +19,6 @@ const SERVICE_TYPES = [
 ];
 
 const UPCOMING = [
-  { icon: CalendarDays, label: "События и прогулки", desc: "Совместные выгулы и встречи" },
   { icon: Heart, label: "Приюты и пристройство", desc: "Питомцы, которым ищут дом" },
   { icon: ShoppingBag, label: "Барахолка", desc: "Купить/продать/отдать даром" },
 ];
@@ -138,6 +137,22 @@ export default function Explore() {
             <div style={{ flex: 1 }}>
               <div className="subhead" style={{ fontSize: 14 }}>Рядом</div>
               <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Питомцы в твоём городе</div>
+            </div>
+            <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
+          </Link>
+
+          <Link to="/events" className="card" style={{
+            borderRadius: 20, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", gap: 12,
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: "50%", background: "var(--green-tint)", color: "var(--green-strong)",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <CalendarDays size={17} strokeWidth={2.2} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div className="subhead" style={{ fontSize: 14 }}>Прогулки и события</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Совместные выгулы и встречи</div>
             </div>
             <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
           </Link>

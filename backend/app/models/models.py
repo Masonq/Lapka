@@ -260,3 +260,42 @@ class Message(Base):
 
     sender = relationship("User", foreign_keys=[sender_id])
     recipient = relationship("User", foreign_keys=[recipient_id])
+
+
+class Event(Base):
+    """Прогулка или событие — разделы 15-16 блюпринта объединены в одну модель:
+    структурно это одно и то же (дата/время/место/участники), разница только в том,
+    что у прогулки указывается конкретный питомец, а у события — нет."""
+
+    __tablename__ = "events"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    organizer_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    type = Column(String(20), nullable=False)  # walk / event
+    title = Column(String(200), nullable=False)
+    description = Column(String(2000), nullable=True)
+    location = Column(String(200), nullable=True)
+    starts_at = Column(DateTime(timezone=True), nullable=False)
+    capacity = Column(Integer, nullable=True)
+    pet_id = Column(UUID(as_uuid=False), ForeignKey("pets.id", ondelete="SET NULL"), nullable=True)
+    community_id = Column(UUID(as_uuid=False), ForeignKey("communities.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    organizer = relationship("User")
+    pet = relationship("Pet")
+    community = relationship("Community")
+    participants = relationship("EventParticipant", back_populates="event", cascade="all, delete-orphan")
+
+
+class EventParticipant(Base):
+    __tablename__ = "event_participants"
+    __table_args__ = (UniqueConstraint("event_id", "user_id", name="uq_event_participant"),)
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    event_id = Column(UUID(as_uuid=False), ForeignKey("events.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    status = Column(String(20), default="going")  # going / interested
+    joined_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    event = relationship("Event", back_populates="participants")
+    user = relationship("User")
