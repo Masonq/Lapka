@@ -366,3 +366,22 @@ class ReportQueueItem(BaseModel):
     listing: Optional[ListingOut] = None  # None, если объявление уже удалено или жалоба не на него
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- Sightings (раздел 17 — "видел питомца тут") ----------
+
+class SightingCreate(BaseModel):
+    location: str = Field(..., min_length=2, max_length=200)
+    note: Optional[str] = Field(None, max_length=1000)
+    seen_at: Optional[datetime] = None
+
+
+class SightingOut(BaseModel):
+    id: str
+    reporter: UserOut
+    location: str
+    note: Optional[str] = None
+    seen_at: Optional[datetime] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

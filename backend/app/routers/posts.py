@@ -6,10 +6,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
-from app.core.rate_limit import post_limiter, comment_limiter, report_limiter
+from app.core.rate_limit import post_limiter, comment_limiter, report_limiter, sighting_limiter
 from app.core.security import get_current_user, get_current_user_optional
-from app.models.models import Comment, CommunityMember, Follow, Notification, Post, Report, SavedPost, PostType, User
-from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, ReportCreate
+from app.models.models import Comment, CommunityMember, Follow, Notification, Post, Report, SavedPost, Sighting, PostType, User
+from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, ReportCreate, SightingCreate, SightingOut
 
 router = APIRouter(prefix="/api/posts", tags=["posts"])
 
@@ -258,3 +258,48 @@ def report_post(
     db.add(Report(reporter_id=user.id, post_id=post_id, reason=data.reason))
     db.commit()
     return {"ok": True}
+
+
+@router.get("/{post_id}/sightings", response_model=list[SightingOut])
+def list_sightings(post_id: str, db: Session = Depends(get_db)):
+    return (
+        db.query(Sighting)
+        .options(joinedload(Sighting.reporter))
+        .filter(Sighting.post_id == post_id)
+        .order_by(desc(Sighting.created_at))
+        .all()
+    )
+
+
+@router.post("/{post_id}/sightings", response_model=SightingOut)
+def add_sighting(
+    post_id: str,
+    data: SightingCreate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """'Видел питомца тут' — только для потеряшек/находок, не для обычных постов:
+    у вопроса или пристройства нет смысла отмечать место наблюдения."""
+    sighting_limiter.check(user.id)
+
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Пост не найден")
+    if post.type not in (PostType.LOST, PostType.FOUND):
+        raise HTTPException(status_code=400, detail="Отметить наблюдение можно только у потеряшки или находки")
+
+    sighting = Sighting(
+        post_id=post_id,
+        reporter_id=user.id,
+        location=data.location,
+        note=data.note,
+        seen_at=data.seen_at,
+    )
+    db.add(sighting)
+
+    if post.author_id != user.id:
+        db.add(Notification(user_id=post.author_id, actor_id=user.id, type="sighting", post_id=post_id))
+
+    db.commit()
+    db.refresh(sighting)
+    return sighting

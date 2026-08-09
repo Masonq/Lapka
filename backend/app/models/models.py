@@ -352,3 +352,22 @@ class SavedListing(Base):
     user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     listing_id = Column(UUID(as_uuid=False), ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class Sighting(Base):
+    """'Видел питомца тут' — структурированное сообщение к посту lost/found, раздел 17
+    блюпринта ('Sighting report'). Отдельно от комментариев: у sighting есть место и
+    время наблюдения, а не просто текст — это то, что реально помогает искать животное,
+    и то, ради чего весь проект изначально начинался (t.me/kuce_beograd)."""
+
+    __tablename__ = "sightings"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
+    reporter_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    location = Column(String(200), nullable=False)
+    note = Column(String(1000), nullable=True)
+    seen_at = Column(DateTime(timezone=True), nullable=True)  # когда видели, если не сейчас
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    reporter = relationship("User")

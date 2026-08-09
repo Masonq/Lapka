@@ -70,3 +70,4 @@ register_limiter = RateLimiter(max_actions=5, window_seconds=3600)  # 5 реги
 report_limiter = RateLimiter(max_actions=10, window_seconds=3600)   # 10 жалоб за час на пользователя
 event_limiter = RateLimiter(max_actions=5, window_seconds=3600)     # 5 событий/прогулок в час на пользователя
 listing_limiter = RateLimiter(max_actions=10, window_seconds=3600)  # 10 объявлений в час на пользователя
+sighting_limiter = RateLimiter(max_actions=15, window_seconds=3600)  # 15 sighting-репортов в час на пользователя

@@ -162,6 +162,8 @@ export const api = {
   unsaveListing: (id) => request(`/marketplace/${id}/save`, { method: "DELETE", auth: true }),
   savedListings: () => request("/marketplace/saved", { auth: true }),
   reportListing: (id, reason) => request(`/marketplace/${id}/report`, { method: "POST", body: { reason }, auth: true }),
+  sightings: (postId) => request(`/posts/${postId}/sightings`),
+  addSighting: (postId, data) => request(`/posts/${postId}/sightings`, { method: "POST", body: data, auth: true }),
 
   petHealth: (petId) => request(`/pets/${petId}/health`, { auth: true }),
   addHealthRecord: (petId, data) => request(`/pets/${petId}/health`, { method: "POST", body: data, auth: true }),

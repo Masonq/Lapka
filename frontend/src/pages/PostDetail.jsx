@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag } from "lucide-react";
+import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag, Eye, Plus } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -13,6 +13,16 @@ const TYPE_LABELS = {
   question: "Вопрос",
   general: "Пост",
 };
+
+function timeAgo(iso) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return "только что";
+  if (min < 60) return `${min} мин назад`;
+  const hrs = Math.floor(min / 60);
+  if (hrs < 24) return `${hrs} ч назад`;
+  return `${Math.floor(hrs / 24)} дн назад`;
+}
 
 export default function PostDetail() {
   const { id } = useParams();
@@ -27,11 +37,17 @@ export default function PostDetail() {
   const [showReportForm, setShowReportForm] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reported, setReported] = useState(false);
+  const [sightings, setSightings] = useState([]);
+  const [showSightingForm, setShowSightingForm] = useState(false);
+  const [sightingLocation, setSightingLocation] = useState("");
+  const [sightingNote, setSightingNote] = useState("");
+  const [submittingSighting, setSubmittingSighting] = useState(false);
   useDocumentTitle(post ? post.title : "Пост");
 
   function load() {
     api.post(id).then(setPost).catch(() => setNotFound(true));
     api.comments(id).then(setComments).catch(() => setComments([]));
+    api.sightings(id).then(setSightings).catch(() => setSightings([]));
   }
 
   useEffect(load, [id]);
@@ -83,6 +99,24 @@ export default function PostDetail() {
       showToast("Жалоба отправлена");
     } catch (err) {
       showToast(err.message, "error");
+    }
+  }
+
+  async function submitSighting(e) {
+    e.preventDefault();
+    if (!sightingLocation.trim()) return;
+    setSubmittingSighting(true);
+    try {
+      await api.addSighting(id, { location: sightingLocation, note: sightingNote || undefined });
+      setSightingLocation("");
+      setSightingNote("");
+      setShowSightingForm(false);
+      showToast("Спасибо, отметил(а)");
+      load();
+    } catch (err) {
+      showToast(err.message, "error");
+    } finally {
+      setSubmittingSighting(false);
     }
   }
 
@@ -180,6 +214,68 @@ export default function PostDetail() {
             </form>
           )}
         </div>
+
+        {(post.type === "lost" || post.type === "found") && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <h3 className="subhead" style={{ margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
+                <Eye size={16} /> Видели тут ({sightings.length})
+              </h3>
+              {isAuthed && !showSightingForm && (
+                <button className="btn btn-ghost" style={{ padding: "6px 12px", fontSize: 12 }} onClick={() => setShowSightingForm(true)}>
+                  <Plus size={14} /> Я видел(а)
+                </button>
+              )}
+            </div>
+
+            {showSightingForm && (
+              <form onSubmit={submitSighting} className="card" style={{ borderRadius: 16, padding: 14, marginBottom: 10 }}>
+                <div className="field">
+                  <label htmlFor="sighting-location">Где видели</label>
+                  <input
+                    id="sighting-location"
+                    value={sightingLocation}
+                    onChange={(e) => setSightingLocation(e.target.value)}
+                    required
+                    placeholder="Например: угол Кнез Михайловой и Васиной"
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="sighting-note">Подробности</label>
+                  <textarea
+                    id="sighting-note"
+                    rows={2}
+                    value={sightingNote}
+                    onChange={(e) => setSightingNote(e.target.value)}
+                    placeholder="Куда побежал(а), в каком состоянии — необязательно"
+                  />
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button className="btn btn-primary" disabled={submittingSighting}>
+                    {submittingSighting ? "Отправляем…" : "Отправить"}
+                  </button>
+                  <button type="button" className="btn btn-ghost" onClick={() => setShowSightingForm(false)}>Отмена</button>
+                </div>
+              </form>
+            )}
+
+            {sightings.length === 0 && !showSightingForm && (
+              <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Пока никто не отмечал наблюдений</p>
+            )}
+
+            {sightings.map((s) => (
+              <div key={s.id} className="card" style={{ borderRadius: 16, padding: "10px 14px", marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 700 }}>
+                  <MapPin size={13} /> {s.location}
+                </div>
+                {s.note && <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>{s.note}</div>}
+                <div style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 4 }}>
+                  {s.reporter.display_name} · {timeAgo(s.created_at)}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <h3 className="subhead" style={{ marginBottom: 10 }}>
           Комментарии ({comments.length})

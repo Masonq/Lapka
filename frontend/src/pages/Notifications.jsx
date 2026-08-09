@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Bell, UserPlus, MessageCircle } from "lucide-react";
+import { ArrowLeft, Bell, UserPlus, MessageCircle, Eye } from "lucide-react";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 
@@ -79,12 +79,16 @@ export default function Notifications() {
             width: 36, height: 36, borderRadius: "50%", background: "var(--gray-tint)", color: "var(--text-muted)",
             display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
           }}>
-            {n.type === "follow" ? <UserPlus size={16} /> : <MessageCircle size={16} />}
+            {n.type === "follow" && <UserPlus size={16} />}
+            {n.type === "comment" && <MessageCircle size={16} />}
+            {n.type === "sighting" && <Eye size={16} />}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 14 }}>
               <b>{n.actor.display_name}</b>{" "}
-              {n.type === "follow" ? "подписался(-ась) на тебя" : "прокомментировал(а) пост"}
+              {n.type === "follow" && "подписался(-ась) на тебя"}
+              {n.type === "comment" && "прокомментировал(а) пост"}
+              {n.type === "sighting" && "отметил(а) наблюдение в посте"}
               {n.post_title && <> «{n.post_title}»</>}
             </div>
             <div style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 2 }}>{timeAgo(n.created_at)}</div>
