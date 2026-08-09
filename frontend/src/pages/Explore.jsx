@@ -225,7 +225,7 @@ export default function Explore() {
           {!searching && searchResults?.length > 0 && searchTab === "events" && (
             <div className="card-grid">
               {searchResults.map((ev) => (
-                <Link key={ev.id} to={`/events/${ev.id}`} className="card" style={{ borderRadius: 20, padding: 16 }}>
+                <Link key={ev.id} to={`/events/${ev.id}`} className="card" style={{ borderRadius: 20, padding: 16, display: "flex", flexDirection: "column", height: "100%" }}>
                   <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
                     {ev.type === "walk" ? "Прогулка" : "Событие"}
                   </span>

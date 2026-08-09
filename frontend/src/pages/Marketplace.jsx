@@ -62,7 +62,7 @@ export default function Marketplace() {
       {listings?.length > 0 && (
         <div className="card-grid">
           {listings.map((l) => (
-            <Link key={l.id} to={`/marketplace/${l.id}`} className="card" style={{ borderRadius: 20, padding: 16 }}>
+            <Link key={l.id} to={`/marketplace/${l.id}`} className="card" style={{ borderRadius: 20, padding: 16, display: "flex", flexDirection: "column", height: "100%" }}>
               {l.photo_url && (
                 <img src={l.photo_url} alt={l.title} className="post-card-photo" />
               )}

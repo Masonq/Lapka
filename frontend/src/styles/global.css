@@ -307,7 +307,9 @@ a {
   position: relative;
   border-radius: var(--radius-lg);
   padding: 16px;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   min-width: 0;
 }
 
@@ -411,6 +413,7 @@ a {
   color: var(--text-faint);
   font-weight: 600;
   flex-wrap: nowrap;
+  margin-top: auto;
 }
 
 .post-meta-item {
@@ -827,7 +830,7 @@ a {
 
   .card-grid {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    align-items: start;
+    align-items: stretch;
   }
 
   /* Формы читаются лучше в узкой колонке даже на широком экране */
