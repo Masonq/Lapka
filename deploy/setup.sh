@@ -18,7 +18,5 @@ cp deploy/nginx.conf /etc/nginx/sites-available/lapabg.conf
 ln -sf /etc/nginx/sites-available/lapabg.conf /etc/nginx/sites-enabled/lapabg.conf
 nginx -t && systemctl reload nginx
 
-echo "→ Выпускаю SSL-сертификат"
-certbot --nginx -d lapa.flatro.app --non-interactive --agree-tos -m admin@flatro.app
-
-echo "Готово: https://lapa.flatro.app"
+echo "Готово: http://$(curl -s ifconfig.me)"
+echo "SSL и домен — отдельным шагом, когда lapa.flatro.app будет указывать на этот сервер: bash deploy/enable-ssl.sh"
