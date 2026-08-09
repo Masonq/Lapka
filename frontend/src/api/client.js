@@ -83,6 +83,7 @@ export const api = {
     const qs = new URLSearchParams(params).toString();
     return request(`/posts${qs ? `?${qs}` : ""}`);
   },
+  localPulse: () => request("/posts/local-pulse"),
   createPost: (data) => request("/posts", { method: "POST", body: data, auth: true }),
   post: (id) => request(`/posts/${id}`),
   resolvePost: (id) => request(`/posts/${id}/resolve`, { method: "PATCH", auth: true }),

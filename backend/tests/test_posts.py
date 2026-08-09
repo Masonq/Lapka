@@ -174,6 +174,58 @@ def test_title_too_long_rejected_cleanly(client, register_user):
     assert r.status_code == 422  # чистая ошибка валидации, а не 500 от переполнения колонки БД
 
 
+def test_filter_posts_by_is_resolved(client, register_user):
+    headers = register_user()
+    active = client.post(
+        "/api/posts", json={"type": "lost", "title": "Активная потеряшка", "body": "текст"}, headers=headers
+    ).json()
+    resolved = client.post(
+        "/api/posts", json={"type": "lost", "title": "Уже нашёлся", "body": "текст"}, headers=headers
+    ).json()
+    client.patch(f"/api/posts/{resolved['id']}/resolve", headers=headers)
+
+    r = client.get("/api/posts", params={"is_resolved": False})
+    titles = [p["title"] for p in r.json()]
+    assert "Активная потеряшка" in titles
+    assert "Уже нашёлся" not in titles
+
+    r = client.get("/api/posts", params={"is_resolved": True})
+    titles = [p["title"] for p in r.json()]
+    assert "Уже нашёлся" in titles
+    assert "Активная потеряшка" not in titles
+
+
+def test_local_pulse_counts_active_lost_found(client, register_user):
+    headers = register_user()
+    client.post("/api/posts", json={"type": "lost", "title": "Потеряшка 1", "body": "текст"}, headers=headers)
+    client.post("/api/posts", json={"type": "lost", "title": "Потеряшка 2", "body": "текст"}, headers=headers)
+    found_resolved = client.post(
+        "/api/posts", json={"type": "found", "title": "Найден и вернули", "body": "текст"}, headers=headers
+    ).json()
+    client.patch(f"/api/posts/{found_resolved['id']}/resolve", headers=headers)
+
+    r = client.get("/api/posts/local-pulse")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["active_lost_count"] == 2
+    assert data["active_found_count"] == 0  # решённый не считается активным
+
+
+def test_local_pulse_counts_upcoming_events(client, register_user):
+    headers = register_user()
+    client.post(
+        "/api/events", json={"type": "walk", "title": "Прогулка", "starts_at": "2027-01-01T18:00:00Z"}, headers=headers
+    )
+
+    r = client.get("/api/posts/local-pulse")
+    assert r.json()["upcoming_events_count"] >= 1
+
+
+def test_local_pulse_no_auth_required(client):
+    r = client.get("/api/posts/local-pulse")
+    assert r.status_code == 200
+
+
 def test_location_too_long_rejected_cleanly(client, register_user):
     headers = register_user()
     r = client.post(

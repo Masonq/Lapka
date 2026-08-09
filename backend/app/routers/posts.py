@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import desc, func, or_
@@ -8,7 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.db import get_db
 from app.core.rate_limit import post_limiter, comment_limiter, report_limiter, sighting_limiter
 from app.core.security import get_current_user, get_current_user_optional
-from app.models.models import Comment, CommunityMember, Follow, Notification, Post, Report, SavedPost, Sighting, PostType, User
+from app.models.models import Comment, CommunityMember, Event, Follow, Notification, Post, Report, SavedPost, Sighting, PostType, User
 from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, ReportCreate, SightingCreate, SightingOut
 
 router = APIRouter(prefix="/api/posts", tags=["posts"])
@@ -29,6 +30,7 @@ def list_posts(
     q: Optional[str] = None,
     author_id: Optional[str] = None,
     community_id: Optional[str] = None,
+    is_resolved: Optional[bool] = None,
     following: bool = False,
     limit: int = Query(30, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -45,6 +47,8 @@ def list_posts(
         query = query.filter(Post.author_id == author_id)
     if community_id:
         query = query.filter(Post.community_id == community_id)
+    if is_resolved is not None:
+        query = query.filter(Post.is_resolved == is_resolved)
     if following:
         if not user:
             raise HTTPException(status_code=401, detail="Войди, чтобы смотреть ленту подписок")
@@ -147,6 +151,21 @@ def list_saved_posts(db: Session = Depends(get_db), user: User = Depends(get_cur
     # сохраняем порядок "сохранено недавно — выше", а не порядок публикации
     ordered = [posts_by_id[pid] for pid in saved_post_ids if pid in posts_by_id]
     return [_to_out(p, saved_set, comment_counts.get(p.id, 0)) for p in ordered]
+
+
+@router.get("/local-pulse")
+def local_pulse(db: Session = Depends(get_db)):
+    """Раздел 3 блюпринта — 'Local Pulse: события и потеряшки рядом'. Гео у нас нет
+    (город-scoped приложение, см. раздел 11), поэтому 'рядом' = по всему городу —
+    честно, без имитации точной геолокации."""
+    active_lost = db.query(Post).filter(Post.type == PostType.LOST, Post.is_resolved.is_(False)).count()
+    active_found = db.query(Post).filter(Post.type == PostType.FOUND, Post.is_resolved.is_(False)).count()
+    upcoming_events = db.query(Event).filter(Event.starts_at >= datetime.now(timezone.utc)).count()
+    return {
+        "active_lost_count": active_lost,
+        "active_found_count": active_found,
+        "upcoming_events_count": upcoming_events,
+    }
 
 
 @router.get("/{post_id}", response_model=PostOut)

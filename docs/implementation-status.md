@@ -7,7 +7,7 @@
 |---|--------|--------|---------|
 | 1 | UX-принципы | 🟡 | loading/empty/error есть почти везде; геолокация текстом (без карты и без точных координат — ок) |
 | 2 | Глобальная навигация | ✅ | Mobile: Home/Explore/Create/Messages/Profile — сделано. Desktop: пока верхнее меню, не левый сайдбар как на референсе |
-| 3 | Home | 🟡 | Есть: лента, поиск, фильтры типов, Quick Actions (Потерялся/Нашёлся/Ищет дом), вкладки For You/Following (реальные подписки, не заглушка). Нет: Pet Switcher, Pet Hub Card, Stories, вкладки Nearby (нет гео), Local Pulse, рекомендаций сообществ/питомцев |
+| 3 | Home | 🟡 | Есть: лента, поиск, фильтры типов (+ is_resolved), Quick Actions (Потерялся/Нашёлся/Ищет дом), вкладки For You/Following (реальные подписки, не заглушка), Local Pulse (счётчики активных потеряшек/находок/предстоящих событий, кликабельны — фильтруют ленту / ведут на события; по городу, не по гео). Нет: Pet Switcher, Pet Hub Card, Stories, вкладки Nearby (нет гео), рекомендаций сообществ/питомцев |
 | 4 | Pet Hub | 🟡 | Список питомцев в профиле есть (`/pets`). Нет: карточка-хаб с Today/Health/Walk shortcuts/Friends/Documents |
 | 5 | Создание питомца | ✅ | Есть: фото, имя, вид, порода, пол, возраст, город, активность, характер/интересы (текстом в about). Нет: дата рождения (только целый возраст) — сочли достаточным |
 | 6 | Pet Profile | ✅ | Публичная страница `/pets/:id`: аватар, факты, город/активность, характер, карточка владельца. Нет: Stats (posts/friends/followers у питомца), Tabs (Photos/Friends/Health), QR Pet ID, Follow/Message — питомец пока не самостоятельный социальный объект (нет подписок/сообщений на питомца, только на владельца) |
@@ -33,7 +33,7 @@
 | 28 | Дизайн-система | 🟡 | Палитра под `design-reference.png` — тёплый оранжевый, снят пипеткой по пикселям. Применено к существующим экранам. Нет: левый сайдбар на десктопе (сейчас верхнее меню), ~25 нереализованных экранов referencе (сторис/сообщества/чат/здоровье/карта/marketplace) без своего дизайна, т.к. бэкенда под них нет |
 | 29 | API/backend layers | 🟡 | Auth, User/Pet, Social (posts/comments/follows), Services — есть. Community/Messaging/Discovery-Geo/Events-Walks/Marketplace/Moderation/Notification/Billing domains — нет |
 | 30 | Sprint Plan | — | Ориентир, не чеклист к вычёркиванию построчно |
-| 31 | MVP Release Gates | 🟡 | Есть: тесты (194), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации, все списочные эндпоинты проверены на N+1 (posts/communities/events/messages/services/admin — везде joinedload/батч-агрегаты вместо ленивой загрузки в цикле, закреплено тестами на реальное число SQL-запросов). Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
+| 31 | MVP Release Gates | 🟡 | Есть: тесты (198), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации, все списочные эндпоинты проверены на N+1 (posts/communities/events/messages/services/admin — везде joinedload/батч-агрегаты вместо ленивой загрузки в цикле, закреплено тестами на реальное число SQL-запросов). Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
 | 32–34 | Roadmap / KPI | — | Ориентир на будущее, не задача для кода |
 
 ## Что реально сделано сверх блюпринта

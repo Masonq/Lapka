@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, AlertTriangle, MapPinCheck, Heart } from "lucide-react";
+import { Search, X, AlertTriangle, MapPinCheck, Heart, CalendarDays } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import PostCard from "../components/PostCard";
@@ -35,6 +35,11 @@ export default function Feed() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
+  const [pulse, setPulse] = useState(null);
+
+  useEffect(() => {
+    api.localPulse().then(setPulse).catch(() => setPulse(null));
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 350);
@@ -74,6 +79,38 @@ export default function Feed() {
 
   return (
     <div>
+      {pulse && (pulse.active_lost_count > 0 || pulse.active_found_count > 0 || pulse.upcoming_events_count > 0) && (
+        <div className="card" style={{
+          borderRadius: 18, padding: "12px 16px", marginBottom: 14,
+          display: "flex", flexWrap: "wrap", gap: 14, alignItems: "center",
+        }}>
+          {pulse.active_lost_count > 0 && (
+            <button
+              onClick={() => setFilter("lost")}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer" }}
+            >
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--red)" }} />
+              <span style={{ fontSize: 13, fontWeight: 700 }}>{pulse.active_lost_count} потеряшек</span>
+            </button>
+          )}
+          {pulse.active_found_count > 0 && (
+            <button
+              onClick={() => setFilter("found")}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer" }}
+            >
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green-strong)" }} />
+              <span style={{ fontSize: 13, fontWeight: 700 }}>{pulse.active_found_count} находок</span>
+            </button>
+          )}
+          {pulse.upcoming_events_count > 0 && (
+            <Link to="/events" style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--text)" }}>
+              <CalendarDays size={14} style={{ color: "var(--text-muted)" }} />
+              <span style={{ fontSize: 13, fontWeight: 700 }}>{pulse.upcoming_events_count} событий</span>
+            </Link>
+          )}
+        </div>
+      )}
+
       {isAuthed && (
         <div style={{ display: "flex", gap: 10, padding: "4px 0 16px" }}>
           {QUICK_ACTIONS.map(({ type, label, icon: Icon, tint, color }) => (
