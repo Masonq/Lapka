@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Link, NavLink } from "react-router-dom";
 import { MapPin, User, PlusCircle, Bell } from "lucide-react";
+import ScrollToTop from "./ScrollToTop";
 import TabBar from "./components/TabBar";
 import Feed from "./pages/Feed";
 import Explore from "./pages/Explore";
@@ -53,6 +54,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      <ScrollToTop />
       <div className="top-header card">
         <div className="brand-block">
           <span className="brand">PetSocial</span>
