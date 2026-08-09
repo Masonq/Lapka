@@ -69,10 +69,12 @@ export default function Events() {
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
         <span className="page-title">Прогулки и события</span>
-        {isAuthed && (
-          <button className="btn btn-ghost" onClick={() => setShowForm((v) => !v)} style={{ padding: "8px 12px" }}>
-            <Plus size={16} />
+        {isAuthed ? (
+          <button className="icon-btn" onClick={() => setShowForm((v) => !v)} aria-label="Создать">
+            <Plus size={17} strokeWidth={2.2} />
           </button>
+        ) : (
+          <span style={{ width: 44 }} />
         )}
       </div>
 

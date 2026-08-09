@@ -32,10 +32,12 @@ export default function Marketplace() {
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
         <span className="page-title">Барахолка</span>
-        {isAuthed && (
-          <Link to="/marketplace/new" className="btn btn-ghost" style={{ padding: "8px 12px" }}>
-            <Plus size={16} />
+        {isAuthed ? (
+          <Link to="/marketplace/new" className="icon-btn" aria-label="Разместить объявление">
+            <Plus size={17} strokeWidth={2.2} />
           </Link>
+        ) : (
+          <span style={{ width: 44 }} />
         )}
       </div>
 

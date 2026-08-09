@@ -117,6 +117,12 @@ a {
   color: var(--black);
 }
 
+.brand-logo {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+
 .brand-geo {
   display: inline-flex;
   align-items: center;

@@ -34,8 +34,8 @@ export default function Adoption() {
         </button>
         <span className="page-title">Пристройство</span>
         {isAuthed ? (
-          <Link to="/new-post?type=adopt" className="btn btn-ghost" style={{ padding: "8px 12px" }} aria-label="Разместить питомца">
-            <PlusCircle size={16} />
+          <Link to="/new-post?type=adopt" className="icon-btn" aria-label="Разместить питомца">
+            <PlusCircle size={17} strokeWidth={2.2} />
           </Link>
         ) : (
           <span style={{ width: 44 }} />

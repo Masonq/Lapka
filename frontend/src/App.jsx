@@ -58,7 +58,7 @@ export default function App() {
       <ScrollToTop />
       <div className="top-header card">
         <div className="brand-block">
-          <span className="brand">PetSocial</span>
+          <img src="/logo.png" alt="Lapki BG" className="brand-logo" />
           <span className="brand-geo">
             <MapPin size={10} strokeWidth={2.5} /> beograd
           </span>
