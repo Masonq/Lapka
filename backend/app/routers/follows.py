@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.core.security import get_current_user
-from app.models.models import Follow, Notification, User
+from app.models.models import Block, Follow, Notification, User
 from app.schemas.schemas import UserOut
 
 router = APIRouter(prefix="/api/follows", tags=["follows"])
@@ -18,6 +18,13 @@ def follow_user(user_id: str, db: Session = Depends(get_db), user: User = Depend
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    blocked = db.query(Block).filter(
+        ((Block.blocker_id == user.id) & (Block.blocked_id == user_id))
+        | ((Block.blocker_id == user_id) & (Block.blocked_id == user.id))
+    ).first()
+    if blocked:
+        raise HTTPException(status_code=403, detail="Нельзя подписаться на этого пользователя")
 
     exists = db.query(Follow).filter(
         Follow.follower_id == user.id, Follow.following_id == user_id

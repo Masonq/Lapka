@@ -115,6 +115,9 @@ export const api = {
 
   follow: (userId) => request(`/follows/${userId}`, { method: "POST", auth: true }),
   unfollow: (userId) => request(`/follows/${userId}`, { method: "DELETE", auth: true }),
+  blockedUsers: () => request("/blocks", { auth: true }),
+  blockUser: (userId) => request(`/blocks/${userId}`, { method: "POST", auth: true }),
+  unblockUser: (userId) => request(`/blocks/${userId}`, { method: "DELETE", auth: true }),
   followers: (userId) => request(`/follows/${userId}/followers`),
   following: (userId) => request(`/follows/${userId}/following`),
 

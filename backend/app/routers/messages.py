@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.rate_limit import RateLimiter
 from app.core.security import get_current_user
-from app.models.models import Message, User
+from app.models.models import Block, Message, User
 from app.schemas.schemas import ConversationOut, MessageCreate, MessageOut
 
 router = APIRouter(prefix="/api/messages", tags=["messages"])
@@ -116,6 +116,13 @@ def send_message(
     recipient = db.query(User).filter(User.id == user_id).first()
     if not recipient:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    blocked = db.query(Block).filter(
+        ((Block.blocker_id == user.id) & (Block.blocked_id == user_id))
+        | ((Block.blocker_id == user_id) & (Block.blocked_id == user.id))
+    ).first()
+    if blocked:
+        raise HTTPException(status_code=403, detail="Нельзя написать этому пользователю")
 
     if not data.body.strip():
         raise HTTPException(status_code=400, detail="Сообщение не может быть пустым")

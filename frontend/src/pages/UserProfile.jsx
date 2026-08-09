@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, PawPrint, UserPlus, UserMinus, MessageCircle } from "lucide-react";
+import { ArrowLeft, PawPrint, UserPlus, UserMinus, MessageCircle, UserX, ShieldCheck } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -20,6 +20,9 @@ export default function UserProfile() {
   const [followingList, setFollowingList] = useState([]);
   const [notFound, setNotFound] = useState(false);
   const [followBusy, setFollowBusy] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [confirmingBlock, setConfirmingBlock] = useState(false);
+  const [blockBusy, setBlockBusy] = useState(false);
 
   useDocumentTitle(user ? user.display_name : "Профиль");
 
@@ -29,9 +32,12 @@ export default function UserProfile() {
     api.petsOfUser(id).then(setPets).catch(() => setPets([]));
     api.followers(id).then(setFollowers).catch(() => setFollowers([]));
     api.following(id).then(setFollowingList).catch(() => setFollowingList([]));
+    if (isAuthed) {
+      api.blockedUsers().then((list) => setIsBlocked(list.some((b) => b.user.id === id))).catch(() => setIsBlocked(false));
+    }
   }
 
-  useEffect(load, [id]);
+  useEffect(load, [id, isAuthed]);
 
   const isOwnProfile = userId === id;
   const isFollowing = followers.some((f) => f.id === userId);
@@ -50,6 +56,29 @@ export default function UserProfile() {
       showToast(err.message, "error");
     } finally {
       setFollowBusy(false);
+    }
+  }
+
+  async function toggleBlock() {
+    if (!isBlocked && !confirmingBlock) {
+      setConfirmingBlock(true);
+      return;
+    }
+    setBlockBusy(true);
+    try {
+      if (isBlocked) {
+        await api.unblockUser(id);
+        showToast("Разблокирован(а)");
+      } else {
+        await api.blockUser(id);
+        showToast("Заблокирован(а)");
+      }
+      setConfirmingBlock(false);
+      load();
+    } catch (err) {
+      showToast(err.message, "error");
+    } finally {
+      setBlockBusy(false);
     }
   }
 
@@ -102,7 +131,7 @@ export default function UserProfile() {
             </div>
           </div>
 
-          {isAuthed && !isOwnProfile && (
+          {isAuthed && !isOwnProfile && !isBlocked && (
             <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
               <button
                 className={isFollowing ? "btn btn-ghost" : "btn btn-primary"}
@@ -117,6 +146,23 @@ export default function UserProfile() {
                 <MessageCircle size={16} /> Написать
               </Link>
             </div>
+          )}
+
+          {isAuthed && !isOwnProfile && (
+            <button
+              className="btn btn-ghost btn-block"
+              style={{
+                marginTop: 10, fontSize: 13,
+                color: confirmingBlock ? "var(--red)" : isBlocked ? "var(--green-strong)" : "var(--text-faint)",
+                background: confirmingBlock ? "var(--red-tint)" : undefined,
+              }}
+              onClick={toggleBlock}
+              onBlur={() => setConfirmingBlock(false)}
+              disabled={blockBusy}
+            >
+              {isBlocked ? <ShieldCheck size={14} /> : <UserX size={14} />}
+              {isBlocked ? "Разблокировать" : confirmingBlock ? "Точно заблокировать?" : "Заблокировать"}
+            </button>
           )}
         </div>
 

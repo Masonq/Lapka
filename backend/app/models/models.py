@@ -371,3 +371,19 @@ class Sighting(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     reporter = relationship("User")
+
+
+class Block(Base):
+    """Блокировка пользователя — раздел 22 блюпринта. Двусторонняя по эффекту:
+    заблокированный не может написать блокирующему, и наоборот (чтобы случайно
+    не написать тому, кого сам заблокировал)."""
+
+    __tablename__ = "blocks"
+    __table_args__ = (UniqueConstraint("blocker_id", "blocked_id", name="uq_blocker_blocked"),)
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    blocker_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    blocked_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    blocked = relationship("User", foreign_keys=[blocked_id])

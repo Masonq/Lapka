@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, KeyRound, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, KeyRound, Trash2, UserX, ShieldCheck } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -17,10 +17,28 @@ export default function Settings() {
   const [passwordError, setPasswordError] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
 
+  const [blockedUsers, setBlockedUsers] = useState(null);
+
   const [showDeleteForm, setShowDeleteForm] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [deleting, setDeleting] = useState(false);
+
+  function loadBlocked() {
+    api.blockedUsers().then(setBlockedUsers).catch(() => setBlockedUsers([]));
+  }
+
+  useEffect(loadBlocked, []);
+
+  async function unblock(userId) {
+    try {
+      await api.unblockUser(userId);
+      showToast("Разблокирован(а)");
+      loadBlocked();
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
 
   async function submitPasswordChange(e) {
     e.preventDefault();
@@ -102,6 +120,45 @@ export default function Settings() {
           <p style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 10 }}>
             Если ты вошёл(-шла) через Telegram, пароля у аккаунта нет
           </p>
+        </div>
+
+        <div className="card" style={{ borderRadius: 20, padding: 18, marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <UserX size={17} />
+            <h3 className="subhead" style={{ fontSize: 15 }}>Заблокированные</h3>
+          </div>
+
+          {blockedUsers === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+
+          {blockedUsers?.length === 0 && (
+            <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Никого не заблокировано</p>
+          )}
+
+          {blockedUsers?.map((b) => (
+            <div key={b.user.id} style={{
+              display: "flex", alignItems: "center", gap: 10, padding: "8px 0",
+              borderTop: "1px solid var(--border)",
+            }}>
+              <Link to={`/users/${b.user.id}`} style={{
+                display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, textDecoration: "none", color: "inherit",
+              }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: "50%", background: "var(--gray-tint)", color: "var(--text-muted)",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 12, fontWeight: 800, overflow: "hidden",
+                }}>
+                  {b.user.avatar_url ? (
+                    <img src={b.user.avatar_url} alt={b.user.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    b.user.display_name[0]?.toUpperCase()
+                  )}
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 600 }}>{b.user.display_name}</span>
+              </Link>
+              <button className="btn btn-ghost" style={{ padding: "6px 10px", fontSize: 12 }} onClick={() => unblock(b.user.id)}>
+                <ShieldCheck size={13} /> Разблокировать
+              </button>
+            </div>
+          ))}
         </div>
 
         <div className="card" style={{ borderRadius: 20, padding: 18, border: "1px solid var(--red-tint)" }}>

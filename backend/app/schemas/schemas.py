@@ -385,3 +385,12 @@ class SightingOut(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- Blocks ----------
+
+class BlockedUserOut(BaseModel):
+    user: UserOut
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
