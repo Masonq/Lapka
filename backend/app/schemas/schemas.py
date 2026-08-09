@@ -184,17 +184,6 @@ class NotificationOut(BaseModel):
 
 # ---------- Admin ----------
 
-class ReportQueueItem(BaseModel):
-    id: str
-    reason: Optional[str] = None
-    is_resolved: bool
-    created_at: datetime
-    reporter: UserOut
-    post: Optional[PostOut] = None  # None, если пост уже удалён
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class AdminActionResult(BaseModel):
     ok: bool = True
 
@@ -363,5 +352,17 @@ class ListingOut(BaseModel):
     seller: UserOut
     is_saved: bool = False
     created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ReportQueueItem(BaseModel):
+    id: str
+    reason: Optional[str] = None
+    is_resolved: bool
+    created_at: datetime
+    reporter: UserOut
+    post: Optional[PostOut] = None        # None, если пост уже удалён или жалоба не на пост
+    listing: Optional[ListingOut] = None  # None, если объявление уже удалено или жалоба не на него
 
     model_config = ConfigDict(from_attributes=True)

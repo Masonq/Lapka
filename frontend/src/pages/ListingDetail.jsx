@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Bookmark, CheckCircle2, Trash2, MessageCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Bookmark, CheckCircle2, Trash2, MessageCircle, Flag } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -16,6 +16,9 @@ export default function ListingDetail() {
   const [listing, setListing] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reported, setReported] = useState(false);
 
   useDocumentTitle(listing ? listing.title : "Объявление");
 
@@ -53,6 +56,18 @@ export default function ListingDetail() {
       await api.deleteListing(id);
       showToast("Объявление удалено");
       navigate("/marketplace");
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  async function submitReport(e) {
+    e.preventDefault();
+    try {
+      await api.reportListing(id, reportReason.trim() || undefined);
+      setReported(true);
+      setShowReportForm(false);
+      showToast("Жалоба отправлена");
     } catch (err) {
       showToast(err.message, "error");
     }
@@ -134,7 +149,36 @@ export default function ListingDetail() {
                 <Trash2 size={16} /> Удалить
               </button>
             )}
+            {isAuthed && !isOwner && !reported && (
+              <button className="btn btn-ghost" onClick={() => setShowReportForm((v) => !v)}>
+                <Flag size={16} /> Пожаловаться
+              </button>
+            )}
+            {reported && (
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-faint)" }}>
+                <Flag size={14} /> Жалоба отправлена
+              </span>
+            )}
           </div>
+
+          {showReportForm && (
+            <form onSubmit={submitReport} style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+              <textarea
+                rows={2}
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                placeholder="Что не так с объявлением? (необязательно)"
+                style={{
+                  width: "100%", border: "1px solid var(--border)", borderRadius: 12,
+                  padding: "8px 12px", fontSize: 13, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
+                }}
+              />
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="btn btn-primary">Отправить жалобу</button>
+                <button type="button" className="btn btn-ghost" onClick={() => setShowReportForm(false)}>Отмена</button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>

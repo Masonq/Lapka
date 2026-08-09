@@ -41,6 +41,12 @@ export default function Admin() {
     load();
   }
 
+  async function removeListing(id) {
+    await api.adminDeleteListing(id);
+    showToast("Объявление удалено");
+    load();
+  }
+
   if (!isAuthed || me === null) {
     return <div className="empty-state">Загружаем…</div>;
   }
@@ -91,12 +97,18 @@ export default function Admin() {
 
       {reports?.map((r) => (
         <div key={r.id} className="card" style={{ borderRadius: 16, padding: 14, marginBottom: 8 }}>
-          {r.post ? (
+          {r.post && (
             <Link to={`/posts/${r.post.id}`} className="subhead" style={{ fontSize: 14 }}>
               {r.post.title}
             </Link>
-          ) : (
-            <span style={{ fontSize: 14, color: "var(--text-faint)" }}>Пост уже удалён</span>
+          )}
+          {r.listing && (
+            <Link to={`/marketplace/${r.listing.id}`} className="subhead" style={{ fontSize: 14 }}>
+              {r.listing.title} <span style={{ fontWeight: 400, color: "var(--text-faint)" }}>(объявление)</span>
+            </Link>
+          )}
+          {!r.post && !r.listing && (
+            <span style={{ fontSize: 14, color: "var(--text-faint)" }}>Контент уже удалён</span>
           )}
           <div style={{ fontSize: 13, color: "var(--text-muted)", margin: "4px 0 8px" }}>
             Жалоба от {r.reporter.display_name}{r.reason ? `: «${r.reason}»` : ""}
@@ -112,6 +124,15 @@ export default function Admin() {
                 onClick={() => removePost(r.post.id)}
               >
                 <Trash2 size={14} /> Удалить пост
+              </button>
+            )}
+            {r.listing && (
+              <button
+                className="btn"
+                style={{ background: "var(--red-tint)", color: "var(--red)" }}
+                onClick={() => removeListing(r.listing.id)}
+              >
+                <Trash2 size={14} /> Удалить объявление
               </button>
             )}
           </div>

@@ -121,6 +121,7 @@ export const api = {
   adminReports: (resolved) => request(`/admin/reports${resolved !== undefined ? `?resolved=${resolved}` : ""}`, { auth: true }),
   adminDismissReport: (id) => request(`/admin/reports/${id}/dismiss`, { method: "PATCH", auth: true }),
   adminDeletePost: (id) => request(`/admin/posts/${id}`, { method: "DELETE", auth: true }),
+  adminDeleteListing: (id) => request(`/admin/listings/${id}`, { method: "DELETE", auth: true }),
   adminAuditLog: () => request("/admin/audit-log", { auth: true }),
 
   communities: (params = {}) => {
@@ -159,6 +160,7 @@ export const api = {
   saveListing: (id) => request(`/marketplace/${id}/save`, { method: "POST", auth: true }),
   unsaveListing: (id) => request(`/marketplace/${id}/save`, { method: "DELETE", auth: true }),
   savedListings: () => request("/marketplace/saved", { auth: true }),
+  reportListing: (id, reason) => request(`/marketplace/${id}/report`, { method: "POST", body: { reason }, auth: true }),
 
   petHealth: (petId) => request(`/pets/${petId}/health`, { auth: true }),
   addHealthRecord: (petId, data) => request(`/pets/${petId}/health`, { method: "POST", body: data, auth: true }),

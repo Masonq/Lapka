@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.security import get_current_admin
-from app.models.models import AuditLog, Comment, Pet, Post, Report, ServiceProvider, User
+from app.models.models import AuditLog, Comment, Listing, Pet, Post, Report, ServiceProvider, User
 from app.schemas.schemas import AdminActionResult, AdminOverview, AuditLogOut, ReportQueueItem
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -33,7 +33,9 @@ def list_reports(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin),
 ):
-    query = db.query(Report).options(joinedload(Report.reporter), joinedload(Report.post))
+    query = db.query(Report).options(
+        joinedload(Report.reporter), joinedload(Report.post), joinedload(Report.listing)
+    )
     if resolved is not None:
         query = query.filter(Report.is_resolved.is_(resolved))
     reports = query.order_by(desc(Report.created_at)).all()
@@ -85,6 +87,24 @@ def admin_delete_post(post_id: str, db: Session = Depends(get_db), admin: User =
     )
     _log(db, admin, "delete_post", "post", post_id, note=post.title[:200])
     db.delete(post)
+    db.commit()
+    return AdminActionResult()
+
+
+@router.delete("/listings/{listing_id}", response_model=AdminActionResult)
+def admin_delete_listing(listing_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+    """Как admin_delete_post — админ может удалить любое объявление, не только своё
+    (у продавцов такого права нет ни на чужие объявления). Связанные жалобы остаются
+    (listing_id уходит в NULL), сохранения удаляются каскадом вместе с объявлением."""
+    listing = db.query(Listing).filter(Listing.id == listing_id).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Объявление не найдено")
+
+    db.query(Report).filter(Report.listing_id == listing_id, Report.is_resolved.is_(False)).update(
+        {"is_resolved": True}
+    )
+    _log(db, admin, "delete_listing", "listing", listing_id, note=listing.title[:200])
+    db.delete(listing)
     db.commit()
     return AdminActionResult()
 

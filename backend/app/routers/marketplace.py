@@ -6,10 +6,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
-from app.core.rate_limit import listing_limiter
+from app.core.rate_limit import listing_limiter, report_limiter
 from app.core.security import get_current_user, get_current_user_optional
-from app.models.models import Listing, SavedListing, User
-from app.schemas.schemas import ListingCreate, ListingOut
+from app.models.models import Listing, Report, SavedListing, User
+from app.schemas.schemas import ListingCreate, ListingOut, ReportCreate
 
 router = APIRouter(prefix="/api/marketplace", tags=["marketplace"])
 
@@ -163,5 +163,23 @@ def unsave_listing(listing_id: str, db: Session = Depends(get_db), user: User = 
     db.query(SavedListing).filter(
         SavedListing.user_id == user.id, SavedListing.listing_id == listing_id
     ).delete()
+    db.commit()
+    return {"ok": True}
+
+
+@router.post("/{listing_id}/report")
+def report_listing(
+    listing_id: str,
+    data: ReportCreate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    report_limiter.check(user.id)
+
+    listing = db.query(Listing).filter(Listing.id == listing_id).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Объявление не найдено")
+
+    db.add(Report(reporter_id=user.id, listing_id=listing_id, reason=data.reason))
     db.commit()
     return {"ok": True}

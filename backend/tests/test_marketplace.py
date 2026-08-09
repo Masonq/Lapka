@@ -172,3 +172,90 @@ def test_save_nonexistent_listing_404(client, register_user):
     headers = register_user()
     r = client.post("/api/marketplace/does-not-exist/save", headers=headers)
     assert r.status_code == 404
+
+
+def test_report_listing(client, register_user):
+    headers_seller = register_user()
+    headers_reporter = register_user()
+    listing = client.post(
+        "/api/marketplace", json={"type": "sell", "title": "Подозрительное", "price": 1}, headers=headers_seller
+    ).json()
+
+    r = client.post(f"/api/marketplace/{listing['id']}/report", json={"reason": "Похоже на мошенничество"}, headers=headers_reporter)
+    assert r.status_code == 200
+
+
+def test_report_nonexistent_listing_404(client, register_user):
+    headers = register_user()
+    r = client.post("/api/marketplace/does-not-exist/report", json={"reason": "тест"}, headers=headers)
+    assert r.status_code == 404
+
+
+def test_report_listing_requires_auth(client, register_user):
+    headers_seller = register_user()
+    listing = client.post(
+        "/api/marketplace", json={"type": "sell", "title": "Тест", "price": 100}, headers=headers_seller
+    ).json()
+    r = client.post(f"/api/marketplace/{listing['id']}/report", json={"reason": "тест"})
+    assert r.status_code == 401
+
+
+def test_admin_sees_listing_reports_in_queue(client, register_user, register_admin):
+    headers_admin, _ = register_admin()
+    headers_seller = register_user()
+    headers_reporter = register_user()
+    listing = client.post(
+        "/api/marketplace", json={"type": "sell", "title": "Подозрительное объявление", "price": 1}, headers=headers_seller
+    ).json()
+    client.post(f"/api/marketplace/{listing['id']}/report", json={"reason": "Спам"}, headers=headers_reporter)
+
+    r = client.get("/api/admin/reports", headers=headers_admin)
+    assert r.status_code == 200
+    reports = r.json()
+    assert len(reports) == 1
+    assert reports[0]["reason"] == "Спам"
+    assert reports[0]["listing"]["title"] == "Подозрительное объявление"
+    assert reports[0]["post"] is None
+
+
+def test_admin_can_delete_any_listing(client, register_user, register_admin):
+    headers_admin, _ = register_admin()
+    headers_seller = register_user()
+    listing = client.post(
+        "/api/marketplace", json={"type": "sell", "title": "Плохое объявление", "price": 1}, headers=headers_seller
+    ).json()
+
+    r = client.delete(f"/api/admin/listings/{listing['id']}", headers=headers_admin)
+    assert r.status_code == 200
+
+    r = client.get(f"/api/marketplace/{listing['id']}")
+    assert r.status_code == 404
+
+
+def test_ordinary_user_cannot_delete_listing_via_admin_endpoint(client, register_user):
+    headers_stranger = register_user()
+    headers_seller = register_user()
+    listing = client.post(
+        "/api/marketplace", json={"type": "sell", "title": "Тест", "price": 100}, headers=headers_seller
+    ).json()
+
+    r = client.delete(f"/api/admin/listings/{listing['id']}", headers=headers_stranger)
+    assert r.status_code == 403
+
+
+def test_deleting_listing_resolves_its_open_reports(client, register_user, register_admin):
+    headers_admin, _ = register_admin()
+    headers_seller = register_user()
+    headers_reporter = register_user()
+    listing = client.post(
+        "/api/marketplace", json={"type": "sell", "title": "Тест", "price": 1}, headers=headers_seller
+    ).json()
+    client.post(f"/api/marketplace/{listing['id']}/report", json={}, headers=headers_reporter)
+
+    client.delete(f"/api/admin/listings/{listing['id']}", headers=headers_admin)
+
+    r = client.get("/api/admin/reports", headers=headers_admin)
+    reports = r.json()
+    assert len(reports) == 1
+    assert reports[0]["is_resolved"] is True
+    assert reports[0]["listing"] is None  # объявление удалено, но жалоба осталась для журнала

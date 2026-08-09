@@ -169,20 +169,22 @@ class SavedPost(Base):
 
 
 class Report(Base):
-    """Жалоба на пост. Очереди модерации (разделы 24-25 блюпринта) пока нет — жалобы
-    просто копятся в базе, разбирать их будет админка, когда до неё дойдём по порядку."""
+    """Жалоба на пост или объявление барахолки (ровно одно из двух). Разбирает админка
+    (разделы 24-25 блюпринта) — см. admin.py."""
 
     __tablename__ = "reports"
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
     reporter_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id", ondelete="SET NULL"), nullable=True)
+    listing_id = Column(UUID(as_uuid=False), ForeignKey("listings.id", ondelete="SET NULL"), nullable=True)
     reason = Column(String(500), nullable=True)
     is_resolved = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     reporter = relationship("User")
     post = relationship("Post")
+    listing = relationship("Listing")
 
 
 class AuditLog(Base):
