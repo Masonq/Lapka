@@ -85,17 +85,17 @@ export default function PostCard({ post }) {
 
       <div className="post-meta">
         <Link to={`/users/${post.author.id}`} className="post-meta-item post-meta-author">
-          {post.author.display_name}
+          <span className="post-meta-text">{post.author.display_name}</span>
         </Link>
         {post.last_seen_location && (
-          <span className="post-meta-item">
-            <MapPin size={13} /> {post.last_seen_location}
+          <span className="post-meta-item" style={{ minWidth: 0 }}>
+            <MapPin size={13} /> <span className="post-meta-text">{post.last_seen_location}</span>
           </span>
         )}
-        <span className="post-meta-item">
+        <span className="post-meta-item" style={{ flexShrink: 0 }}>
           <MessageCircle size={13} /> {post.comments_count}
         </span>
-        <span style={{ marginLeft: "auto" }}>{timeAgo(post.created_at)}</span>
+        <span style={{ marginLeft: "auto", flexShrink: 0 }}>{timeAgo(post.created_at)}</span>
       </div>
     </div>
   );

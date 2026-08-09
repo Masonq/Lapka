@@ -72,8 +72,8 @@ export default function Marketplace() {
                 <div style={{ fontWeight: 800, fontSize: 16, margin: "4px 0" }}>{l.price} дин.</div>
               )}
               <div className="post-meta">
-                {l.city && <span className="post-meta-item"><MapPin size={13} /> {l.city}</span>}
-                <span style={{ marginLeft: "auto" }}>{l.seller.display_name}</span>
+                {l.city && <span className="post-meta-item" style={{ minWidth: 0 }}><MapPin size={13} /> <span className="post-meta-text">{l.city}</span></span>}
+                <span className="post-meta-text" style={{ marginLeft: "auto" }}>{l.seller.display_name}</span>
               </div>
             </Link>
           ))}

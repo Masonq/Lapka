@@ -183,9 +183,9 @@ export default function Events() {
                 <span className="post-meta-item"><CalendarDays size={13} /> {formatDate(ev.starts_at)}</span>
               </div>
               <div className="post-meta">
-                {ev.location && <span className="post-meta-item"><MapPin size={13} /> {ev.location}</span>}
-                {ev.pet_name && <span className="post-meta-item"><PawPrint size={13} /> {ev.pet_name}</span>}
-                <span className="post-meta-item">
+                {ev.location && <span className="post-meta-item" style={{ minWidth: 0 }}><MapPin size={13} /> <span className="post-meta-text">{ev.location}</span></span>}
+                {ev.pet_name && <span className="post-meta-item" style={{ minWidth: 0 }}><PawPrint size={13} /> <span className="post-meta-text">{ev.pet_name}</span></span>}
+                <span className="post-meta-item" style={{ flexShrink: 0 }}>
                   <Users size={13} /> {ev.participants_count}{ev.capacity ? `/${ev.capacity}` : ""}
                 </span>
               </div>

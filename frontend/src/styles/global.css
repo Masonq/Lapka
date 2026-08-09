@@ -302,6 +302,7 @@ a {
   border-radius: var(--radius-lg);
   padding: 16px;
   display: block;
+  min-width: 0;
 }
 
 .post-card-link {
@@ -358,6 +359,14 @@ a {
   gap: 12px;
 }
 
+.card-grid > * {
+  /* Grid-элементы по умолчанию min-width:auto — не сжимаются ниже минимальной
+     ширины своего содержимого даже в 1fr-колонке. Без этого длинный текст внутри
+     любой карточки (пост, питомец, сообщество, объявление, событие) раздувает
+     всю колонку шире контейнера вместо того, чтобы обрезаться/переноситься внутри */
+  min-width: 0;
+}
+
 .post-badge {
   display: inline-flex;
   align-items: center;
@@ -391,16 +400,29 @@ a {
 .post-meta {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   font-size: 12px;
   color: var(--text-faint);
   font-weight: 600;
+  flex-wrap: nowrap;
 }
 
 .post-meta-item {
   display: flex;
   align-items: center;
   gap: 4px;
+  min-width: 0;
+}
+
+.post-meta-item svg {
+  flex-shrink: 0;
+}
+
+.post-meta-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 /* --- "Trag" — след из точек для гео-меток потеряшек --- */

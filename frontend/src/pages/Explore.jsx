@@ -235,7 +235,7 @@ export default function Explore() {
                   </span>
                   <h3 className="post-title" style={{ marginTop: 8, fontSize: 15 }}>{ev.title}</h3>
                   {ev.location && (
-                    <div className="post-meta"><span className="post-meta-item"><MapPin size={13} /> {ev.location}</span></div>
+                    <div className="post-meta"><span className="post-meta-item" style={{ minWidth: 0 }}><MapPin size={13} /> <span className="post-meta-text">{ev.location}</span></span></div>
                   )}
                 </Link>
               ))}
