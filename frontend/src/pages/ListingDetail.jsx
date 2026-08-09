@@ -170,7 +170,7 @@ export default function ListingDetail() {
                 placeholder="Что не так с объявлением? (необязательно)"
                 style={{
                   width: "100%", border: "1px solid var(--border)", borderRadius: 12,
-                  padding: "8px 12px", fontSize: 13, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
+                  padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
                 }}
               />
               <div style={{ display: "flex", gap: 8 }}>

@@ -444,7 +444,7 @@ a {
   outline: none;
   background: transparent;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text);
 }
 
@@ -667,7 +667,7 @@ a {
   background: var(--surface);
   border-radius: var(--radius-md);
   padding: 12px 14px;
-  font-size: 15px;
+  font-size: 16px;
   font-family: var(--font-body);
   color: var(--text);
   outline: none;
