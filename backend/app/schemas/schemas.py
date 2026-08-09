@@ -312,3 +312,27 @@ class EventParticipantOut(BaseModel):
     joined_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- Health (приватно, только владелец питомца) ----------
+
+class HealthRecordCreate(BaseModel):
+    category: str  # vaccination / parasite / medication / weight / vet_visit
+    title: str = Field(..., min_length=1, max_length=200)
+    value: Optional[float] = None
+    date: datetime
+    next_due_date: Optional[datetime] = None
+    notes: Optional[str] = Field(None, max_length=1000)
+
+
+class HealthRecordOut(BaseModel):
+    id: str
+    category: str
+    title: str
+    value: Optional[float] = None
+    date: datetime
+    next_due_date: Optional[datetime] = None
+    notes: Optional[str] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

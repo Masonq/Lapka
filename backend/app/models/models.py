@@ -299,3 +299,23 @@ class EventParticipant(Base):
 
     event = relationship("Event", back_populates="participants")
     user = relationship("User")
+
+
+class HealthRecord(Base):
+    """Медицинская запись питомца — раздел 19 блюпринта. Приватно по умолчанию: доступ
+    только владельцу питомца (проверяется в роутере), никогда не попадает в ленту/
+    рекомендации — блюпринт прямо это требует."""
+
+    __tablename__ = "health_records"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    pet_id = Column(UUID(as_uuid=False), ForeignKey("pets.id", ondelete="CASCADE"), nullable=False)
+    category = Column(String(30), nullable=False)  # vaccination / parasite / medication / weight / vet_visit
+    title = Column(String(200), nullable=False)   # название прививки/лекарства/клиники
+    value = Column(Float, nullable=True)            # для веса — кг
+    date = Column(DateTime(timezone=True), nullable=False)
+    next_due_date = Column(DateTime(timezone=True), nullable=True)  # для напоминаний
+    notes = Column(String(1000), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    pet = relationship("Pet")

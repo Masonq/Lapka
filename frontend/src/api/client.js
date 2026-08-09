@@ -148,5 +148,9 @@ export const api = {
   leaveEvent: (id) => request(`/events/${id}/leave`, { method: "DELETE", auth: true }),
   eventParticipants: (id) => request(`/events/${id}/participants`),
 
+  petHealth: (petId) => request(`/pets/${petId}/health`, { auth: true }),
+  addHealthRecord: (petId, data) => request(`/pets/${petId}/health`, { method: "POST", body: data, auth: true }),
+  deleteHealthRecord: (petId, recordId) => request(`/pets/${petId}/health/${recordId}`, { method: "DELETE", auth: true }),
+
   uploadImage,
 };

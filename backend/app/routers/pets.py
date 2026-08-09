@@ -1,15 +1,19 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
-from app.core.rate_limit import pet_limiter
+from app.core.rate_limit import RateLimiter, pet_limiter
 from app.core.security import get_current_user
-from app.models.models import Pet, User
-from app.schemas.schemas import PetCreate, PetOut
+from app.models.models import HealthRecord, Pet, User
+from app.schemas.schemas import HealthRecordCreate, HealthRecordOut, PetCreate, PetOut
 
 router = APIRouter(prefix="/api/pets", tags=["pets"])
+
+health_limiter = RateLimiter(max_actions=20, window_seconds=3600)  # 20 записей в час на пользователя
+HEALTH_CATEGORIES = {"vaccination", "parasite", "medication", "weight", "vet_visit"}
 
 
 @router.get("", response_model=list[PetOut])
@@ -67,5 +71,58 @@ def delete_pet(pet_id: str, db: Session = Depends(get_db), user: User = Depends(
     if pet.owner_id != user.id:
         raise HTTPException(status_code=403, detail="Можно удалить только своего питомца")
     db.delete(pet)
+    db.commit()
+    return {"ok": True}
+
+
+def _owned_pet_or_403(pet_id: str, db: Session, user: User) -> Pet:
+    """Здоровье питомца приватно по умолчанию — доступ только владельцу (раздел 19
+    блюпринта). 404 для несуществующего питомца, 403 для чужого — не путаем чужой
+    питомец с несуществующим, чтобы не давать функционально спутать эти два случая."""
+    pet = db.query(Pet).filter(Pet.id == pet_id).first()
+    if not pet:
+        raise HTTPException(status_code=404, detail="Питомец не найден")
+    if pet.owner_id != user.id:
+        raise HTTPException(status_code=403, detail="Здоровье питомца видит только владелец")
+    return pet
+
+
+@router.get("/{pet_id}/health", response_model=list[HealthRecordOut])
+def list_health_records(pet_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    _owned_pet_or_403(pet_id, db, user)
+    return (
+        db.query(HealthRecord)
+        .filter(HealthRecord.pet_id == pet_id)
+        .order_by(desc(HealthRecord.date))
+        .all()
+    )
+
+
+@router.post("/{pet_id}/health", response_model=HealthRecordOut)
+def add_health_record(
+    pet_id: str, data: HealthRecordCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
+    _owned_pet_or_403(pet_id, db, user)
+    health_limiter.check(user.id)
+
+    if data.category not in HEALTH_CATEGORIES:
+        raise HTTPException(status_code=400, detail=f"Неизвестная категория: должна быть одной из {sorted(HEALTH_CATEGORIES)}")
+
+    record = HealthRecord(pet_id=pet_id, **data.model_dump())
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+    return record
+
+
+@router.delete("/{pet_id}/health/{record_id}")
+def delete_health_record(
+    pet_id: str, record_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
+    _owned_pet_or_403(pet_id, db, user)
+    record = db.query(HealthRecord).filter(HealthRecord.id == record_id, HealthRecord.pet_id == pet_id).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Запись не найдена")
+    db.delete(record)
     db.commit()
     return {"ok": True}

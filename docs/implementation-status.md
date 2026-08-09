@@ -22,7 +22,7 @@
 | 16 | Events | 🟡 | Та же модель, что и Walk (см. выше). Cover/reminder/event chat не реализованы |
 | 17 | Lost & Found | ✅ | Основа продукта — типы lost/found, last_seen_location, фото, статус resolved. Нет: sighting reports, notify communities, status timeline |
 | 18 | Services / Business | 🟡 | Каталог услуг + отзывы + рейтинг работают. Нет: verified badge, часы работы, карта, booking (сам блюпринт помечает booking как Phase 3) |
-| 19 | Health | ⬜ | Не начато. **Важно:** это медицинские данные — при реализации не должны попадать в ленту/рекомендации (см. раздел 19 блюпринта) |
+| 19 | Health | 🟡 | Вакцинации/обработка от паразитов/лекарства/вес/визиты к ветеринару, приватно (403 не владельцу, проверено тестом), не попадает в ленту/рекомендации (собственный роутер, отдельный от постов). Нет: дашборда с графиком веса, отдельного экрана документов, интеграции reminders с общим Notification |
 | 20 | Marketplace | ⬜ | Не начато |
 | 21 | Notifications | 🟡 | Есть: колокольчик в шапке со счётчиком (опрос раз в 30с), список, mark all read/mark one read, триггеры на follow и comment. Нет: категорий All/Social/Messages/Pet/Local/Safety/System (у нас только 2 типа событий), realtime (только polling), notification settings |
 | 22 | Profile | 🟡 | Аватар/имя/город/питомцы/сохранённое/настройки/выход есть. Нет: privacy, security (кроме смены пароля), blocked users, followers/following счётчики на своей странице (есть только в публичном профиле) |
@@ -33,7 +33,7 @@
 | 28 | Дизайн-система | 🟡 | Палитра под `design-reference.png` — тёплый оранжевый, снят пипеткой по пикселям. Применено к существующим экранам. Нет: левый сайдбар на десктопе (сейчас верхнее меню), ~25 нереализованных экранов referencе (сторис/сообщества/чат/здоровье/карта/marketplace) без своего дизайна, т.к. бэкенда под них нет |
 | 29 | API/backend layers | 🟡 | Auth, User/Pet, Social (posts/comments/follows), Services — есть. Community/Messaging/Discovery-Geo/Events-Walks/Marketplace/Moderation/Notification/Billing domains — нет |
 | 30 | Sprint Plan | — | Ориентир, не чеклист к вычёркиванию построчно |
-| 31 | MVP Release Gates | 🟡 | Есть: тесты (140), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
+| 31 | MVP Release Gates | 🟡 | Есть: тесты (149), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
 | 32–34 | Roadmap / KPI | — | Ориентир на будущее, не задача для кода |
 
 ## Что реально сделано сверх блюпринта
