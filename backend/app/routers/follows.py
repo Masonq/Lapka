@@ -53,3 +53,13 @@ def followers(user_id: str, db: Session = Depends(get_db)):
         .filter(Follow.following_id == user_id)
         .all()
     )
+
+
+@router.get("/{user_id}/following", response_model=list[UserOut])
+def following(user_id: str, db: Session = Depends(get_db)):
+    return (
+        db.query(User)
+        .join(Follow, Follow.following_id == User.id)
+        .filter(Follow.follower_id == user_id)
+        .all()
+    )

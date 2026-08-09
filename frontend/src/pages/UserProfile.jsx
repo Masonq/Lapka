@@ -16,6 +16,7 @@ export default function UserProfile() {
   const [posts, setPosts] = useState([]);
   const [pets, setPets] = useState([]);
   const [followers, setFollowers] = useState([]);
+  const [followingList, setFollowingList] = useState([]);
   const [notFound, setNotFound] = useState(false);
   const [followBusy, setFollowBusy] = useState(false);
 
@@ -26,6 +27,7 @@ export default function UserProfile() {
     api.posts({ author_id: id, limit: 20 }).then(setPosts).catch(() => setPosts([]));
     api.petsOfUser(id).then(setPets).catch(() => setPets([]));
     api.followers(id).then(setFollowers).catch(() => setFollowers([]));
+    api.following(id).then(setFollowingList).catch(() => setFollowingList([]));
   }
 
   useEffect(load, [id]);
@@ -87,8 +89,14 @@ export default function UserProfile() {
             </div>
             <div style={{ flex: 1 }}>
               <div className="subhead" style={{ fontSize: 18 }}>{user.display_name}</div>
-              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                {user.city} · {followers.length} {followers.length === 1 ? "подписчик" : "подписчиков"}
+              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{user.city}</div>
+              <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
+                <Link to={`/users/${id}/connections?mode=followers`} style={{ fontSize: 13, color: "var(--text)" }}>
+                  <b>{followers.length}</b> {followers.length === 1 ? "подписчик" : "подписчиков"}
+                </Link>
+                <Link to={`/users/${id}/connections?mode=following`} style={{ fontSize: 13, color: "var(--text)" }}>
+                  <b>{followingList.length}</b> подписок
+                </Link>
               </div>
             </div>
           </div>

@@ -57,3 +57,26 @@ def test_followers_of_user_with_no_followers_is_empty_list(client, register_user
     r = client.get(f"/api/follows/{user_id}/followers")
     assert r.status_code == 200
     assert r.json() == []
+
+
+def test_following_shows_who_user_follows(client, register_user, register_user_with_id):
+    headers_follower, follower_id = register_user_with_id("Подписчик")
+    _, target_id = register_user_with_id("Автор")
+
+    client.post(f"/api/follows/{target_id}", headers=headers_follower)
+
+    r = client.get(f"/api/follows/{follower_id}/following")
+    assert r.status_code == 200
+    names = [u["display_name"] for u in r.json()]
+    assert names == ["Автор"]
+
+    # following и followers — не одно и то же: у цели нет своих подписок
+    r = client.get(f"/api/follows/{target_id}/following")
+    assert r.json() == []
+
+
+def test_following_of_user_with_no_subscriptions_is_empty_list(client, register_user_with_id):
+    _, user_id = register_user_with_id()
+    r = client.get(f"/api/follows/{user_id}/following")
+    assert r.status_code == 200
+    assert r.json() == []

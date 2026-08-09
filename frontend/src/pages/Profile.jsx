@@ -16,12 +16,20 @@ export default function Profile() {
   const [busy, setBusy] = useState(false);
   const [me, setMe] = useState(null);
   const [petsCount, setPetsCount] = useState(null);
+  const [followersCount, setFollowersCount] = useState(null);
+  const [followingCount, setFollowingCount] = useState(null);
 
   useEffect(() => {
     if (!isAuthed) return;
     api.me().then(setMe).catch(() => setMe(null));
     api.myPets().then((pets) => setPetsCount(pets.length)).catch(() => setPetsCount(null));
   }, [isAuthed]);
+
+  useEffect(() => {
+    if (!isAuthed || !userId) return;
+    api.followers(userId).then((list) => setFollowersCount(list.length)).catch(() => setFollowersCount(null));
+    api.following(userId).then((list) => setFollowingCount(list.length)).catch(() => setFollowingCount(null));
+  }, [isAuthed, userId]);
 
   if (isAuthed) {
     return (
@@ -44,6 +52,16 @@ export default function Profile() {
           <div style={{ flex: 1 }}>
             <div className="subhead" style={{ fontSize: 16 }}>{me?.display_name || "Ты в PetSocial"}</div>
             <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{me?.city}</div>
+            {userId && (
+              <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
+                <Link to={`/users/${userId}/connections?mode=followers`} style={{ fontSize: 13, color: "var(--text)" }}>
+                  <b>{followersCount === null ? "…" : followersCount}</b> подписчиков
+                </Link>
+                <Link to={`/users/${userId}/connections?mode=following`} style={{ fontSize: 13, color: "var(--text)" }}>
+                  <b>{followingCount === null ? "…" : followingCount}</b> подписок
+                </Link>
+              </div>
+            )}
           </div>
           <button className="btn btn-ghost" onClick={logout} aria-label="Выйти">
             <LogOut size={16} />

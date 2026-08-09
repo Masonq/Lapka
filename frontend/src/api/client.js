@@ -111,6 +111,7 @@ export const api = {
   follow: (userId) => request(`/follows/${userId}`, { method: "POST", auth: true }),
   unfollow: (userId) => request(`/follows/${userId}`, { method: "DELETE", auth: true }),
   followers: (userId) => request(`/follows/${userId}/followers`),
+  following: (userId) => request(`/follows/${userId}/following`),
 
   notifications: () => request("/notifications", { auth: true }),
   unreadNotificationsCount: () => request("/notifications/unread-count", { auth: true }),
