@@ -33,7 +33,7 @@
 | 28 | Дизайн-система | 🟡 | Палитра под `design-reference.png` — тёплый оранжевый, снят пипеткой по пикселям. Применено к существующим экранам. Нет: левый сайдбар на десктопе (сейчас верхнее меню), ~25 нереализованных экранов referencе (сторис/сообщества/чат/здоровье/карта/marketplace) без своего дизайна, т.к. бэкенда под них нет |
 | 29 | API/backend layers | 🟡 | Auth, User/Pet, Social (posts/comments/follows), Services — есть. Community/Messaging/Discovery-Geo/Events-Walks/Marketplace/Moderation/Notification/Billing domains — нет |
 | 30 | Sprint Plan | — | Ориентир, не чеклист к вычёркиванию построчно |
-| 31 | MVP Release Gates | 🟡 | Есть: тесты (164), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации. Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
+| 31 | MVP Release Gates | 🟡 | Есть: тесты (170), rate limiting, миграции, non-root Docker, CORS, audit log для действий модерации, все списочные эндпоинты проверены на N+1 (posts/communities/events/messages/services/admin — везде joinedload/батч-агрегаты вместо ленивой загрузки в цикле, закреплено тестами на реальное число SQL-запросов). Нет: E2E, permissions-аудит по ролям, Terms/Privacy/Guidelines, backups (описаны в README ima mesta по аналогии, здесь не настроены) |
 | 32–34 | Roadmap / KPI | — | Ориентир на будущее, не задача для кода |
 
 ## Что реально сделано сверх блюпринта
