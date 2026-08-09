@@ -74,6 +74,10 @@ export const api = {
   deleteAccount: (password) => request("/auth/me", { method: "DELETE", body: { password }, auth: true }),
 
   user: (id) => request(`/users/${id}`),
+  users: (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return request(`/users${qs ? `?${qs}` : ""}`);
+  },
 
   posts: (params = {}) => {
     const qs = new URLSearchParams(params).toString();

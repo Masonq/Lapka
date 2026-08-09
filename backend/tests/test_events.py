@@ -141,6 +141,19 @@ def test_list_events_filter_by_type(client, register_user):
     assert [e["title"] for e in r.json()] == ["Прогулка"]
 
 
+def test_search_events_by_title(client, register_user):
+    headers = register_user()
+    client.post(
+        "/api/events", json={"type": "event", "title": "Выставка собак", "starts_at": "2026-09-01T18:00:00Z"}, headers=headers
+    )
+    client.post(
+        "/api/events", json={"type": "event", "title": "Мастер-класс по дрессировке", "starts_at": "2026-09-01T18:00:00Z"}, headers=headers
+    )
+
+    r = client.get("/api/events", params={"q": "выставка"})
+    assert [e["title"] for e in r.json()] == ["Выставка собак"]
+
+
 def test_list_participants(client, register_user):
     headers_organizer = register_user("Организатор")
     headers_participant = register_user("Участник")

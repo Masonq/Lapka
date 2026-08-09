@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import asc, func
+from sqlalchemy import asc, func, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -31,6 +31,7 @@ def _to_out(event: Event, going_ids: set[str], counts: dict[str, int] | None = N
 def list_events(
     type: Optional[str] = None,
     community_id: Optional[str] = None,
+    q: Optional[str] = None,
     limit: int = Query(30, ge=1, le=100),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
@@ -41,6 +42,9 @@ def list_events(
         query = query.filter(Event.type == type)
     if community_id:
         query = query.filter(Event.community_id == community_id)
+    if q:
+        pattern = f"%{q.strip()}%"
+        query = query.filter(or_(Event.title.ilike(pattern), Event.description.ilike(pattern)))
     events = query.order_by(asc(Event.starts_at)).offset(offset).limit(limit).all()
 
     going_ids = set()

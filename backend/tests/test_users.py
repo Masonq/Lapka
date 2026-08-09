@@ -35,6 +35,31 @@ def test_is_admin_not_leaked_in_public_user_schema(client, register_admin):
     assert "is_admin" not in r.json()
 
 
+def test_search_users_by_name(client, register_user):
+    register_user("Ана Петрович")
+    register_user("Марко Йованович")
+
+    r = client.get("/api/users", params={"q": "ана"})
+    assert r.status_code == 200
+    names = [u["display_name"] for u in r.json()]
+    assert names == ["Ана Петрович"]
+
+
+def test_search_users_no_query_returns_all(client, register_user):
+    register_user("Первый")
+    register_user("Второй")
+
+    r = client.get("/api/users")
+    assert r.status_code == 200
+    assert len(r.json()) == 2
+
+
+def test_search_users_no_match_empty(client, register_user):
+    register_user("Ана")
+    r = client.get("/api/users", params={"q": "несуществующее-имя-xyz"})
+    assert r.json() == []
+
+
 def test_filter_posts_by_author(client, register_user):
     headers_a = register_user()
     headers_b = register_user()

@@ -97,3 +97,21 @@ def test_list_pets_filter_by_city(client, register_user):
 
     r = client.get("/api/pets", params={"city": "Белград"})
     assert [p["name"] for p in r.json()] == ["Бела"]
+
+
+def test_search_pets_by_name(client, register_user):
+    headers = register_user()
+    client.post("/api/pets", json={"name": "Бела", "species": "Собака"}, headers=headers)
+    client.post("/api/pets", json={"name": "Луна", "species": "Кошка"}, headers=headers)
+
+    r = client.get("/api/pets", params={"q": "бела"})
+    assert [p["name"] for p in r.json()] == ["Бела"]
+
+
+def test_search_pets_by_breed(client, register_user):
+    headers = register_user()
+    client.post("/api/pets", json={"name": "Бела", "species": "Собака", "breed": "Вест-хайленд-терьер"}, headers=headers)
+    client.post("/api/pets", json={"name": "Луна", "species": "Кошка", "breed": "Британская"}, headers=headers)
+
+    r = client.get("/api/pets", params={"q": "терьер"})
+    assert [p["name"] for p in r.json()] == ["Бела"]

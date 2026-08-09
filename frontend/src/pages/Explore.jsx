@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, MapPin, Users, CalendarDays, ShoppingBag, Heart, ChevronRight } from "lucide-react";
+import { Search, MapPin, CalendarDays, ShoppingBag, Heart, ChevronRight, PawPrint } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -18,6 +18,14 @@ const SERVICE_TYPES = [
   { value: "groomer", label: "Грумеры" },
 ];
 
+const SEARCH_TABS = [
+  { value: "posts", label: "Посты" },
+  { value: "people", label: "Люди" },
+  { value: "pets", label: "Питомцы" },
+  { value: "communities", label: "Сообщества" },
+  { value: "events", label: "События" },
+];
+
 const UPCOMING = [
   { icon: Heart, label: "Приюты и пристройство", desc: "Питомцы, которым ищут дом" },
 ];
@@ -29,6 +37,7 @@ export default function Explore() {
 
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [searchTab, setSearchTab] = useState("posts");
   const [searchResults, setSearchResults] = useState(null);
   const [searching, setSearching] = useState(false);
 
@@ -56,11 +65,18 @@ export default function Explore() {
       return;
     }
     setSearching(true);
-    api.posts({ q: debouncedQuery, limit: 20 })
+    const searchers = {
+      posts: () => api.posts({ q: debouncedQuery, limit: 20 }),
+      people: () => api.users({ q: debouncedQuery, limit: 20 }),
+      pets: () => api.pets({ q: debouncedQuery, limit: 20 }),
+      communities: () => api.communities({ q: debouncedQuery }),
+      events: () => api.events({ q: debouncedQuery, limit: 20 }),
+    };
+    searchers[searchTab]()
       .then(setSearchResults)
       .catch(() => setSearchResults([]))
       .finally(() => setSearching(false));
-  }, [debouncedQuery]);
+  }, [debouncedQuery, searchTab]);
 
   function loadServices() {
     setLoadingServices(true);
@@ -94,31 +110,134 @@ export default function Explore() {
   return (
     <div>
       <div className="page-header">
-        <span className="page-title">Обзор</span>
+        <span className="page-title">Поиск</span>
       </div>
 
-      <div className="search-bar" style={{ marginBottom: 16 }}>
+      <div className="search-bar" style={{ marginBottom: isSearching ? 12 : 16 }}>
         <Search size={17} strokeWidth={2.2} />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Искать посты, питомцев, район…"
-          aria-label="Поиск по обзору"
+          placeholder="Искать людей, питомцев, посты, сообщества…"
+          aria-label="Поиск"
         />
       </div>
+
+      {isSearching && (
+        <div className="chip-row" style={{ marginBottom: 16 }}>
+          {SEARCH_TABS.map((t) => (
+            <button key={t.value} className={`chip${searchTab === t.value ? " active" : ""}`} onClick={() => setSearchTab(t.value)}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {isSearching ? (
         <>
           {searching && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Ищем…</p>}
+
           {!searching && searchResults?.length === 0 && (
             <div className="empty-state">
               <div className="empty-state-title">Ничего не нашлось</div>
-              Попробуй другой запрос
+              Попробуй другой запрос или вкладку
             </div>
           )}
-          {!searching && searchResults?.length > 0 && (
+
+          {!searching && searchResults?.length > 0 && searchTab === "posts" && (
             <div className="card-grid">
               {searchResults.map((post) => <PostCard key={post.id} post={post} />)}
+            </div>
+          )}
+
+          {!searching && searchResults?.length > 0 && searchTab === "people" && (
+            <div className="card-grid">
+              {searchResults.map((u) => (
+                <Link key={u.id} to={`/users/${u.id}`} className="card" style={{
+                  borderRadius: 20, padding: 16, display: "flex", alignItems: "center", gap: 12,
+                }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontWeight: 800, overflow: "hidden",
+                  }}>
+                    {u.avatar_url ? (
+                      <img src={u.avatar_url} alt={u.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      u.display_name[0]?.toUpperCase()
+                    )}
+                  </div>
+                  <div>
+                    <div className="subhead" style={{ fontSize: 14 }}>{u.display_name}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{u.city}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {!searching && searchResults?.length > 0 && searchTab === "pets" && (
+            <div className="card-grid">
+              {searchResults.map((pet) => (
+                <Link key={pet.id} to={`/pets/${pet.id}`} className="card" style={{
+                  borderRadius: 20, padding: 16, display: "flex", alignItems: "center", gap: 12,
+                }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: "50%", background: "var(--blue-tint)", color: "var(--blue)",
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden",
+                  }}>
+                    {pet.avatar_url ? (
+                      <img src={pet.avatar_url} alt={`Фото ${pet.name}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <PawPrint size={18} strokeWidth={2.2} />
+                    )}
+                  </div>
+                  <div>
+                    <div className="subhead" style={{ fontSize: 14 }}>{pet.name}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{pet.species}{pet.breed ? `, ${pet.breed}` : ""}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {!searching && searchResults?.length > 0 && searchTab === "communities" && (
+            <div className="card-grid">
+              {searchResults.map((c) => (
+                <Link key={c.id} to={`/communities/${c.id}`} className="card" style={{
+                  borderRadius: 20, padding: 16, display: "flex", alignItems: "center", gap: 12,
+                }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontWeight: 800, overflow: "hidden",
+                  }}>
+                    {c.avatar_url ? (
+                      <img src={c.avatar_url} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      c.name[0]?.toUpperCase()
+                    )}
+                  </div>
+                  <div>
+                    <div className="subhead" style={{ fontSize: 14 }}>{c.name}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.members_count} участников</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {!searching && searchResults?.length > 0 && searchTab === "events" && (
+            <div className="card-grid">
+              {searchResults.map((ev) => (
+                <Link key={ev.id} to={`/events/${ev.id}`} className="card" style={{ borderRadius: 20, padding: 16 }}>
+                  <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
+                    {ev.type === "walk" ? "Прогулка" : "Событие"}
+                  </span>
+                  <h3 className="post-title" style={{ marginTop: 8, fontSize: 15 }}>{ev.title}</h3>
+                  {ev.location && (
+                    <div className="post-meta"><span className="post-meta-item"><MapPin size={13} /> {ev.location}</span></div>
+                  )}
+                </Link>
+              ))}
             </div>
           )}
         </>
