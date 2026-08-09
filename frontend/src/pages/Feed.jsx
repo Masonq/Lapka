@@ -31,6 +31,7 @@ export default function Feed() {
   const [posts, setPosts] = useState([]);
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -113,20 +114,32 @@ export default function Feed() {
         </div>
       )}
 
-      <div className="search-bar sticky-search">
-        <Search size={17} strokeWidth={2.2} />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Искать по ленте: кличка, район…"
-          aria-label="Поиск по ленте"
-        />
-        {search && (
-          <button className="search-clear" onClick={() => setSearch("")} aria-label="Очистить поиск">
+      {searchOpen ? (
+        <div className="search-bar sticky-search">
+          <Search size={17} strokeWidth={2.2} />
+          <input
+            autoFocus
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onBlur={() => !search && setSearchOpen(false)}
+            placeholder="Искать по ленте: кличка, район…"
+            aria-label="Поиск по ленте"
+          />
+          <button
+            className="search-clear"
+            onClick={() => { setSearch(""); setSearchOpen(false); }}
+            aria-label="Закрыть поиск"
+          >
             <X size={14} strokeWidth={2.4} />
           </button>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="sticky-search" style={{ textAlign: "right", marginBottom: 14, background: "var(--bg)" }}>
+          <button className="icon-btn" onClick={() => setSearchOpen(true)} aria-label="Открыть поиск по ленте">
+            <Search size={17} strokeWidth={2.2} />
+          </button>
+        </div>
+      )}
 
       <div className="chip-row">
         {FILTERS.map((f) => (
