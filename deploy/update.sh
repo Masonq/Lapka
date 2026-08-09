@@ -3,6 +3,9 @@ set -e
 
 cd /opt/lapabg
 
+echo "→ Подтягиваю новый код"
+git pull
+
 echo "→ Обновляю фронтенд"
 cd frontend && npm install && npm run build && cd ..
 
