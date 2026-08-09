@@ -125,7 +125,7 @@ export default function Feed() {
               key={type}
               to={`/new-post?type=${type}`}
               style={{
-                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
                 padding: "12px 4px", borderRadius: 16, background: tint, color,
               }}
             >
