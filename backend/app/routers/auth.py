@@ -10,6 +10,7 @@ from app.core.rate_limit import RateLimiter, client_ip, login_limiter, register_
 from app.core.security import (
     create_access_token, get_current_user, hash_password, verify_password, verify_telegram_auth
 )
+from app.core.ws_manager import manager
 from app.models.models import AuthProvider, EmailVerificationCode, Notification, User
 from app.schemas.schemas import (
     ChangePassword, DeleteAccount, LoginEmail, MeOut, RegisterEmail, RequestPasswordChangeCode,
@@ -120,6 +121,7 @@ def _send_welcome_notification(db: Session, new_user: User):
     system_user = _get_or_create_system_user(db)
     db.add(Notification(user_id=new_user.id, actor_id=system_user.id, type="welcome"))
     db.commit()
+    manager.notify_user_sync(new_user.id, {"type": "new_notification", "notification_type": "welcome"})
 
 
 @router.get("/me", response_model=MeOut)

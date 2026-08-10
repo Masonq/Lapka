@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.core.security import get_current_user
+from app.core.ws_manager import manager
 from app.models.models import Block, Follow, Notification, User
 from app.schemas.schemas import UserOut
 
@@ -36,6 +37,7 @@ def follow_user(user_id: str, db: Session = Depends(get_db), user: User = Depend
     db.add(Notification(user_id=user_id, actor_id=user.id, type="follow"))
     try:
         db.commit()
+        manager.notify_user_sync(user_id, {"type": "new_notification", "notification_type": "follow"})
     except IntegrityError:
         # Параллельный запрос успел создать ту же подписку между проверкой и коммитом —
         # уникальный индекс это отловил, для вызывающего это не ошибка, а уже готовый результат

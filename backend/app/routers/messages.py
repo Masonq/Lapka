@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.db import get_db
 from app.core.rate_limit import RateLimiter
 from app.core.security import get_current_user
+from app.core.ws_manager import manager
 from app.models.models import Block, Message, User
 from app.schemas.schemas import ConversationOut, MessageCreate, MessageOut
 
@@ -136,4 +137,12 @@ def send_message(
     db.add(message)
     db.commit()
     db.refresh(message)
+
+    manager.notify_user_sync(user_id, {
+        "type": "new_message",
+        "from_user_id": user.id,
+        "from_display_name": user.display_name,
+        "body": data.body,
+        "created_at": message.created_at.isoformat(),
+    })
     return message

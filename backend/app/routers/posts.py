@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.db import get_db
 from app.core.rate_limit import post_limiter, comment_limiter, report_limiter, sighting_limiter
 from app.core.security import get_current_user, get_current_user_optional
+from app.core.ws_manager import manager
 from app.models.models import Comment, CommunityMember, Event, Follow, Notification, Post, Report, SavedPost, Sighting, PostType, User
 from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, PostUpdate, ReportCreate, SightingCreate, SightingOut
 
@@ -261,10 +262,13 @@ def add_comment(
         raise HTTPException(status_code=404, detail="Пост не найден")
     comment = Comment(post_id=post_id, author_id=user.id, body=data.body)
     db.add(comment)
-    if post.author_id != user.id:
+    notify_author = post.author_id != user.id
+    if notify_author:
         db.add(Notification(user_id=post.author_id, actor_id=user.id, type="comment", post_id=post_id))
     db.commit()
     db.refresh(comment)
+    if notify_author:
+        manager.notify_user_sync(post.author_id, {"type": "new_notification", "notification_type": "comment"})
     return comment
 
 
@@ -349,9 +353,12 @@ def add_sighting(
     )
     db.add(sighting)
 
-    if post.author_id != user.id:
+    notify_author = post.author_id != user.id
+    if notify_author:
         db.add(Notification(user_id=post.author_id, actor_id=user.id, type="sighting", post_id=post_id))
 
     db.commit()
     db.refresh(sighting)
+    if notify_author:
+        manager.notify_user_sync(post.author_id, {"type": "new_notification", "notification_type": "sighting"})
     return sighting

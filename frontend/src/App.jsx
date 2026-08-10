@@ -35,6 +35,7 @@ import NotFound from "./pages/NotFound";
 import { NAV_ITEMS } from "./navConfig";
 import { useAuth } from "./AuthContext";
 import { api } from "./api/client";
+import { useRealtimeEvent } from "./RealtimeContext";
 
 export default function App() {
   const { isAuthed } = useAuth();
@@ -62,9 +63,24 @@ export default function App() {
       api.unreadMessagesCount().then(({ count }) => setUnreadMessages(count)).catch(() => {});
     }
     poll();
-    const interval = setInterval(poll, 30000);
+    // Поллинг реже, чем раньше (было 30с) — теперь только страховка на случай,
+    // если WebSocket недоступен (прокси/файрвол блокирует upgrade), основная
+    // доставка идёт через real-time ниже
+    const interval = setInterval(poll, 60000);
     return () => clearInterval(interval);
   }, [isAuthed]);
+
+  useRealtimeEvent((event) => {
+    if (event.type === "new_notification") {
+      setUnreadCount((n) => n + 1);
+    } else if (event.type === "new_message") {
+      // Не бампаю счётчик, если пользователь прямо сейчас смотрит именно эту
+      // переписку — там сообщение и так появится живьём, а непрочитанным
+      // оно быть не должно (см. MessageThread.jsx, отмечает прочитанным при открытии)
+      const inThatThread = location.pathname === `/messages/${event.from_user_id}`;
+      if (!inThatThread) setUnreadMessages((n) => n + 1);
+    }
+  });
 
   useEffect(() => {
     if (!isAuthed) return;

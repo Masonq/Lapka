@@ -6,6 +6,7 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PawLoader from "../components/PawLoader";
+import { useRealtimeEvent } from "../RealtimeContext";
 
 export default function MessageThread() {
   const { userId } = useParams();
@@ -26,10 +27,18 @@ export default function MessageThread() {
   useEffect(() => {
     api.user(userId).then(setPartner).catch(() => setPartner(null));
     load();
-    const interval = setInterval(load, 5000);
+    // Поллинг реже, чем раньше (было 5с) — теперь только страховка на случай,
+    // если WebSocket недоступен, основная доставка идёт через real-time ниже
+    const interval = setInterval(load, 20000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
+
+  useRealtimeEvent((event) => {
+    if (event.type === "new_message" && event.from_user_id === userId) {
+      load();
+    }
+  });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });

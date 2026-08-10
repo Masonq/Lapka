@@ -1,14 +1,26 @@
+import asyncio
 import logging
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.db import Base, engine
-from app.routers import admin, auth, blocks, communities, events, follows, marketplace, messages, notifications, pets, posts, prerender, services, stories, uploads, users
+from app.routers import admin, auth, blocks, communities, events, follows, marketplace, messages, notifications, pets, posts, prerender, services, stories, uploads, users, ws
+from app.core.ws_manager import manager
 
 logger = logging.getLogger("lapabg")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """WebSocket-пуш из синхронных роутов идёт через run_coroutine_threadsafe,
+    для этого менеджеру соединений нужна ссылка на реальный event loop процесса —
+    её можно получить только изнутри уже запущенного async-контекста."""
+    manager.set_main_loop(asyncio.get_running_loop())
+    yield
 
 # В проде схема БД накатывается через `alembic upgrade head` (см. deploy/setup.sh и
 # deploy/update.sh) — так изменения применяются контролируемо, с историей и возможностью
@@ -17,7 +29,7 @@ logger = logging.getLogger("lapabg")
 if os.getenv("AUTO_CREATE_SCHEMA") == "true":
     Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Lapki API")
+app = FastAPI(title="Lapki API", lifespan=lifespan)
 
 if os.getenv("JWT_SECRET", "change-me-in-production") == "change-me-in-production":
     logger.warning(
@@ -57,6 +69,7 @@ app.include_router(communities.router)
 app.include_router(messages.router)
 app.include_router(events.router)
 app.include_router(marketplace.router)
+app.include_router(ws.router)
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
