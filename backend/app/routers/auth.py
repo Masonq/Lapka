@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.core.email import generate_code, send_verification_code
+from app.core.i18n import get_lang, t
 from app.core.rate_limit import RateLimiter, client_ip, login_limiter, register_limiter
 from app.core.security import (
     create_access_token, get_current_user, hash_password, verify_password, verify_telegram_auth
@@ -61,7 +62,7 @@ def _issue_code(db: Session, email: str, purpose: str, payload: dict | None = No
     return code
 
 
-def _verify_code(db: Session, email: str, purpose: str, submitted_code: str) -> EmailVerificationCode:
+def _verify_code(db: Session, email: str, purpose: str, submitted_code: str, lang: str) -> EmailVerificationCode:
     """Общая проверка кода для регистрации и смены пароля — не даёт
     перебирать код бесконечно (MAX_CODE_ATTEMPTS) и не пропускает
     просроченные/уже использованные коды."""
@@ -76,7 +77,7 @@ def _verify_code(db: Session, email: str, purpose: str, submitted_code: str) -> 
         .first()
     )
     if not record:
-        raise HTTPException(status_code=400, detail="Код не запрашивался или уже использован — запроси новый")
+        raise HTTPException(status_code=400, detail=t("code_not_requested", lang))
 
     expires_at = record.expires_at
     if expires_at.tzinfo is None:
@@ -85,15 +86,15 @@ def _verify_code(db: Session, email: str, purpose: str, submitted_code: str) -> 
         # (прод) так не делает, но сравнение должно быть безопасным в обоих случаях
         expires_at = expires_at.replace(tzinfo=timezone.utc)
     if expires_at < datetime.now(timezone.utc):
-        raise HTTPException(status_code=400, detail="Код истёк — запроси новый")
+        raise HTTPException(status_code=400, detail=t("code_expired", lang))
 
     if record.attempts >= MAX_CODE_ATTEMPTS:
-        raise HTTPException(status_code=429, detail="Слишком много неверных попыток — запроси новый код")
+        raise HTTPException(status_code=429, detail=t("too_many_code_attempts", lang))
 
     if record.code != submitted_code:
         record.attempts += 1
         db.commit()
-        raise HTTPException(status_code=400, detail="Неверный код")
+        raise HTTPException(status_code=400, detail=t("wrong_code", lang))
 
     record.used = True
     db.commit()
@@ -144,7 +145,8 @@ def complete_onboarding(db: Session = Depends(get_db), user: User = Depends(get_
 
 @router.post("/register/request-code")
 def request_register_code(
-    data: RegisterEmail, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
+    data: RegisterEmail, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db),
+    lang: str = Depends(get_lang),
 ):
     """Первый шаг регистрации — код на почту. Реальный User ещё не создаётся:
     payload хранит display_name+хеш пароля, аккаунт появится только в
@@ -158,7 +160,7 @@ def request_register_code(
     register_limiter.check(client_ip(request))
 
     if db.query(User).filter(User.email == data.email).first():
-        raise HTTPException(status_code=400, detail="Такой email уже зарегистрирован")
+        raise HTTPException(status_code=400, detail=t("email_already_registered", lang))
 
     code = _issue_code(
         db, data.email, "register",
@@ -169,12 +171,12 @@ def request_register_code(
 
 
 @router.post("/register/verify-code", response_model=Token)
-def verify_register_code(data: VerifyRegisterCode, db: Session = Depends(get_db)):
-    record = _verify_code(db, data.email, "register", data.code)
+def verify_register_code(data: VerifyRegisterCode, db: Session = Depends(get_db), lang: str = Depends(get_lang)):
+    record = _verify_code(db, data.email, "register", data.code, lang)
 
     if db.query(User).filter(User.email == data.email).first():
         # Гонка — например, две вкладки одновременно подтвердили один и тот же код
-        raise HTTPException(status_code=400, detail="Такой email уже зарегистрирован")
+        raise HTTPException(status_code=400, detail=t("email_already_registered", lang))
 
     payload = json.loads(record.payload)
     user = User(
@@ -191,22 +193,22 @@ def verify_register_code(data: VerifyRegisterCode, db: Session = Depends(get_db)
 
 
 @router.post("/login", response_model=Token)
-def login(data: LoginEmail, request: Request, db: Session = Depends(get_db)):
+def login(data: LoginEmail, request: Request, db: Session = Depends(get_db), lang: str = Depends(get_lang)):
     login_limiter.check(client_ip(request))
 
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not user.password_hash or not verify_password(data.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Неверный email или пароль")
+        raise HTTPException(status_code=401, detail=t("wrong_email_or_password", lang))
     return Token(access_token=create_access_token(user.id))
 
 
 @router.post("/telegram", response_model=Token)
-def telegram_auth(data: TelegramAuth, request: Request, db: Session = Depends(get_db)):
+def telegram_auth(data: TelegramAuth, request: Request, db: Session = Depends(get_db), lang: str = Depends(get_lang)):
     login_limiter.check(client_ip(request))
 
     payload = data.model_dump()
     if not verify_telegram_auth(dict(payload)):
-        raise HTTPException(status_code=401, detail="Подпись Telegram не подтверждена")
+        raise HTTPException(status_code=401, detail=t("telegram_signature_invalid", lang))
 
     telegram_id = str(data.id)
     user = db.query(User).filter(User.telegram_id == telegram_id).first()
@@ -230,15 +232,15 @@ def telegram_auth(data: TelegramAuth, request: Request, db: Session = Depends(ge
 @router.post("/password/request-code")
 def request_password_change_code(
     data: RequestPasswordChangeCode, background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db), user: User = Depends(get_current_user)
+    db: Session = Depends(get_db), user: User = Depends(get_current_user), lang: str = Depends(get_lang),
 ):
     account_action_limiter.check(user.id)
     code_request_limiter.check(user.id)
 
     if user.auth_provider != AuthProvider.EMAIL or not user.password_hash:
-        raise HTTPException(status_code=400, detail="У аккаунта нет пароля — вход через Telegram, менять нечего")
+        raise HTTPException(status_code=400, detail=t("no_password_telegram_account", lang))
     if not verify_password(data.current_password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Текущий пароль неверен")
+        raise HTTPException(status_code=401, detail=t("wrong_current_password", lang))
 
     code = _issue_code(db, user.email, "change_password", user_id=user.id)
     background_tasks.add_task(send_verification_code, user.email, code, "change_password")
@@ -247,18 +249,19 @@ def request_password_change_code(
 
 @router.patch("/password")
 def change_password(
-    data: ChangePassword, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+    data: ChangePassword, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
 ):
     account_action_limiter.check(user.id)
 
     if user.auth_provider != AuthProvider.EMAIL or not user.password_hash:
         raise HTTPException(
-            status_code=400, detail="У аккаунта нет пароля — вход через Telegram, менять нечего"
+            status_code=400, detail=t("no_password_telegram_account", lang)
         )
     if not verify_password(data.current_password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Текущий пароль неверен")
+        raise HTTPException(status_code=401, detail=t("wrong_current_password", lang))
 
-    _verify_code(db, user.email, "change_password", data.code)
+    _verify_code(db, user.email, "change_password", data.code, lang)
 
     user.password_hash = hash_password(data.new_password)
     db.commit()
@@ -285,14 +288,14 @@ def forgot_password(
 
 
 @router.post("/password/reset", response_model=Token)
-def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
-    _verify_code(db, data.email, "password_reset", data.code)
+def reset_password(data: ResetPassword, db: Session = Depends(get_db), lang: str = Depends(get_lang)):
+    _verify_code(db, data.email, "password_reset", data.code, lang)
 
     user = db.query(User).filter(User.email == data.email).first()
     if not user or user.auth_provider != AuthProvider.EMAIL:
         # Код мог быть верным (для существующего email), но сам аккаунт с тех
         # пор мог быть удалён — редкий, но реальный edge case
-        raise HTTPException(status_code=400, detail="Не удалось сбросить пароль — попробуй запросить код заново")
+        raise HTTPException(status_code=400, detail=t("password_reset_failed", lang))
 
     user.password_hash = hash_password(data.new_password)
     db.commit()
@@ -301,13 +304,14 @@ def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
 
 @router.delete("/me")
 def delete_account(
-    data: DeleteAccount, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+    data: DeleteAccount, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
 ):
     account_action_limiter.check(user.id)
 
     if user.auth_provider == AuthProvider.EMAIL and user.password_hash:
         if not data.password or not verify_password(data.password, user.password_hash):
-            raise HTTPException(status_code=401, detail="Неверный пароль")
+            raise HTTPException(status_code=401, detail=t("wrong_password", lang))
 
     # Питомцы/посты/анкета исполнителя удалятся каскадом на уровне ORM и БД (ondelete=CASCADE
     # на всех связанных таблицах — комментарии, подписки, сохранённое, жалобы, уведомления)

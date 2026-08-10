@@ -32,7 +32,7 @@ function extractErrorDetail(data, fallback) {
 }
 
 async function request(path, { method = "GET", body, auth = false } = {}) {
-  const headers = { "Content-Type": "application/json" };
+  const headers = { "Content-Type": "application/json", "X-Lang": i18n.language };
   if (auth) {
     const token = getToken();
     if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -66,7 +66,7 @@ async function uploadImage(file) {
 
   const res = await fetch("/api/uploads", {
     method: "POST",
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    headers: token ? { Authorization: `Bearer ${token}`, "X-Lang": i18n.language } : { "X-Lang": i18n.language },
     body: formData,
   });
 

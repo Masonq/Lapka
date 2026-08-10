@@ -472,3 +472,51 @@ def test_reset_password_without_requesting_code_first_rejected(client, register_
         json={"email": "never-requested@example.com", "code": "123456", "new_password": "new-password-123"},
     )
     assert r.status_code == 400
+
+
+def test_login_error_translated_to_serbian_with_lang_header(client):
+    """Настоящая проверка перевода — не просто что заголовок принимается,
+    а что ТЕКСТ ОШИБКИ реально меняется в зависимости от X-Lang."""
+    email = "translate-login-test@example.com"
+    client.post(
+        "/api/auth/register/request-code",
+        json={"display_name": "Тест", "email": email, "password": "correct-password"},
+    )
+    code = _read_code(email)
+    client.post("/api/auth/register/verify-code", json={"email": email, "code": code})
+
+    r_ru = client.post("/api/auth/login", json={"email": email, "password": "wrong"})
+    assert r_ru.json()["detail"] == "Неверный email или пароль"
+
+    r_sr = client.post("/api/auth/login", json={"email": email, "password": "wrong"}, headers={"X-Lang": "sr"})
+    assert r_sr.json()["detail"] == "Netačan email ili lozinka"
+
+    assert r_ru.json()["detail"] != r_sr.json()["detail"]
+
+
+def test_unsupported_lang_header_falls_back_to_russian(client):
+    """X-Lang с мусорным/неподдерживаемым значением не должен ронять запрос —
+    тихо откатывается на русский по умолчанию."""
+    r = client.post(
+        "/api/auth/login", json={"email": "nobody@example.com", "password": "x"},
+        headers={"X-Lang": "fr"},
+    )
+    assert r.status_code == 401
+    assert r.json()["detail"] == "Неверный email или пароль"
+
+
+def test_missing_lang_header_defaults_to_russian(client):
+    r = client.post("/api/auth/login", json={"email": "nobody@example.com", "password": "x"})
+    assert r.json()["detail"] == "Неверный email или пароль"
+
+
+def test_register_code_error_translated_to_serbian(client):
+    """Проверяю перевод и в общей _verify_code, не только в login —
+    разные эндпоинты используют один и тот же helper."""
+    r = client.post(
+        "/api/auth/register/verify-code",
+        json={"email": "never-requested-any-code@example.com", "code": "123456"},
+        headers={"X-Lang": "sr"},
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Kod nije zatražen ili je već iskorišćen — zatraži novi"
