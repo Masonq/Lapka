@@ -40,6 +40,25 @@
   --shadow-float: 0 10px 30px rgba(26, 26, 26, 0.16);
 }
 
+a, button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card:active,
+.post-card:active,
+a.card:active {
+  opacity: 0.92;
+}
+
+.chip:active,
+.btn:active,
+.icon-btn:active,
+.header-icon-btn:active,
+.badge:active,
+.post-badge:active {
+  opacity: 0.8;
+}
+
 /* Focus-ring только при клавиатурной навигации — у кнопок, чипов, ссылок-карточек
    и табов раньше не было видимого фокуса вовсе, только у полей ввода */
 button:focus-visible,

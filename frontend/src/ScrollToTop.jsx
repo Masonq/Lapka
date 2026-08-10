@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 // Браузер по умолчанию сам пытается восстановить прежнюю позицию скролла при
@@ -14,11 +14,15 @@ if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
  * из прокрученной вниз ленты в переписку открывает новую страницу с той же
  * позицией скролла: её собственная шапка (page-header) оказывается визуально
  * выше видимой области, спрятанная за прилипающим верхним баром (.top-header).
+ *
+ * useLayoutEffect, а не useEffect — срабатывает синхронно ДО того, как браузер
+ * отрисует кадр. С useEffect был краткий шанс увидеть старую позицию скролла
+ * на один кадр перед сбросом (особенно заметно на медленных устройствах).
  */
 export default function ScrollToTop() {
   const { pathname } = useLocation();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
