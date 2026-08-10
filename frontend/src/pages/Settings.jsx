@@ -1,27 +1,30 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, KeyRound, Trash2, UserX, ShieldCheck, Wrench, Sparkles, Sun, Moon } from "lucide-react";
+import { ArrowLeft, KeyRound, Trash2, UserX, ShieldCheck, Wrench, Sparkles, Sun, Moon, Languages } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useTheme } from "../ThemeContext";
+import { useTranslation } from "react-i18next";
+import { setLanguage } from "../i18n";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 
 const SERVICE_TYPES = [
-  { value: "sitter", label: "Ситтер" },
-  { value: "boarding", label: "Передержка" },
-  { value: "trainer", label: "Кинолог" },
-  { value: "vet", label: "Ветеринар" },
-  { value: "groomer", label: "Грумер" },
+  { value: "sitter", label: "settings.service_sitter" },
+  { value: "boarding", label: "settings.service_boarding" },
+  { value: "trainer", label: "settings.service_trainer" },
+  { value: "vet", label: "settings.service_vet" },
+  { value: "groomer", label: "settings.service_groomer" },
 ];
 
 export default function Settings() {
-  useDocumentTitle("Настройки");
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t, i18n } = useTranslation();
   const { showToast } = useToast();
+  useDocumentTitle(t("settings.title"));
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -54,7 +57,7 @@ export default function Settings() {
       });
       setIsProvider(true);
       setShowProviderForm(false);
-      showToast("Анкета опубликована — теперь ты в каталоге услуг");
+      showToast(t("toast.provider_published"));
     } catch (err) {
       setProviderError(err.message);
       showToast(err.message, "error");
@@ -77,7 +80,7 @@ export default function Settings() {
   async function unblock(userId) {
     try {
       await api.unblockUser(userId);
-      showToast("Разблокирован(а)");
+      showToast(t("toast.unblocked"));
       loadBlocked();
     } catch (err) {
       showToast(err.message, "error");
@@ -91,7 +94,7 @@ export default function Settings() {
     try {
       await api.requestPasswordChangeCode({ current_password: currentPassword });
       setPasswordCodeSent(true);
-      showToast("Код отправлен на почту");
+      showToast(t("toast.code_sent"));
     } catch (err) {
       setPasswordError(err.message);
     } finally {
@@ -109,7 +112,7 @@ export default function Settings() {
       setNewPassword("");
       setPasswordCode("");
       setPasswordCodeSent(false);
-      showToast("Пароль изменён");
+      showToast(t("toast.password_changed"));
     } catch (err) {
       setPasswordError(err.message);
     } finally {
@@ -124,7 +127,7 @@ export default function Settings() {
     try {
       await api.deleteAccount(deletePassword || undefined);
       logout();
-      showToast("Аккаунт удалён");
+      showToast(t("toast.account_deleted"));
       navigate("/");
     } catch (err) {
       setDeleteError(err.message);
@@ -135,10 +138,10 @@ export default function Settings() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("settings.back")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Настройки</span>
+        <span className="page-title">{t("settings.title")}</span>
         <span style={{ width: 44 }} />
       </div>
 
@@ -148,15 +151,15 @@ export default function Settings() {
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
               <div>
-                <div style={{ fontWeight: 700, fontSize: 15 }}>Тёмная тема</div>
+                <div style={{ fontWeight: 700, fontSize: 15 }}>{t("settings.theme_dark")}</div>
                 <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                  {theme === "dark" ? "Включена" : "Выключена"}
+                  {theme === "dark" ? t("settings.theme_on") : t("settings.theme_off")}
                 </div>
               </div>
             </div>
             <button
               onClick={toggleTheme}
-              aria-label={theme === "dark" ? "Выключить тёмную тему" : "Включить тёмную тему"}
+              aria-label={theme === "dark" ? t("settings.theme_disable_aria") : t("settings.theme_enable_aria")}
               aria-pressed={theme === "dark"}
               style={{
                 width: 48, height: 28, borderRadius: 999, position: "relative", flexShrink: 0,
@@ -173,6 +176,41 @@ export default function Settings() {
           </div>
         </div>
 
+        <div className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Languages size={18} />
+              <div style={{ fontWeight: 700, fontSize: 15 }}>{t("settings.language")}</div>
+            </div>
+            <div style={{ display: "flex", background: "var(--gray-tint)", borderRadius: 999, padding: 3 }}>
+              <button
+                onClick={() => setLanguage("ru")}
+                aria-pressed={i18n.language === "ru"}
+                style={{
+                  padding: "6px 14px", borderRadius: 999, fontWeight: 700, fontSize: 13,
+                  background: i18n.language === "ru" ? "var(--surface)" : "transparent",
+                  color: i18n.language === "ru" ? "var(--text)" : "var(--text-muted)",
+                  boxShadow: i18n.language === "ru" ? "var(--shadow-card)" : "none",
+                }}
+              >
+                Русский
+              </button>
+              <button
+                onClick={() => setLanguage("sr")}
+                aria-pressed={i18n.language === "sr"}
+                style={{
+                  padding: "6px 14px", borderRadius: 999, fontWeight: 700, fontSize: 13,
+                  background: i18n.language === "sr" ? "var(--surface)" : "transparent",
+                  color: i18n.language === "sr" ? "var(--text)" : "var(--text-muted)",
+                  boxShadow: i18n.language === "sr" ? "var(--shadow-card)" : "none",
+                }}
+              >
+                Srpski
+              </button>
+            </div>
+          </div>
+        </div>
+
         {isProvider === false && !showProviderForm && (
           <div
             className="card"
@@ -184,18 +222,17 @@ export default function Settings() {
             <Sparkles size={80} strokeWidth={1.2} style={{ position: "absolute", top: -16, right: -16, opacity: 0.25 }} />
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
               <Wrench size={18} />
-              <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>Оказываешь услуги для питомцев?</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>{t("settings.provider_promo_title")}</h3>
             </div>
             <p style={{ fontSize: 13, opacity: 0.92, margin: "0 0 16px", maxWidth: 320 }}>
-              Ситтер, передержка, кинолог, ветеринар или грумер — регистрация в каталоге услуг
-              бесплатная, тебя увидят все владельцы животных в городе.
+              {t("settings.provider_promo_text")}
             </p>
             <button
               className="btn"
               style={{ background: "#fff", color: "var(--primary-strong)", fontWeight: 800 }}
               onClick={() => setShowProviderForm(true)}
             >
-              <Wrench size={15} /> Стать исполнителем
+              <Wrench size={15} /> {t("settings.become_provider")}
             </button>
           </div>
         )}
@@ -206,40 +243,40 @@ export default function Settings() {
           }}>
             <ShieldCheck size={18} style={{ color: "var(--green-strong)" }} />
             <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-              Ты уже в каталоге услуг — анкета видна всем в разделе «Поиск»
+              {t("settings.already_provider")}
             </div>
           </div>
         )}
 
         {showProviderForm && (
           <form onSubmit={submitProvider} className="card" style={{ borderRadius: 20, padding: 18, marginBottom: 16 }}>
-            <h3 className="subhead" style={{ fontSize: 15, marginBottom: 12 }}>Анкета исполнителя</h3>
+            <h3 className="subhead" style={{ fontSize: 15, marginBottom: 12 }}>{t("settings.provider_form_title")}</h3>
             <div className="field">
-              <label id="settings-service-type-label">Вид услуги</label>
+              <label id="settings-service-type-label">{t("settings.service_type_label")}</label>
               <div className="chip-row" role="group" aria-labelledby="settings-service-type-label" style={{ paddingBottom: 2 }}>
-                {SERVICE_TYPES.map((t) => (
+                {SERVICE_TYPES.map((st) => (
                   <button
-                    key={t.value}
+                    key={st.value}
                     type="button"
-                    className={`chip${providerForm.service_type === t.value ? " active" : ""}`}
-                    onClick={() => setProviderForm({ ...providerForm, service_type: t.value })}
+                    className={`chip${providerForm.service_type === st.value ? " active" : ""}`}
+                    onClick={() => setProviderForm({ ...providerForm, service_type: st.value })}
                   >
-                    {t.label}
+                    {t(st.label)}
                   </button>
                 ))}
               </div>
             </div>
             <div className="field">
-              <label htmlFor="settings-service-description">Описание</label>
+              <label htmlFor="settings-service-description">{t("settings.description_label")}</label>
               <textarea
                 id="settings-service-description" rows={3} required
                 value={providerForm.description}
                 onChange={(e) => setProviderForm({ ...providerForm, description: e.target.value })}
-                placeholder="Опыт, район работы, что входит в услугу"
+                placeholder={t("settings.description_placeholder")}
               />
             </div>
             <div className="field">
-              <label htmlFor="settings-service-price">Цена от (динары)</label>
+              <label htmlFor="settings-service-price">{t("settings.price_label")}</label>
               <input
                 id="settings-service-price" type="number" min="0"
                 value={providerForm.price_from}
@@ -248,20 +285,20 @@ export default function Settings() {
               />
             </div>
             <div className="field">
-              <label htmlFor="settings-service-contact">Контакт (телефон/telegram)</label>
+              <label htmlFor="settings-service-contact">{t("settings.contact_label")}</label>
               <input
                 id="settings-service-contact"
                 value={providerForm.contact}
                 onChange={(e) => setProviderForm({ ...providerForm, contact: e.target.value })}
-                placeholder="+381 6X XXX XXXX или @username"
+                placeholder={t("settings.contact_placeholder")}
               />
             </div>
             {providerError && <p style={{ color: "var(--red)", fontSize: 13 }}>{providerError}</p>}
             <div style={{ display: "flex", gap: 8 }}>
               <button className="btn btn-primary" disabled={submittingProvider}>
-                {submittingProvider ? "Публикуем…" : "Опубликовать анкету"}
+                {submittingProvider ? t("settings.publishing") : t("settings.publish_form")}
               </button>
-              <button type="button" className="btn btn-ghost" onClick={() => setShowProviderForm(false)}>Отмена</button>
+              <button type="button" className="btn btn-ghost" onClick={() => setShowProviderForm(false)}>{t("settings.cancel")}</button>
             </div>
           </form>
         )}
@@ -269,11 +306,11 @@ export default function Settings() {
         <div className="card" style={{ borderRadius: 20, padding: 18, marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <KeyRound size={17} />
-            <h3 className="subhead" style={{ fontSize: 15 }}>Сменить пароль</h3>
+            <h3 className="subhead" style={{ fontSize: 15 }}>{t("settings.change_password_title")}</h3>
           </div>
           <form onSubmit={passwordCodeSent ? submitPasswordChange : requestPasswordCode}>
             <div className="field">
-              <label htmlFor="current-password">Текущий пароль</label>
+              <label htmlFor="current-password">{t("settings.current_password_label")}</label>
               <input
                 id="current-password"
                 type="password"
@@ -285,7 +322,7 @@ export default function Settings() {
               />
             </div>
             <div className="field">
-              <label htmlFor="new-password">Новый пароль</label>
+              <label htmlFor="new-password">{t("settings.new_password_label")}</label>
               <input
                 id="new-password"
                 type="password"
@@ -293,14 +330,14 @@ export default function Settings() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
                 minLength={6}
-                placeholder="Минимум 6 символов"
+                placeholder={t("settings.min_6_chars")}
                 disabled={passwordCodeSent}
                 autoComplete="new-password"
               />
             </div>
             {passwordCodeSent && (
               <div className="field">
-                <label htmlFor="password-code">Код из письма</label>
+                <label htmlFor="password-code">{t("settings.code_from_email_label")}</label>
                 <input
                   id="password-code"
                   value={passwordCode}
@@ -317,7 +354,7 @@ export default function Settings() {
             {passwordCodeSent ? (
               <>
                 <button className="btn btn-primary btn-block" disabled={changingPassword || passwordCode.length !== 6}>
-                  {changingPassword ? "Сохраняем…" : "Подтвердить и сохранить"}
+                  {changingPassword ? t("settings.saving") : t("settings.confirm_and_save")}
                 </button>
                 <button
                   type="button"
@@ -325,30 +362,30 @@ export default function Settings() {
                   style={{ marginTop: 8 }}
                   onClick={() => { setPasswordCodeSent(false); setPasswordCode(""); }}
                 >
-                  Отмена
+                  {t("settings.cancel")}
                 </button>
               </>
             ) : (
               <button className="btn btn-primary btn-block" disabled={requestingPasswordCode}>
-                {requestingPasswordCode ? "Отправляем…" : "Отправить код на почту"}
+                {requestingPasswordCode ? t("settings.sending") : t("settings.send_code")}
               </button>
             )}
           </form>
           <p style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 10 }}>
-            Если ты вошёл(-шла) через Telegram, пароля у аккаунта нет
+            {t("settings.telegram_no_password")}
           </p>
         </div>
 
         <div className="card" style={{ borderRadius: 20, padding: 18, marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
             <UserX size={17} />
-            <h3 className="subhead" style={{ fontSize: 15 }}>Заблокированные</h3>
+            <h3 className="subhead" style={{ fontSize: 15 }}>{t("settings.blocked_title")}</h3>
           </div>
 
           {blockedUsers === null && <ListItemSkeleton count={2} />}
 
           {blockedUsers?.length === 0 && (
-            <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Никого не заблокировано</p>
+            <p style={{ fontSize: 13, color: "var(--text-faint)" }}>{t("settings.no_blocked")}</p>
           )}
 
           {blockedUsers?.map((b) => (
@@ -372,7 +409,7 @@ export default function Settings() {
                 <span style={{ fontSize: 14, fontWeight: 600 }}>{b.user.display_name}</span>
               </Link>
               <button className="btn btn-ghost" style={{ padding: "6px 10px", fontSize: 12 }} onClick={() => unblock(b.user.id)}>
-                <ShieldCheck size={13} /> Разблокировать
+                <ShieldCheck size={13} /> {t("settings.unblock")}
               </button>
             </div>
           ))}
@@ -381,27 +418,26 @@ export default function Settings() {
         <div className="card" style={{ borderRadius: 20, padding: 18, border: "1px solid var(--red-tint)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <Trash2 size={17} color="var(--red)" />
-            <h3 className="subhead" style={{ fontSize: 15, color: "var(--red)" }}>Удалить аккаунт</h3>
+            <h3 className="subhead" style={{ fontSize: 15, color: "var(--red)" }}>{t("settings.delete_account_title")}</h3>
           </div>
           <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 12 }}>
-            Удалятся аккаунт, все питомцы, посты, комментарии и анкета исполнителя услуг.
-            Отменить это будет нельзя.
+            {t("settings.delete_warning")}
           </p>
 
           {!showDeleteForm ? (
             <button className="btn btn-ghost btn-block" onClick={() => setShowDeleteForm(true)}>
-              Удалить аккаунт
+              {t("settings.delete_account_title")}
             </button>
           ) : (
             <form onSubmit={submitDelete}>
               <div className="field">
-                <label htmlFor="delete-password">Подтверди паролем</label>
+                <label htmlFor="delete-password">{t("settings.confirm_password_label")}</label>
                 <input
                   id="delete-password"
                   type="password"
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
-                  placeholder="Оставь пустым, если вход через Telegram"
+                  placeholder={t("settings.delete_password_placeholder")}
                   autoComplete="current-password"
                 />
               </div>
@@ -412,10 +448,10 @@ export default function Settings() {
                   style={{ background: "var(--red)", color: "#fff" }}
                   disabled={deleting}
                 >
-                  {deleting ? "Удаляем…" : "Точно удалить"}
+                  {deleting ? t("settings.deleting") : t("settings.confirm_delete")}
                 </button>
                 <button type="button" className="btn btn-ghost" onClick={() => setShowDeleteForm(false)}>
-                  Отмена
+                  {t("settings.cancel")}
                 </button>
               </div>
             </form>

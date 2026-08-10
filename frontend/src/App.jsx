@@ -33,12 +33,14 @@ import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 import { NAV_ITEMS } from "./navConfig";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "./AuthContext";
 import { api } from "./api/client";
 import { useRealtimeEvent } from "./RealtimeContext";
 import { initAnalytics, trackPageview } from "./analytics";
 
 export default function App() {
+  const { t } = useTranslation();
   const { isAuthed } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
@@ -111,21 +113,21 @@ export default function App() {
               spellCheck="false"
               value={searchConfig.value}
               onChange={(e) => searchConfig.onChange(e.target.value)}
-              placeholder={searchConfig.placeholder || "Искать…"}
+              placeholder={searchConfig.placeholder || t("common.search_placeholder")}
             />
-            <button className="icon-btn" onClick={() => setSearchOpen(false)} aria-label="Закрыть поиск">
+            <button className="icon-btn" onClick={() => setSearchOpen(false)} aria-label={t("common.close_search")}>
               <X size={16} strokeWidth={2.2} />
             </button>
           </div>
         ) : (
           <>
             {searchConfig && (
-              <button className="header-icon-btn" onClick={() => setSearchOpen(true)} aria-label="Поиск">
+              <button className="header-icon-btn" onClick={() => setSearchOpen(true)} aria-label={t("nav.explore")}>
                 <Search size={17} strokeWidth={2.2} />
               </button>
             )}
 
-            <Link to="/" className="brand-block" aria-label="На главную">
+            <Link to="/" className="brand-block" aria-label={t("common.go_home")}>
               <img src="/logo.png" alt="Lapki.info" className="brand-logo" />
             </Link>
 
@@ -137,22 +139,22 @@ export default function App() {
                   end={end}
                   className={({ isActive }) => `desktop-nav-item${isActive ? " active" : ""}`}
                 >
-                  {label}
+                  {t(label)}
                 </NavLink>
               ))}
             </nav>
 
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: "auto" }}>
               <Link to="/create" className="btn btn-primary desktop-only" style={{ padding: "9px 16px" }}>
-                <PlusCircle size={16} strokeWidth={2.4} /> Добавить
+                <PlusCircle size={16} strokeWidth={2.4} /> {t("nav.create")}
               </Link>
               {isAuthed && (
-                <Link to="/notifications" className="header-icon-btn" aria-label="Уведомления">
+                <Link to="/notifications" className="header-icon-btn" aria-label={t("common.notifications")}>
                   <Bell size={17} strokeWidth={2.2} />
                   {unreadCount > 0 && <span className="header-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>}
                 </Link>
               )}
-              <Link to="/profile" className="header-avatar" aria-label="Профиль">
+              <Link to="/profile" className="header-avatar" aria-label={t("nav.profile")}>
                 <User size={16} strokeWidth={2.2} />
               </Link>
             </div>
