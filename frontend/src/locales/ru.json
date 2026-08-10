@@ -66,5 +66,25 @@
     "code_sent": "Код отправлен на почту",
     "password_changed": "Пароль изменён",
     "account_deleted": "Аккаунт удалён"
+  },
+  "feed": {
+    "title": "Лента",
+    "filter_all": "Все",
+    "filter_lost": "Потеряшки",
+    "filter_found": "Найдены",
+    "filter_adopt": "Ищут дом",
+    "filter_question": "Вопросы",
+    "filter_general": "Общее",
+    "search_placeholder": "Искать по ленте: кличка, район…",
+    "for_you": "Для тебя",
+    "following": "Подписки",
+    "empty_search": "Ничего не нашлось",
+    "empty_following": "Пока пусто в подписках",
+    "empty_default": "Пока пусто",
+    "empty_search_hint": "Попробуй другой запрос",
+    "empty_following_hint": "Подпишись на кого-нибудь через профиль — их посты появятся здесь",
+    "empty_default_hint": "Будь первым, кто расскажет о своём питомце соседям",
+    "loading_more": "Загружаем…",
+    "show_more": "Показать ещё"
   }
 }

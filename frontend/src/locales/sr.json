@@ -66,5 +66,25 @@
     "code_sent": "Kod poslat na e-poštu",
     "password_changed": "Lozinka promenjena",
     "account_deleted": "Nalog obrisan"
+  },
+  "feed": {
+    "title": "Novosti",
+    "filter_all": "Sve",
+    "filter_lost": "Izgubljeni",
+    "filter_found": "Pronađeni",
+    "filter_adopt": "Traže dom",
+    "filter_question": "Pitanja",
+    "filter_general": "Opšte",
+    "search_placeholder": "Pretraži: ime, deo grada…",
+    "for_you": "Za tebe",
+    "following": "Pratim",
+    "empty_search": "Ništa nije pronađeno",
+    "empty_following": "Još nema objava od onih koje pratiš",
+    "empty_default": "Još je prazno",
+    "empty_search_hint": "Pokušaj drugačiju pretragu",
+    "empty_following_hint": "Zaprati nekoga preko profila — njihove objave će se pojaviti ovde",
+    "empty_default_hint": "Budi prvi koji će ispričati o svom ljubimcu komšijama",
+    "loading_more": "Učitavamo…",
+    "show_more": "Prikaži još"
   }
 }

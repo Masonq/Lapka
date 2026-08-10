@@ -8,21 +8,23 @@ import StoriesRow from "../components/StoriesRow";
 import ErrorState from "../components/ErrorState";
 import EmptyStateImage from "../components/EmptyStateImage";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useTranslation } from "react-i18next";
 
 const FILTERS = [
-  { value: "", label: "Все" },
-  { value: "lost", label: "Потеряшки" },
-  { value: "found", label: "Найдены" },
-  { value: "adopt", label: "Ищут дом" },
-  { value: "question", label: "Вопросы" },
-  { value: "general", label: "Общее" },
+  { value: "", label: "feed.filter_all" },
+  { value: "lost", label: "feed.filter_lost" },
+  { value: "found", label: "feed.filter_found" },
+  { value: "adopt", label: "feed.filter_adopt" },
+  { value: "question", label: "feed.filter_question" },
+  { value: "general", label: "feed.filter_general" },
 ];
 
 
 const PAGE_SIZE = 20;
 
 export default function Feed() {
-  useDocumentTitle("Лента");
+  const { t } = useTranslation();
+  useDocumentTitle(t("feed.title"));
   const { isAuthed } = useAuth();
   const { setSearchConfig } = useSearchContext();
   const [feedTab, setFeedTab] = useState("for-you");
@@ -36,12 +38,12 @@ export default function Feed() {
   const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search.trim()), 350);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 350);
+    return () => clearTimeout(timer);
   }, [search]);
 
   useEffect(() => {
-    setSearchConfig({ value: search, onChange: setSearch, placeholder: "Искать по ленте: кличка, район…" });
+    setSearchConfig({ value: search, onChange: setSearch, placeholder: t("feed.search_placeholder") });
     return () => setSearchConfig(null);
   }, [search, setSearchConfig]);
 
@@ -90,14 +92,14 @@ export default function Feed() {
             onClick={() => setFeedTab("for-you")}
             style={{ flex: 1 }}
           >
-            Для тебя
+            {t("feed.for_you")}
           </button>
           <button
             className={`chip${feedTab === "following" ? " active" : ""}`}
             onClick={() => setFeedTab("following")}
             style={{ flex: 1 }}
           >
-            Подписки
+            {t("feed.following")}
           </button>
         </div>
       )}
@@ -109,7 +111,7 @@ export default function Feed() {
             className={`chip${filter === f.value ? " active" : ""}`}
             onClick={() => setFilter(f.value)}
           >
-            {f.label}
+            {t(f.label)}
           </button>
         ))}
       </div>
@@ -128,13 +130,13 @@ export default function Feed() {
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">
-            {debouncedSearch ? "Ничего не нашлось" : feedTab === "following" ? "Пока пусто в подписках" : "Пока пусто"}
+            {debouncedSearch ? t("feed.empty_search") : feedTab === "following" ? t("feed.empty_following") : t("feed.empty_default")}
           </div>
           {debouncedSearch
-            ? "Попробуй другой запрос"
+            ? t("feed.empty_search_hint")
             : feedTab === "following"
-              ? "Подпишись на кого-нибудь через профиль — их посты появятся здесь"
-              : "Будь первым, кто расскажет о своём питомце соседям"}
+              ? t("feed.empty_following_hint")
+              : t("feed.empty_default_hint")}
         </div>
       )}
 
@@ -153,7 +155,7 @@ export default function Feed() {
           onClick={loadMore}
           disabled={loadingMore}
         >
-          {loadingMore ? "Загружаем…" : "Показать ещё"}
+          {loadingMore ? t("feed.loading_more") : t("feed.show_more")}
         </button>
       )}
     </div>
