@@ -155,6 +155,30 @@ ERRORS: dict[str, dict[str, str]] = {
         "ru": "Запись не найдена",
         "sr": "Zapis nije pronađen",
     },
+    "report_not_found": {
+        "ru": "Жалоба не найдена",
+        "sr": "Prijava nije pronađena",
+    },
+    "story_not_found": {
+        "ru": "История не найдена",
+        "sr": "Priča nije pronađena",
+    },
+    "community_not_found": {
+        "ru": "Сообщество не найдено",
+        "sr": "Zajednica nije pronađena",
+    },
+    "invalid_role": {
+        "ru": "Роль должна быть одной из: user, editor, moderator",
+        "sr": "Uloga mora biti jedna od: user, editor, moderator",
+    },
+    "user_not_found": {
+        "ru": "Пользователь не найден",
+        "sr": "Korisnik nije pronađen",
+    },
+    "provider_profile_not_found": {
+        "ru": "Анкета исполнителя не найдена",
+        "sr": "Profil pružaoca usluga nije pronađen",
+    },
 }
 
 

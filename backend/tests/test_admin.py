@@ -256,3 +256,31 @@ def test_admin_users_requires_admin(client, register_user):
     headers = register_user()
     r = client.get("/api/admin/users", headers=headers)
     assert r.status_code == 403
+
+
+def test_admin_delete_nonexistent_post_error_translated_to_serbian(client, register_admin):
+    headers, _ = register_admin()
+    r = client.delete("/api/admin/posts/nonexistent-id", headers={**headers, "X-Lang": "sr"})
+    assert r.status_code == 404
+    assert r.json()["detail"] == "Objava nije pronađena"
+
+
+def test_invalid_role_error_translated_to_serbian(client, register_admin, register_user_with_id):
+    headers_admin, _ = register_admin()
+    _, target_id = register_user_with_id()
+
+    r = client.patch(
+        f"/api/admin/users/{target_id}/role", json={"role": "superadmin"},
+        headers={**headers_admin, "X-Lang": "sr"},
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Uloga mora biti jedna od: user, editor, moderator"
+
+
+def test_provider_not_found_error_translated_to_serbian(client, register_admin):
+    headers, _ = register_admin()
+    r = client.patch(
+        "/api/admin/service-providers/nonexistent-id/verify", headers={**headers, "X-Lang": "sr"}
+    )
+    assert r.status_code == 404
+    assert r.json()["detail"] == "Profil pružaoca usluga nije pronađen"

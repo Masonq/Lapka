@@ -5,6 +5,7 @@ from sqlalchemy import desc, func
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.security import get_current_admin, get_current_editor, get_current_moderator
 from app.models.models import AuditLog, Comment, Community, Listing, Pet, Post, Report, ServiceProvider, Story, User
 from app.routers.auth import SYSTEM_ACCOUNT_EMAIL
@@ -64,11 +65,14 @@ def list_reports(
 
 
 @router.patch("/reports/{report_id}/dismiss", response_model=AdminActionResult)
-def dismiss_report(report_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
+def dismiss_report(
+    report_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator),
+    lang: str = Depends(get_lang),
+):
     """Жалоба рассмотрена, но контент оставлен — например, при повторной/необоснованной жалобе."""
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
-        raise HTTPException(status_code=404, detail="Жалоба не найдена")
+        raise HTTPException(status_code=404, detail=t("report_not_found", lang))
 
     report.is_resolved = True
     _log(db, admin, "dismiss_report", "report", report_id)
@@ -77,13 +81,16 @@ def dismiss_report(report_id: str, db: Session = Depends(get_db), admin: User = 
 
 
 @router.delete("/posts/{post_id}", response_model=AdminActionResult)
-def admin_delete_post(post_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
+def admin_delete_post(
+    post_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator),
+    lang: str = Depends(get_lang),
+):
     """В отличие от DELETE /api/posts/{id} — админ может удалить любой пост, не только свой.
     Связанные жалобы остаются (post_id уходит в NULL), остальное (сохранения, уведомления,
     комментарии) удаляется каскадом вместе с постом."""
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
 
     db.query(Report).filter(Report.post_id == post_id, Report.is_resolved.is_(False)).update(
         {"is_resolved": True}
@@ -95,13 +102,16 @@ def admin_delete_post(post_id: str, db: Session = Depends(get_db), admin: User =
 
 
 @router.delete("/listings/{listing_id}", response_model=AdminActionResult)
-def admin_delete_listing(listing_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
+def admin_delete_listing(
+    listing_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator),
+    lang: str = Depends(get_lang),
+):
     """Как admin_delete_post — админ может удалить любое объявление, не только своё
     (у продавцов такого права нет ни на чужие объявления). Связанные жалобы остаются
     (listing_id уходит в NULL), сохранения удаляются каскадом вместе с объявлением."""
     listing = db.query(Listing).filter(Listing.id == listing_id).first()
     if not listing:
-        raise HTTPException(status_code=404, detail="Объявление не найдено")
+        raise HTTPException(status_code=404, detail=t("listing_not_found", lang))
 
     db.query(Report).filter(Report.listing_id == listing_id, Report.is_resolved.is_(False)).update(
         {"is_resolved": True}
@@ -113,12 +123,15 @@ def admin_delete_listing(listing_id: str, db: Session = Depends(get_db), admin: 
 
 
 @router.delete("/stories/{story_id}", response_model=AdminActionResult)
-def admin_delete_story(story_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
+def admin_delete_story(
+    story_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator),
+    lang: str = Depends(get_lang),
+):
     """Раньше удалить чужую историю не мог никто, кроме самого автора — модерация
     неприемлемого контента в историях была структурно невозможна."""
     story = db.query(Story).filter(Story.id == story_id).first()
     if not story:
-        raise HTTPException(status_code=404, detail="История не найдена")
+        raise HTTPException(status_code=404, detail=t("story_not_found", lang))
 
     _log(db, admin, "delete_story", "story", story_id)
     db.delete(story)
@@ -127,14 +140,17 @@ def admin_delete_story(story_id: str, db: Session = Depends(get_db), admin: User
 
 
 @router.delete("/communities/{community_id}", response_model=AdminActionResult)
-def admin_delete_community(community_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
+def admin_delete_community(
+    community_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator),
+    lang: str = Depends(get_lang),
+):
     """Раньше удалить сообщество не мог никто, кроме прямого доступа к БД — не было
     ни своего эндпоинта на удаление у создателя, ни админского. Посты/события внутри
     сообщества не удаляются вместе с ним (ondelete=SET NULL) — просто отвязываются,
     остаются у своих авторов. Участники удаляются каскадом (ondelete=CASCADE)."""
     community = db.query(Community).filter(Community.id == community_id).first()
     if not community:
-        raise HTTPException(status_code=404, detail="Сообщество не найдено")
+        raise HTTPException(status_code=404, detail=t("community_not_found", lang))
 
     _log(db, admin, "delete_community", "community", community_id, note=community.name[:200])
     db.delete(community)
@@ -189,17 +205,18 @@ def list_users(
 
 @router.patch("/users/{user_id}/role", response_model=AdminUserOut)
 def set_user_role(
-    user_id: str, data: RoleUpdate, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)
+    user_id: str, data: RoleUpdate, db: Session = Depends(get_db), admin: User = Depends(get_current_admin),
+    lang: str = Depends(get_lang),
 ):
     """Строго для is_admin — иначе модератор мог бы назначить себя/кого угодно
     модератором в обход иерархии. Роль назначается, is_admin этим эндпоинтом
     не выдаётся вообще (для этого нет API — только напрямую в БД, осознанно)."""
     if data.role not in ("user", "editor", "moderator"):
-        raise HTTPException(status_code=400, detail="Роль должна быть одной из: user, editor, moderator")
+        raise HTTPException(status_code=400, detail=t("invalid_role", lang))
 
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
+        raise HTTPException(status_code=404, detail=t("user_not_found", lang))
 
     target.role = data.role
     _log(db, admin, "set_role", "user", user_id, note=data.role)
@@ -224,13 +241,14 @@ def list_service_providers(db: Session = Depends(get_db), admin: User = Depends(
 
 @router.patch("/service-providers/{provider_id}/verify", response_model=ServiceProviderOut)
 def toggle_verify_provider(
-    provider_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_editor)
+    provider_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_editor),
+    lang: str = Depends(get_lang),
 ):
     """Раздел 18 блюпринта — verified badge. Переключатель (не только 'включить') —
     удобно снять статус, если позже выяснится, что подтверждали ошибочно."""
     provider = db.query(ServiceProvider).filter(ServiceProvider.id == provider_id).first()
     if not provider:
-        raise HTTPException(status_code=404, detail="Анкета исполнителя не найдена")
+        raise HTTPException(status_code=404, detail=t("provider_profile_not_found", lang))
 
     provider.is_verified = not provider.is_verified
     _log(
