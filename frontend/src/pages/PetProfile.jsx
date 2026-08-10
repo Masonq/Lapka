@@ -8,6 +8,7 @@ import { useDocumentTitle } from "../useDocumentTitle";
 import WeightChart from "../components/WeightChart";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import { translateSpecies, translateGender, translateActivity } from "../dataLabels";
 import { useTranslation } from "react-i18next";
 
 const HEALTH_CATEGORIES = [
@@ -116,9 +117,9 @@ export default function PetProfile() {
   const avatarColor = pet.species === "Собака" ? "var(--blue)" : pet.species === "Кошка" ? "#95491B" : "var(--text-muted)";
 
   const facts = [
-    pet.species,
+    translateSpecies(t, pet.species),
     pet.breed,
-    pet.gender,
+    translateGender(t, pet.gender),
     pet.age_years ? `${pet.age_years} ${t("pets.years_short")}` : null,
   ].filter(Boolean).join(" · ");
 
@@ -157,7 +158,7 @@ export default function PetProfile() {
               )}
               {pet.activity_level && (
                 <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: "var(--text-muted)" }}>
-                  <Sparkles size={14} /> {pet.activity_level}
+                  <Sparkles size={14} /> {translateActivity(t, pet.activity_level)}
                 </span>
               )}
             </div>

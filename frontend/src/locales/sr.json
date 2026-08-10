@@ -673,5 +673,18 @@
     "no_communities": "Još nema zajednica",
     "members_suffix": "članova",
     "delete": "Obriši"
+  },
+  "data_labels": {
+    "species_dog": "Pas",
+    "species_cat": "Mačka",
+    "species_other": "Ostalo",
+    "gender_male": "Mužjak",
+    "gender_female": "Ženka",
+    "activity_calm": "Miran",
+    "activity_medium": "Srednji",
+    "activity_active": "Aktivan",
+    "city_belgrade": "Beograd",
+    "city_novi_sad": "Novi Sad",
+    "city_nis": "Niš"
   }
 }

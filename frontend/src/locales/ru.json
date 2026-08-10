@@ -673,5 +673,18 @@
     "no_communities": "Сообществ пока нет",
     "members_suffix": "участников",
     "delete": "Удалить"
+  },
+  "data_labels": {
+    "species_dog": "Собака",
+    "species_cat": "Кошка",
+    "species_other": "Другое",
+    "gender_male": "Мальчик",
+    "gender_female": "Девочка",
+    "activity_calm": "Спокойный",
+    "activity_medium": "Средний",
+    "activity_active": "Активный",
+    "city_belgrade": "Белград",
+    "city_novi_sad": "Нови-Сад",
+    "city_nis": "Ниш"
   }
 }

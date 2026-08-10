@@ -9,6 +9,7 @@ import { pluralize } from "../pluralize";
 import PostCard from "../components/PostCard";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import { useTranslation } from "react-i18next";
+import { translateSpecies } from "../dataLabels";
 
 export default function UserProfile() {
   const { t } = useTranslation();
@@ -204,7 +205,7 @@ export default function UserProfile() {
                   </div>
                   <div>
                     <div className="subhead" style={{ fontSize: 14 }}>{pet.name}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{pet.species}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{translateSpecies(t, pet.species)}</div>
                   </div>
                 </Link>
               ))}

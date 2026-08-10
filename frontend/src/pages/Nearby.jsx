@@ -7,6 +7,7 @@ import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useTranslation } from "react-i18next";
+import { translateSpecies, translateCity } from "../dataLabels";
 
 const CITIES = ["Белград", "Нови-Сад", "Ниш"];
 
@@ -43,7 +44,7 @@ export default function Nearby() {
       <div className="chip-row" style={{ marginBottom: 16 }}>
         {CITIES.map((c) => (
           <button key={c} className={`chip${city === c ? " active" : ""}`} onClick={() => setCity(c)}>
-            {c}
+            {translateCity(t, c)}
           </button>
         ))}
       </div>
@@ -82,7 +83,7 @@ export default function Nearby() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="subhead">{pet.name}</div>
                   <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                    {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} ${t("nearby.years_short")}` : ""}
+                    {translateSpecies(t, pet.species)}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} ${t("nearby.years_short")}` : ""}
                   </div>
                 </div>
               </Link>

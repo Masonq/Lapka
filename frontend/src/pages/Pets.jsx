@@ -8,6 +8,7 @@ import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PhotoPicker from "../components/PhotoPicker";
 import { useTranslation } from "react-i18next";
+import { translateSpecies, translateGender, translateActivity } from "../dataLabels";
 
 const SPECIES = ["Собака", "Кошка", "Другое"];
 const GENDERS = ["Мальчик", "Девочка"];
@@ -105,7 +106,7 @@ export default function Pets() {
                   className={`chip${form.species === s ? " active" : ""}`}
                   onClick={() => setForm({ ...form, species: s })}
                 >
-                  {s}
+                  {translateSpecies(t, s)}
                 </button>
               ))}
             </div>
@@ -124,7 +125,7 @@ export default function Pets() {
                   className={`chip${form.gender === g ? " active" : ""}`}
                   onClick={() => setForm({ ...form, gender: form.gender === g ? "" : g })}
                 >
-                  {g}
+                  {translateGender(t, g)}
                 </button>
               ))}
             </div>
@@ -147,7 +148,7 @@ export default function Pets() {
                   className={`chip${form.activity_level === a ? " active" : ""}`}
                   onClick={() => setForm({ ...form, activity_level: form.activity_level === a ? "" : a })}
                 >
-                  {a}
+                  {translateActivity(t, a)}
                 </button>
               ))}
             </div>
@@ -193,7 +194,7 @@ export default function Pets() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="subhead">{pet.name}</div>
                     <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                      {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} ${t("pets.years_short")}` : ""}
+                      {translateSpecies(t, pet.species)}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} ${t("pets.years_short")}` : ""}
                     </div>
                   </div>
                 </Link>

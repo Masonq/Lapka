@@ -12,6 +12,7 @@ import { useDocumentTitle } from "../useDocumentTitle";
 import { useSearchContext } from "../SearchContext";
 import { pluralize } from "../pluralize";
 import { useTranslation } from "react-i18next";
+import { translateSpecies } from "../dataLabels";
 
 const SERVICE_TYPES = [
   { value: "", labelKey: "explore.service_all" },
@@ -175,7 +176,7 @@ export default function Explore() {
                   </div>
                   <div>
                     <div className="subhead" style={{ fontSize: 14 }}>{pet.name}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{pet.species}{pet.breed ? `, ${pet.breed}` : ""}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{translateSpecies(t, pet.species)}{pet.breed ? `, ${pet.breed}` : ""}</div>
                   </div>
                 </Link>
               ))}
