@@ -451,3 +451,29 @@ def test_edit_nonexistent_post_404(client, register_user):
 def test_edit_post_requires_auth(client):
     r = client.patch("/api/posts/some-id", json={"title": "X"})
     assert r.status_code == 401
+
+
+def test_create_post_with_coordinates(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/posts",
+        json={
+            "type": "lost", "title": "Тест", "body": "Текст",
+            "last_seen_lat": 44.8125, "last_seen_lng": 20.4612,
+        },
+        headers=headers,
+    )
+    assert r.status_code == 200
+    post = r.json()
+    assert post["last_seen_lat"] == 44.8125
+    assert post["last_seen_lng"] == 20.4612
+
+
+def test_create_post_without_coordinates_stays_null(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/posts", json={"type": "general", "title": "Тест", "body": "Текст"}, headers=headers
+    )
+    post = r.json()
+    assert post["last_seen_lat"] is None
+    assert post["last_seen_lng"] is None

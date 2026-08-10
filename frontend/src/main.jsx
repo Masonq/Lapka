@@ -6,6 +6,7 @@ import { AuthProvider } from "./AuthContext.jsx";
 import { ToastProvider } from "./ToastContext.jsx";
 import { SearchProvider } from "./SearchContext.jsx";
 import "./styles/global.css";
+import "leaflet/dist/leaflet.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MapPin, LoaderCircle } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -27,6 +27,10 @@ export default function NewPost() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [location, setLocation] = useState("");
+  const [lat, setLat] = useState(null);
+  const [lng, setLng] = useState(null);
+  const [locatingMe, setLocatingMe] = useState(false);
+  const [locationError, setLocationError] = useState("");
   const [photoUrl, setPhotoUrl] = useState(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -51,6 +55,27 @@ export default function NewPost() {
     );
   }
 
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      setLocationError("Геолокация не поддерживается этим браузером");
+      return;
+    }
+    setLocatingMe(true);
+    setLocationError("");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(pos.coords.latitude);
+        setLng(pos.coords.longitude);
+        setLocatingMe(false);
+      },
+      () => {
+        setLocationError("Не удалось определить местоположение — разреши доступ в настройках браузера");
+        setLocatingMe(false);
+      },
+      { timeout: 10000 }
+    );
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -62,6 +87,8 @@ export default function NewPost() {
         body,
         photo_url: photoUrl || undefined,
         last_seen_location: location || undefined,
+        last_seen_lat: lat || undefined,
+        last_seen_lng: lng || undefined,
         community_id: communityId,
         show_staff_badge: showStaffBadge,
       });
@@ -135,6 +162,20 @@ export default function NewPost() {
           <div className="field">
             <label htmlFor="post-location">Где видели (район, улица)</label>
             <input id="post-location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Например: Ташмайдан" />
+            <button
+              type="button"
+              onClick={useMyLocation}
+              disabled={locatingMe}
+              style={{
+                display: "flex", alignItems: "center", gap: 6, marginTop: 8, fontSize: 13, fontWeight: 700,
+                color: lat ? "var(--green-strong)" : "var(--primary-strong)", background: "none", border: "none",
+                cursor: locatingMe ? "default" : "pointer", padding: 0,
+              }}
+            >
+              {locatingMe ? <LoaderCircle size={14} className="spin" /> : <MapPin size={14} />}
+              {locatingMe ? "Определяем…" : lat ? "Точка на карте добавлена ✓" : "Добавить точку на карту"}
+            </button>
+            {locationError && <p style={{ color: "var(--red)", fontSize: 12, marginTop: 4 }}>{locationError}</p>}
           </div>
         )}
 

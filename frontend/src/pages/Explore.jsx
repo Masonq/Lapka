@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, CalendarDays, ShoppingBag, Heart, ChevronRight, PawPrint } from "lucide-react";
+import { MapPin, CalendarDays, ShoppingBag, Heart, ChevronRight, PawPrint, Map } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
@@ -235,6 +235,22 @@ export default function Explore() {
             <div style={{ flex: 1 }}>
               <div className="subhead" style={{ fontSize: 14 }}>Рядом</div>
               <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Питомцы в твоём городе</div>
+            </div>
+            <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
+          </Link>
+
+          <Link to="/map" className="card" style={{
+            borderRadius: 20, padding: 16, marginBottom: 20, display: "flex", alignItems: "center", gap: 12,
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: "50%", background: "var(--red-tint)", color: "var(--red)",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <Map size={17} strokeWidth={2.2} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div className="subhead" style={{ fontSize: 14 }}>Карта потеряшек</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Где видели пропавших и найденных</div>
             </div>
             <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
           </Link>

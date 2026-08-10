@@ -20,6 +20,7 @@ import Admin from "./pages/Admin";
 import Communities from "./pages/Communities";
 import CommunityDetail from "./pages/CommunityDetail";
 import Nearby from "./pages/Nearby";
+import MapView from "./pages/MapView";
 import MessageThread from "./pages/MessageThread";
 import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
@@ -155,6 +156,7 @@ export default function App() {
         <Route path="/communities" element={<Communities />} />
         <Route path="/communities/:id" element={<CommunityDetail />} />
         <Route path="/nearby" element={<Nearby />} />
+        <Route path="/map" element={<MapView />} />
         <Route path="/messages/:userId" element={<MessageThread />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
