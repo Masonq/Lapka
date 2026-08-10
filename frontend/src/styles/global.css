@@ -166,7 +166,7 @@ a {
 .brand-logo {
   height: 46px;
   width: auto;
-  aspect-ratio: 660 / 688;
+  aspect-ratio: 656 / 662;
   object-fit: contain;
   display: block;
   background: var(--gray-tint);
