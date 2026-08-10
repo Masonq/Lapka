@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Star, Phone, ChevronDown, ChevronUp, BadgeCheck } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
@@ -20,6 +20,7 @@ function timeAgo(iso) {
 export default function ProviderCard({ provider, onReviewed }) {
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [reviews, setReviews] = useState(null);
   const [loadingReviews, setLoadingReviews] = useState(false);
@@ -57,14 +58,18 @@ export default function ProviderCard({ provider, onReviewed }) {
   }
 
   return (
-    <div className="card" style={{ borderRadius: 20, padding: 16 }}>
+    <div
+      className="card"
+      style={{ borderRadius: 20, padding: 16, cursor: "pointer" }}
+      onClick={() => navigate(`/users/${provider.user.id}`)}
+    >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
             {TYPE_RU[provider.service_type]}
           </span>
           <div className="subhead" style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 4 }}>
-            <Link to={`/users/${provider.user.id}`} className="post-meta-author">{provider.user.display_name}</Link>
+            <Link to={`/users/${provider.user.id}`} className="post-meta-author" onClick={(e) => e.stopPropagation()}>{provider.user.display_name}</Link>
             {provider.is_verified && (
               <BadgeCheck size={15} style={{ color: "var(--green-strong)", flexShrink: 0 }} aria-label="Подтверждённый исполнитель" />
             )}
@@ -88,7 +93,7 @@ export default function ProviderCard({ provider, onReviewed }) {
 
       <button
         type="button"
-        onClick={toggleExpanded}
+        onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
         style={{
           display: "flex", alignItems: "center", gap: 4, marginTop: 10, fontSize: 13, fontWeight: 700,
           color: "var(--black)", background: "none", border: "none", cursor: "pointer", padding: 0,
@@ -99,7 +104,7 @@ export default function ProviderCard({ provider, onReviewed }) {
       </button>
 
       {expanded && (
-        <div style={{ marginTop: 10 }}>
+        <div style={{ marginTop: 10 }} onClick={(e) => e.stopPropagation()}>
           {loadingReviews && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
 
           {!loadingReviews && reviews?.length === 0 && (

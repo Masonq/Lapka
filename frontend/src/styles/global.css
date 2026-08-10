@@ -69,6 +69,10 @@ body {
 
 button {
   font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
 }
 
 a {
@@ -116,7 +120,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 14px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) 14px 14px;
   margin: 0 -16px 4px;
   border-radius: 0 0 20px 20px;
 }

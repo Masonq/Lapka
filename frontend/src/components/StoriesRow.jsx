@@ -181,11 +181,19 @@ export default function StoriesRow() {
               </span>
             </div>
             {activeStories[viewerIndex].author.id === userId && (
-              <button onClick={() => removeStory(activeStories[viewerIndex].id)} aria-label="Удалить историю" style={{ color: "#fff" }}>
+              <button
+                onClick={() => removeStory(activeStories[viewerIndex].id)}
+                aria-label="Удалить историю"
+                style={{ color: "#fff", background: "none", border: "none", padding: 6, cursor: "pointer", display: "flex" }}
+              >
                 <Trash2 size={18} />
               </button>
             )}
-            <button onClick={() => setViewerAuthorId(null)} aria-label="Закрыть" style={{ color: "#fff" }}>
+            <button
+              onClick={() => setViewerAuthorId(null)}
+              aria-label="Закрыть"
+              style={{ color: "#fff", background: "none", border: "none", padding: 6, cursor: "pointer", display: "flex" }}
+            >
               <X size={22} />
             </button>
           </div>

@@ -51,7 +51,7 @@ export default function MessageThread() {
 
   return (
     <div>
-      <div className="page-header">
+      <div className="page-header" style={{ paddingTop: "calc(6px + env(safe-area-inset-top, 0px))" }}>
         <button className="icon-btn" onClick={() => navigate("/messages")} aria-label="Назад">
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>

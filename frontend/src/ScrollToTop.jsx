@@ -1,6 +1,13 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
+// Браузер по умолчанию сам пытается восстановить прежнюю позицию скролла при
+// SPA-навигации (history.scrollRestoration = "auto") — это конкурирует с нашим
+// window.scrollTo(0,0) ниже и может частично его перебивать. Отключаю один раз.
+if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+  window.history.scrollRestoration = "manual";
+}
+
 /**
  * React Router по умолчанию НЕ сбрасывает прокрутку при клиентской навигации —
  * это поведение самого браузера для SPA. Без этого компонента переход, например,
