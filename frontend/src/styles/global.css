@@ -144,7 +144,10 @@ a {
 .brand-logo {
   height: 46px;
   width: auto;
+  aspect-ratio: 663 / 874;
   display: block;
+  background: var(--gray-tint);
+  border-radius: 8px;
 }
 
 .brand-geo {
@@ -903,9 +906,9 @@ a {
 }
 
 .chip.active {
-  background: var(--black);
-  color: #FFFFFF;
-  border-color: var(--black);
+  background: var(--primary-tint);
+  color: var(--primary-strong);
+  border-color: var(--primary-tint);
 }
 
 /* --- Пустые состояния --- */

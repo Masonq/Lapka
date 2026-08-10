@@ -6,7 +6,7 @@ from app.core.rate_limit import RateLimiter, client_ip, login_limiter, register_
 from app.core.security import (
     create_access_token, get_current_user, hash_password, verify_password, verify_telegram_auth
 )
-from app.models.models import AuthProvider, User
+from app.models.models import AuthProvider, Notification, User
 from app.schemas.schemas import (
     ChangePassword, DeleteAccount, LoginEmail, MeOut, RegisterEmail, TelegramAuth, Token, UserOut
 )
@@ -16,6 +16,35 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 # Смена пароля/удаление аккаунта требуют текущий пароль — лимитируем по пользователю,
 # чтобы нельзя было перебирать пароль от чужого угнанного токена
 account_action_limiter = RateLimiter(max_actions=5, window_seconds=600)
+
+SYSTEM_ACCOUNT_EMAIL = "team@lapki.info"
+
+
+def _get_or_create_system_user(db: Session) -> User:
+    """Аккаунт 'Команда Lapki' — от его имени идут системные уведомления
+    (например, приветствие при регистрации). is_admin=True — чтобы бейдж
+    'Администрация' показывался автоматически, той же логикой, что и везде."""
+    system_user = db.query(User).filter(User.email == SYSTEM_ACCOUNT_EMAIL).first()
+    if system_user:
+        return system_user
+
+    system_user = User(
+        display_name="Команда Lapki",
+        email=SYSTEM_ACCOUNT_EMAIL,
+        auth_provider=AuthProvider.EMAIL,
+        is_admin=True,
+        city="Beograd",
+    )
+    db.add(system_user)
+    db.commit()
+    db.refresh(system_user)
+    return system_user
+
+
+def _send_welcome_notification(db: Session, new_user: User):
+    system_user = _get_or_create_system_user(db)
+    db.add(Notification(user_id=new_user.id, actor_id=system_user.id, type="welcome"))
+    db.commit()
 
 
 @router.get("/me", response_model=MeOut)
@@ -48,6 +77,7 @@ def register(data: RegisterEmail, request: Request, db: Session = Depends(get_db
     db.add(user)
     db.commit()
     db.refresh(user)
+    _send_welcome_notification(db, user)
     return Token(access_token=create_access_token(user.id))
 
 
@@ -83,6 +113,7 @@ def telegram_auth(data: TelegramAuth, request: Request, db: Session = Depends(ge
         db.add(user)
         db.commit()
         db.refresh(user)
+        _send_welcome_notification(db, user)
 
     return Token(access_token=create_access_token(user.id))
 

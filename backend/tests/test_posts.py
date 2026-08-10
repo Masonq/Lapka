@@ -407,3 +407,47 @@ def test_show_staff_badge_can_be_hidden(client, register_user):
 
     r = client.get(f"/api/posts/{post['id']}")
     assert r.json()["show_staff_badge"] is False
+
+
+def test_edit_own_post(client, register_user):
+    headers = register_user()
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "Старый заголовок", "body": "Старый текст"}, headers=headers
+    ).json()
+
+    r = client.patch(f"/api/posts/{post['id']}", json={"title": "Новый заголовок"}, headers=headers)
+    assert r.status_code == 200
+    assert r.json()["title"] == "Новый заголовок"
+    assert r.json()["body"] == "Старый текст"  # не тронуто, т.к. не передавали
+
+
+def test_cannot_edit_others_post(client, register_user):
+    headers_a = register_user("Автор")
+    headers_b = register_user("Чужой")
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "Тест", "body": "Тело"}, headers=headers_a
+    ).json()
+
+    r = client.patch(f"/api/posts/{post['id']}", json={"title": "Взлом"}, headers=headers_b)
+    assert r.status_code == 403
+
+
+def test_edit_post_empty_title_rejected(client, register_user):
+    headers = register_user()
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "Тест", "body": "Тело"}, headers=headers
+    ).json()
+
+    r = client.patch(f"/api/posts/{post['id']}", json={"title": "   "}, headers=headers)
+    assert r.status_code == 400
+
+
+def test_edit_nonexistent_post_404(client, register_user):
+    headers = register_user()
+    r = client.patch("/api/posts/does-not-exist", json={"title": "X"}, headers=headers)
+    assert r.status_code == 404
+
+
+def test_edit_post_requires_auth(client):
+    r = client.patch("/api/posts/some-id", json={"title": "X"})
+    assert r.status_code == 401

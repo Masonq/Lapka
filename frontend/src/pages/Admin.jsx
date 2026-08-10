@@ -29,6 +29,16 @@ export default function Admin() {
     return () => clearTimeout(timer);
   }, [me, userQuery]);
 
+  async function changeRole(userId, role) {
+    try {
+      await api.adminSetUserRole(userId, role);
+      showToast("Роль обновлена");
+      api.adminUsers(userQuery).then(setUsers).catch(() => {});
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
   useEffect(() => {
     if (!me?.is_admin) return;
     setSearchConfig({ value: userQuery, onChange: setUserQuery, placeholder: "Искать по имени или почте…" });
@@ -218,11 +228,29 @@ export default function Admin() {
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <Link to={`/users/${u.id}`} className="subhead" style={{ fontSize: 14 }}>{u.display_name}</Link>
               {u.is_admin && <span className="badge badge-neutral badge-sm">admin</span>}
+              {!u.is_admin && u.role && u.role !== "user" && (
+                <span className="badge badge-primary badge-sm">{u.role === "moderator" ? "модератор" : "редактор"}</span>
+              )}
             </div>
             <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
               {u.email || "телеграм"} · {u.city} · {u.posts_count} постов · {u.pets_count} питомцев
             </div>
           </div>
+          {!u.is_admin && (
+            <select
+              value={u.role || "user"}
+              onChange={(e) => changeRole(u.id, e.target.value)}
+              style={{
+                border: "1px solid var(--border)", borderRadius: 10, padding: "6px 8px",
+                fontSize: 12, fontFamily: "var(--font-body)", background: "var(--surface)", flexShrink: 0,
+              }}
+              aria-label={`Роль пользователя ${u.display_name}`}
+            >
+              <option value="user">Пользователь</option>
+              <option value="editor">Редактор</option>
+              <option value="moderator">Модератор</option>
+            </select>
+          )}
         </div>
       ))}
     </div>

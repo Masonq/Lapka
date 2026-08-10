@@ -69,7 +69,7 @@ export default function PostCard({ post }) {
             {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
           </span>
           {post.author.is_staff && post.show_staff_badge && (
-            <span className="badge badge-solid badge-sm">
+            <span className="badge badge-solid">
               <ShieldCheck size={11} /> Администрация
             </span>
           )}

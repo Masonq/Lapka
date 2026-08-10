@@ -5,6 +5,7 @@ import { useSearchContext } from "../SearchContext";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import StoriesRow from "../components/StoriesRow";
+import ErrorState from "../components/ErrorState";
 import { useDocumentTitle } from "../useDocumentTitle";
 
 const FILTERS = [
@@ -29,6 +30,7 @@ export default function Feed() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
 
@@ -50,17 +52,20 @@ export default function Feed() {
     return params;
   }
 
-  useEffect(() => {
+  function loadFeed() {
     setLoading(true);
+    setLoadError(false);
     api
       .posts(buildParams(0))
       .then((result) => {
         setPosts(result);
         setHasMore(result.length === PAGE_SIZE);
       })
-      .catch(() => setPosts([]))
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
-  }, [filter, debouncedSearch, feedTab]);
+  }
+
+  useEffect(loadFeed, [filter, debouncedSearch, feedTab]);
 
   function loadMore() {
     setLoadingMore(true);
@@ -116,7 +121,9 @@ export default function Feed() {
         </div>
       )}
 
-      {!loading && posts.length === 0 && (
+      {!loading && loadError && <ErrorState onRetry={loadFeed} />}
+
+      {!loading && !loadError && posts.length === 0 && (
         <div className="empty-state">
           <div className="empty-state-title">
             {debouncedSearch ? "Ничего не нашлось" : feedTab === "following" ? "Пока пусто в подписках" : "Пока пусто"}

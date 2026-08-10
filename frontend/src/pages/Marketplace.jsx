@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, ShoppingBag, Plus, MapPin } from "lucide-react";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -21,10 +22,14 @@ export default function Marketplace() {
   const { isAuthed } = useAuth();
   const [type, setType] = useState("");
   const [listings, setListings] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
-  useEffect(() => {
-    api.listings(type ? { type } : {}).then(setListings).catch(() => setListings([]));
-  }, [type]);
+  function load() {
+    setLoadError(false);
+    api.listings(type ? { type } : {}).then(setListings).catch(() => setLoadError(true));
+  }
+
+  useEffect(load, [type]);
 
   return (
     <div>
@@ -50,7 +55,9 @@ export default function Marketplace() {
         ))}
       </div>
 
-      {listings === null && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
+      {listings === null && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
+
+      {loadError && <ErrorState onRetry={load} />}
 
       {listings?.length === 0 && (
         <div className="empty-state">

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Bell, UserPlus, MessageCircle, Eye } from "lucide-react";
+import { ArrowLeft, Bell, UserPlus, MessageCircle, Eye, Heart } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 
@@ -19,9 +20,11 @@ export default function Notifications() {
   useDocumentTitle("Уведомления");
   const navigate = useNavigate();
   const [items, setItems] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
   function load() {
-    api.notifications().then(setItems).catch(() => setItems([]));
+    setLoadError(false);
+    api.notifications().then(setItems).catch(() => setLoadError(true));
   }
 
   useEffect(load, []);
@@ -72,7 +75,9 @@ export default function Notifications() {
         </Link>
       </div>
 
-      {items === null && <ListItemSkeleton />}
+      {items === null && !loadError && <ListItemSkeleton />}
+
+      {loadError && <ErrorState onRetry={load} />}
 
       {items?.length === 0 && (
         <div className="empty-state">
@@ -100,15 +105,26 @@ export default function Notifications() {
             {n.type === "follow" && <UserPlus size={16} />}
             {n.type === "comment" && <MessageCircle size={16} />}
             {n.type === "sighting" && <Eye size={16} />}
+            {n.type === "welcome" && <Heart size={16} />}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 14 }}>
-              <b>{n.actor.display_name}</b>{" "}
-              {n.type === "follow" && "подписался(-ась) на тебя"}
-              {n.type === "comment" && "прокомментировал(а) пост"}
-              {n.type === "sighting" && "отметил(а) наблюдение в посте"}
-              {n.post_title && <> «{n.post_title}»</>}
-            </div>
+            {n.type === "welcome" ? (
+              <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+                <b>Добро пожаловать в Lapki! 🐾</b>
+                <div style={{ color: "var(--text-muted)", marginTop: 2 }}>
+                  Спасибо, что зарегистрировались. Ищите потеряшек, находите новых друзей питомцам,
+                  публикуйте объявления и общайтесь с соседями. Если появятся вопросы — просто напишите нам.
+                </div>
+              </div>
+            ) : (
+              <div style={{ fontSize: 14 }}>
+                <b>{n.actor.display_name}</b>{" "}
+                {n.type === "follow" && "подписался(-ась) на тебя"}
+                {n.type === "comment" && "прокомментировал(а) пост"}
+                {n.type === "sighting" && "отметил(а) наблюдение в посте"}
+                {n.post_title && <> «{n.post_title}»</>}
+              </div>
+            )}
             <div style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 2 }}>{timeAgo(n.created_at)}</div>
           </div>
           {!n.is_read && <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--primary-strong)", flexShrink: 0 }} />}

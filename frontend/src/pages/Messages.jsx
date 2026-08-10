@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import ErrorState from "../components/ErrorState";
 
 function timeAgo(iso) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -20,11 +21,15 @@ export default function Messages() {
   useDocumentTitle("Сообщения");
   const { isAuthed } = useAuth();
   const [conversations, setConversations] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
-  useEffect(() => {
+  function load() {
     if (!isAuthed) return;
-    api.conversations().then(setConversations).catch(() => setConversations([]));
-  }, [isAuthed]);
+    setLoadError(false);
+    api.conversations().then(setConversations).catch(() => setLoadError(true));
+  }
+
+  useEffect(load, [isAuthed]);
 
   if (!isAuthed) {
     return (
@@ -42,7 +47,9 @@ export default function Messages() {
         <span className="page-title">Сообщения</span>
       </div>
 
-      {conversations === null && <ListItemSkeleton />}
+      {conversations === null && !loadError && <ListItemSkeleton />}
+
+      {loadError && <ErrorState onRetry={load} />}
 
       {conversations?.length === 0 && (
         <div className="empty-state">

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Heart, PlusCircle } from "lucide-react";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -18,14 +19,18 @@ export default function Adoption() {
   const { isAuthed } = useAuth();
   const [tab, setTab] = useState("active");
   const [posts, setPosts] = useState(null);
+  const [loadError, setLoadError] = useState(false);
 
-  useEffect(() => {
+  function load() {
     setPosts(null);
+    setLoadError(false);
     api
       .posts({ type: "adopt", is_resolved: tab === "resolved", limit: 30 })
       .then(setPosts)
-      .catch(() => setPosts([]));
-  }, [tab]);
+      .catch(() => setLoadError(true));
+  }
+
+  useEffect(load, [tab]);
 
   return (
     <div>
@@ -51,7 +56,9 @@ export default function Adoption() {
         ))}
       </div>
 
-      {posts === null && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
+      {posts === null && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
+
+      {loadError && <ErrorState onRetry={load} />}
 
       {posts?.length === 0 && (
         <div className="empty-state">

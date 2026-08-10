@@ -10,7 +10,7 @@ from app.core.db import get_db
 from app.core.rate_limit import post_limiter, comment_limiter, report_limiter, sighting_limiter
 from app.core.security import get_current_user, get_current_user_optional
 from app.models.models import Comment, CommunityMember, Event, Follow, Notification, Post, Report, SavedPost, Sighting, PostType, User
-from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, ReportCreate, SightingCreate, SightingOut
+from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, PostUpdate, ReportCreate, SightingCreate, SightingOut
 
 router = APIRouter(prefix="/api/posts", tags=["posts"])
 
@@ -190,6 +190,32 @@ def resolve_post(post_id: str, db: Session = Depends(get_db), user: User = Depen
     if post.author_id != user.id:
         raise HTTPException(status_code=403, detail="Можно закрыть только свой пост")
     post.is_resolved = True
+    db.commit()
+    db.refresh(post)
+    return _to_out(post)
+
+
+@router.patch("/{post_id}", response_model=PostOut)
+def update_post(post_id: str, data: PostUpdate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    post = db.query(Post).options(joinedload(Post.author)).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Пост не найден")
+    if post.author_id != user.id:
+        raise HTTPException(status_code=403, detail="Можно редактировать только свой пост")
+
+    if data.title is not None:
+        if not data.title.strip():
+            raise HTTPException(status_code=400, detail="Заголовок не может быть пустым")
+        post.title = data.title
+    if data.body is not None:
+        if not data.body.strip():
+            raise HTTPException(status_code=400, detail="Описание не может быть пустым")
+        post.body = data.body
+    if data.photo_url is not None:
+        post.photo_url = data.photo_url
+    if data.last_seen_location is not None:
+        post.last_seen_location = data.last_seen_location
+
     db.commit()
     db.refresh(post)
     return _to_out(post)

@@ -42,12 +42,17 @@ export default function Explore() {
   const [providers, setProviders] = useState([]);
   const [serviceFilter, setServiceFilter] = useState("");
   const [loadingServices, setLoadingServices] = useState(true);
+  const [servicesError, setServicesError] = useState(false);
 
   const [communities, setCommunities] = useState(null);
+  const [communitiesError, setCommunitiesError] = useState(false);
 
-  useEffect(() => {
-    api.communities().then((list) => setCommunities(list.slice(0, 3))).catch(() => setCommunities([]));
-  }, []);
+  function loadCommunities() {
+    setCommunitiesError(false);
+    api.communities().then((list) => setCommunities(list.slice(0, 3))).catch(() => setCommunitiesError(true));
+  }
+
+  useEffect(loadCommunities, []);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query.trim()), 350);

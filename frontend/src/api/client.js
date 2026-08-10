@@ -105,6 +105,7 @@ export const api = {
   createPost: (data) => request("/posts", { method: "POST", body: data, auth: true }),
   post: (id) => request(`/posts/${id}`),
   resolvePost: (id) => request(`/posts/${id}/resolve`, { method: "PATCH", auth: true }),
+  updatePost: (id, data) => request(`/posts/${id}`, { method: "PATCH", body: data, auth: true }),
   deletePost: (id) => request(`/posts/${id}`, { method: "DELETE", auth: true }),
   savePost: (id) => request(`/posts/${id}/save`, { method: "POST", auth: true }),
   unsavePost: (id) => request(`/posts/${id}/save`, { method: "DELETE", auth: true }),
@@ -152,6 +153,7 @@ export const api = {
   adminAuditLog: () => request("/admin/audit-log", { auth: true }),
   adminServiceProviders: () => request("/admin/service-providers", { auth: true }),
   adminUsers: (q) => request(`/admin/users${q ? `?q=${encodeURIComponent(q)}` : ""}`, { auth: true }),
+  adminSetUserRole: (id, role) => request(`/admin/users/${id}/role`, { method: "PATCH", body: { role }, auth: true }),
   adminToggleVerifyProvider: (id) => request(`/admin/service-providers/${id}/verify`, { method: "PATCH", auth: true }),
 
   communities: (params = {}) => {

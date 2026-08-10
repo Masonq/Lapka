@@ -64,7 +64,7 @@ def test_unread_count(client, register_user, register_user_with_id):
     client.post(f"/api/follows/{followed_id}", headers=headers_follower)
 
     r = client.get("/api/notifications/unread-count", headers=headers_followed)
-    assert r.json()["count"] == 1
+    assert r.json()["count"] == 2  # welcome при регистрации + follow
 
 
 def test_mark_all_read(client, register_user, register_user_with_id):

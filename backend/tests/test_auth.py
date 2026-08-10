@@ -202,3 +202,37 @@ def test_complete_onboarding_idempotent(client, register_user):
 def test_complete_onboarding_requires_auth(client):
     r = client.patch("/api/auth/onboarding-complete")
     assert r.status_code == 401
+
+
+def test_registration_sends_welcome_notification(client):
+    r = client.post(
+        "/api/auth/register",
+        json={"display_name": "Новый Пользователь", "email": "welcome-test@example.com", "password": "password123"},
+    )
+    token = r.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    r = client.get("/api/notifications", headers=headers)
+    assert r.status_code == 200
+    notifications = r.json()
+    assert len(notifications) == 1
+    assert notifications[0]["type"] == "welcome"
+    assert notifications[0]["actor"]["display_name"] == "Команда Lapki"
+    assert notifications[0]["actor"]["is_staff"] is True
+
+
+def test_system_account_reused_not_duplicated(client, register_user):
+    """Второй регистрирующийся не должен создавать второй системный аккаунт."""
+    register_user("Первый")
+    headers2 = register_user("Второй")
+
+    r = client.get("/api/notifications", headers=headers2)
+    actor_id = r.json()[0]["actor"]["id"]
+
+    from app.core.db import SessionLocal
+    from app.models.models import User
+
+    db = SessionLocal()
+    system_accounts = db.query(User).filter(User.email == "team@lapki.info").count()
+    db.close()
+    assert system_accounts == 1

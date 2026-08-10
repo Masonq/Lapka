@@ -16,6 +16,7 @@ export default function Communities() {
   const { showToast } = useToast();
   const { setSearchConfig } = useSearchContext();
   const [communities, setCommunities] = useState(null);
+  const [loadError, setLoadError] = useState(false);
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", city: "" });
@@ -23,7 +24,8 @@ export default function Communities() {
   const [submitting, setSubmitting] = useState(false);
 
   function load() {
-    api.communities(query ? { q: query } : {}).then(setCommunities).catch(() => setCommunities([]));
+    setLoadError(false);
+    api.communities(query ? { q: query } : {}).then(setCommunities).catch(() => setLoadError(true));
   }
 
   useEffect(() => {
@@ -106,7 +108,9 @@ export default function Communities() {
         </form>
       )}
 
-      {communities === null && <ListItemSkeleton />}
+      {communities === null && !loadError && <ListItemSkeleton />}
+
+      {loadError && <ErrorState onRetry={load} />}
 
       {communities?.length === 0 && (
         <div className="empty-state">

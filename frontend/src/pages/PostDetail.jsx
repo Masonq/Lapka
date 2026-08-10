@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag, Eye, Plus, ShieldCheck } from "lucide-react";
+import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag, Eye, Plus, ShieldCheck, Pencil } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -35,6 +35,11 @@ export default function PostDetail() {
   const [text, setText] = useState("");
   const [notFound, setNotFound] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editBody, setEditBody] = useState("");
+  const [editError, setEditError] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reported, setReported] = useState(false);
@@ -79,6 +84,29 @@ export default function PostDetail() {
     await api.deletePost(id);
     showToast("Пост удалён");
     navigate("/");
+  }
+
+  function openEdit() {
+    setEditTitle(post.title);
+    setEditBody(post.body);
+    setEditError("");
+    setEditing(true);
+  }
+
+  async function saveEdit(e) {
+    e.preventDefault();
+    setEditError("");
+    setSavingEdit(true);
+    try {
+      const updated = await api.updatePost(id, { title: editTitle, body: editBody });
+      setPost(updated);
+      setEditing(false);
+      showToast("Пост обновлён");
+    } catch (err) {
+      setEditError(err.message);
+    } finally {
+      setSavingEdit(false);
+    }
   }
 
   async function toggleSave() {
@@ -168,13 +196,35 @@ export default function PostDetail() {
               {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
             </span>
             {post.author.is_staff && post.show_staff_badge && (
-              <span className="badge badge-solid badge-sm">
+              <span className="badge badge-solid">
                 <ShieldCheck size={11} /> Администрация
               </span>
             )}
           </div>
-          <h2 className="post-title">{post.title}</h2>
-          <p className="post-body">{post.body}</p>
+          {editing ? (
+            <form onSubmit={saveEdit} style={{ marginTop: 4 }}>
+              <div className="field">
+                <label htmlFor="edit-title">Заголовок</label>
+                <input id="edit-title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} required maxLength={200} />
+              </div>
+              <div className="field">
+                <label htmlFor="edit-body">Описание</label>
+                <textarea id="edit-body" rows={5} value={editBody} onChange={(e) => setEditBody(e.target.value)} required />
+              </div>
+              {editError && <p style={{ color: "var(--red)", fontSize: 13 }}>{editError}</p>}
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="btn btn-primary" disabled={savingEdit}>
+                  {savingEdit ? "Сохраняем…" : "Сохранить"}
+                </button>
+                <button type="button" className="btn btn-ghost" onClick={() => setEditing(false)}>Отмена</button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <h2 className="post-title">{post.title}</h2>
+              <p className="post-body">{post.body}</p>
+            </>
+          )}
           {post.last_seen_location && (
             <div className="post-meta" style={{ marginBottom: 8 }}>
               <span className="post-meta-item"><MapPin size={13} /> {post.last_seen_location}</span>
@@ -194,6 +244,11 @@ export default function PostDetail() {
               <button className="btn btn-ghost" onClick={toggleSave}>
                 <Bookmark size={16} fill={post.is_saved ? "currentColor" : "none"} />
                 {post.is_saved ? "Сохранено" : "Сохранить"}
+              </button>
+            )}
+            {post.author.id === userId && (
+              <button className="btn btn-ghost" onClick={openEdit}>
+                <Pencil size={16} /> Редактировать
               </button>
             )}
             {post.author.id === userId && (

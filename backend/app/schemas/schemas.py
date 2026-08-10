@@ -111,6 +111,13 @@ class PostCreate(BaseModel):
     show_staff_badge: bool = True
 
 
+class PostUpdate(BaseModel):
+    title: Optional[str] = Field(None, max_length=200)
+    body: Optional[str] = Field(None, max_length=5000)
+    photo_url: Optional[str] = Field(None, max_length=500)
+    last_seen_location: Optional[str] = Field(None, max_length=200)
+
+
 class PostOut(BaseModel):
     id: str
     author: UserOut
