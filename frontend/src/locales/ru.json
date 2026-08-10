@@ -733,6 +733,22 @@
     "basset_hound": "Бассет-хаунд",
     "schnauzer": "Шнауцер",
     "corgi": "Вельш-корги",
-    "akita": "Акита-ину"
+    "akita": "Акита-ину",
+    "russian_blue": "Русская голубая",
+    "ragdoll": "Рэгдолл",
+    "norwegian_forest": "Норвежская лесная",
+    "american_shorthair": "Американская короткошёрстная",
+    "devon_rex": "Девон-рекс",
+    "cornish_rex": "Корниш-рекс",
+    "exotic_shorthair": "Экзотическая короткошёрстная",
+    "burmese": "Бурманская",
+    "oriental": "Ориентальная",
+    "turkish_angora": "Турецкая ангора",
+    "manx": "Мэнкс",
+    "somali": "Сомалийская",
+    "siberian_cat": "Сибирская",
+    "himalayan": "Гималайская",
+    "british_longhair": "Британская длинношёрстная",
+    "chartreux": "Шартрез"
   }
 }

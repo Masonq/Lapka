@@ -59,6 +59,22 @@ export const CAT_BREEDS = [
   { value: "sphynx", labelKey: "breeds.sphynx" },
   { value: "bengal", labelKey: "breeds.bengal" },
   { value: "abyssinian", labelKey: "breeds.abyssinian" },
+  { value: "russian_blue", labelKey: "breeds.russian_blue" },
+  { value: "ragdoll", labelKey: "breeds.ragdoll" },
+  { value: "norwegian_forest", labelKey: "breeds.norwegian_forest" },
+  { value: "american_shorthair", labelKey: "breeds.american_shorthair" },
+  { value: "devon_rex", labelKey: "breeds.devon_rex" },
+  { value: "cornish_rex", labelKey: "breeds.cornish_rex" },
+  { value: "exotic_shorthair", labelKey: "breeds.exotic_shorthair" },
+  { value: "burmese", labelKey: "breeds.burmese" },
+  { value: "oriental", labelKey: "breeds.oriental" },
+  { value: "turkish_angora", labelKey: "breeds.turkish_angora" },
+  { value: "manx", labelKey: "breeds.manx" },
+  { value: "somali", labelKey: "breeds.somali" },
+  { value: "siberian_cat", labelKey: "breeds.siberian_cat" },
+  { value: "himalayan", labelKey: "breeds.himalayan" },
+  { value: "british_longhair", labelKey: "breeds.british_longhair" },
+  { value: "chartreux", labelKey: "breeds.chartreux" },
 ];
 
 export const BREED_LISTS = {
