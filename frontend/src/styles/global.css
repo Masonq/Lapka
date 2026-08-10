@@ -828,6 +828,7 @@ a {
   .brand-block {
     position: static;
     transform: none;
+    margin-right: 28px;
   }
 
   .desktop-nav {

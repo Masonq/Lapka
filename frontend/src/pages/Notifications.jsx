@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Bell, UserPlus, MessageCircle, Eye } from "lucide-react";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -52,6 +52,23 @@ export default function Notifications() {
         ) : (
           <span style={{ width: 44 }} />
         )}
+      </div>
+
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", padding: "0 0 14px", scrollbarWidth: "none" }}>
+        <div style={{
+          flexShrink: 0, width: 260, borderRadius: 18, padding: 16,
+          background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%)", color: "#fff",
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>PetSocial — свои для своих</div>
+          <div style={{ fontSize: 12, opacity: 0.9 }}>Потеряшки, находки, пристройство и соседи с животными — всё в одном месте в Белграде</div>
+        </div>
+        <Link to="/settings" style={{
+          flexShrink: 0, width: 260, borderRadius: 18, padding: 16, textDecoration: "none",
+          background: "var(--surface)", border: "1px solid var(--border)", display: "block",
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4, color: "var(--text)" }}>Оказываешь услуги питомцам?</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Регистрация в каталоге бесплатная — станьте исполнителем в Настройках</div>
+        </Link>
       </div>
 
       {items === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
