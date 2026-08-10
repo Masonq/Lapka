@@ -64,8 +64,8 @@ export default function Nearby() {
       {!loadError && pets?.length > 0 && (
         <div className="card-grid">
           {pets.map((pet) => {
-            const avatarTint = pet.species === "Собака" ? "var(--blue-tint)" : pet.species === "Кошка" ? "var(--primary-tint)" : "var(--gray-tint)";
-            const avatarColor = pet.species === "Собака" ? "var(--blue)" : pet.species === "Кошка" ? "#95491B" : "var(--text-muted)";
+            const avatarTint = pet.species === "dog" ? "var(--blue-tint)" : pet.species === "cat" ? "var(--primary-tint)" : "var(--gray-tint)";
+            const avatarColor = pet.species === "dog" ? "var(--blue)" : pet.species === "cat" ? "#95491B" : "var(--text-muted)";
             return (
               <Link key={pet.id} to={`/pets/${pet.id}`} className="card" style={{
                 borderRadius: 20, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12,

@@ -113,8 +113,8 @@ export default function PetProfile() {
     );
   }
 
-  const avatarTint = pet.species === "Собака" ? "var(--blue-tint)" : pet.species === "Кошка" ? "var(--primary-tint)" : "var(--gray-tint)";
-  const avatarColor = pet.species === "Собака" ? "var(--blue)" : pet.species === "Кошка" ? "#95491B" : "var(--text-muted)";
+  const avatarTint = pet.species === "dog" ? "var(--blue-tint)" : pet.species === "cat" ? "var(--primary-tint)" : "var(--gray-tint)";
+  const avatarColor = pet.species === "dog" ? "var(--blue)" : pet.species === "cat" ? "#95491B" : "var(--text-muted)";
 
   const facts = [
     translateSpecies(t, pet.species),

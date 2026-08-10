@@ -10,12 +10,12 @@ import PhotoPicker from "../components/PhotoPicker";
 import { useTranslation } from "react-i18next";
 import { translateSpecies, translateGender, translateActivity } from "../dataLabels";
 
-const SPECIES = ["Собака", "Кошка", "Другое"];
-const GENDERS = ["Мальчик", "Девочка"];
-const ACTIVITY_LEVELS = ["Спокойный", "Средний", "Активный"];
+const SPECIES = ["dog", "cat", "other"];
+const GENDERS = ["male", "female"];
+const ACTIVITY_LEVELS = ["calm", "medium", "active"];
 
 const EMPTY_FORM = {
-  name: "", species: "Собака", breed: "", gender: "", age_years: "",
+  name: "", species: "dog", breed: "", gender: "", age_years: "",
   city: "", activity_level: "", about: "", avatar_url: null,
 };
 
@@ -173,8 +173,8 @@ export default function Pets() {
       {pets.length > 0 && (
         <div className="card-grid">
           {pets.map((pet) => {
-            const avatarTint = pet.species === "Собака" ? "var(--blue-tint)" : pet.species === "Кошка" ? "var(--primary-tint)" : "var(--gray-tint)";
-            const avatarColor = pet.species === "Собака" ? "var(--blue)" : pet.species === "Кошка" ? "#95491B" : "var(--text-muted)";
+            const avatarTint = pet.species === "dog" ? "var(--blue-tint)" : pet.species === "cat" ? "var(--primary-tint)" : "var(--gray-tint)";
+            const avatarColor = pet.species === "dog" ? "var(--blue)" : pet.species === "cat" ? "#95491B" : "var(--text-muted)";
             return (
               <div key={pet.id} className="card" style={{
                 borderRadius: 20, padding: "14px 16px",

@@ -3,10 +3,16 @@
  * уровень активности, город из списка в "Рядом") — без изменения самого
  * значения, которое хранится в БД и используется для сравнения/фильтрации.
  *
- * Например: pet.species === "Собака" остаётся сравнением с русской строкой
- * (так хранится в базе для всех уже созданных питомцев), но пользователь с
- * сербским интерфейсом видит "Pas", а не "Собака". Если значение не входит
- * в известный список (например, город — свободный текст) — просто
+ * С миграции a3f7c9e14b52 species/gender/activity_level в БД хранятся как
+ * языконезависимые значения (dog/cat/other, male/female, calm/medium/active),
+ * не русский текст напрямую — так сравнения в коде (pet.species === "dog")
+ * корректны на любом языке интерфейса. Старые русские ключи (Собака/Мальчик/
+ * Спокойный и т.д.) оставлены в словарях ниже намеренно — deploy/update.sh
+ * сначала собирает и выкладывает фронтенд, потом накатывает миграцию backend,
+ * то есть есть короткое окно, где новый фронтенд может встретить ещё не
+ * сконвертированные записи. Оба формата ведут к одному и тому же переводу.
+ *
+ * Город — свободный текст (не входит в известный список) — просто
  * возвращается как есть, без перевода.
  *
  * Каждая translateX(t, value) принимает t из useTranslation() вызывающего
@@ -15,17 +21,25 @@
  */
 
 const SPECIES_KEYS = {
+  dog: "data_labels.species_dog",
+  cat: "data_labels.species_cat",
+  other: "data_labels.species_other",
   "Собака": "data_labels.species_dog",
   "Кошка": "data_labels.species_cat",
   "Другое": "data_labels.species_other",
 };
 
 const GENDER_KEYS = {
+  male: "data_labels.gender_male",
+  female: "data_labels.gender_female",
   "Мальчик": "data_labels.gender_male",
   "Девочка": "data_labels.gender_female",
 };
 
 const ACTIVITY_KEYS = {
+  calm: "data_labels.activity_calm",
+  medium: "data_labels.activity_medium",
+  active: "data_labels.activity_active",
   "Спокойный": "data_labels.activity_calm",
   "Средний": "data_labels.activity_medium",
   "Активный": "data_labels.activity_active",

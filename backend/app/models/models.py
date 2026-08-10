@@ -75,12 +75,12 @@ class Pet(Base):
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
     owner_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     name = Column(String(80), nullable=False)
-    species = Column(String(40), nullable=False)   # собака / кошка / другое
+    species = Column(String(40), nullable=False)   # dog / cat / other (было "собака"/"кошка"/"другое" до миграции a3f7c9e14b52)
     breed = Column(String(80), nullable=True)
-    gender = Column(String(20), nullable=True)      # мальчик / девочка
+    gender = Column(String(20), nullable=True)      # male / female (было "мальчик"/"девочка" до миграции a3f7c9e14b52)
     age_years = Column(Integer, nullable=True)
     city = Column(String(80), nullable=True)
-    activity_level = Column(String(20), nullable=True)  # спокойный / средний / активный
+    activity_level = Column(String(20), nullable=True)  # calm / medium / active (было "спокойный"/"средний"/"активный" до миграции a3f7c9e14b52)
     about = Column(String(500), nullable=True)      # характер, интересы — свободным текстом
     avatar_url = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
