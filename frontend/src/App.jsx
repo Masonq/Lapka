@@ -99,6 +99,12 @@ export default function App() {
           </div>
         ) : (
           <>
+            {searchConfig && (
+              <button className="header-icon-btn" onClick={() => setSearchOpen(true)} aria-label="Поиск">
+                <Search size={17} strokeWidth={2.2} />
+              </button>
+            )}
+
             <Link to="/" className="brand-block" aria-label="На главную">
               <img src="/logo.png" alt="Lapki.info" className="brand-logo" />
             </Link>
@@ -120,11 +126,6 @@ export default function App() {
               <Link to="/create" className="btn btn-primary desktop-only" style={{ padding: "9px 16px" }}>
                 <PlusCircle size={16} strokeWidth={2.4} /> Добавить
               </Link>
-              {searchConfig && (
-                <button className="header-icon-btn" onClick={() => setSearchOpen(true)} aria-label="Поиск">
-                  <Search size={17} strokeWidth={2.2} />
-                </button>
-              )}
               {isAuthed && (
                 <Link to="/notifications" className="header-icon-btn" aria-label="Уведомления">
                   <Bell size={17} strokeWidth={2.2} />
