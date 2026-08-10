@@ -24,6 +24,13 @@ export default function ScrollToTop() {
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
+    // Повторное подтверждение после отрисовки кадра — ловит случаи, когда
+    // асинхронно подгружаемый контент (картинки историй, аватарки) успевает
+    // сдвинуть layout уже ПОСЛЕ первого сброса, но до того как пользователь
+    // увидит страницу. overflow-anchor:none должен это предотвращать сам по
+    // себе, но это простая и безопасная страховка вторым слоем.
+    const raf = requestAnimationFrame(() => window.scrollTo(0, 0));
+    return () => cancelAnimationFrame(raf);
   }, [pathname]);
 
   return null;

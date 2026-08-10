@@ -6,6 +6,7 @@ import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import StoriesRow from "../components/StoriesRow";
 import ErrorState from "../components/ErrorState";
+import EmptyStateImage from "../components/EmptyStateImage";
 import { useDocumentTitle } from "../useDocumentTitle";
 
 const FILTERS = [
@@ -125,6 +126,7 @@ export default function Feed() {
 
       {!loading && !loadError && posts.length === 0 && (
         <div className="empty-state">
+          <EmptyStateImage />
           <div className="empty-state-title">
             {debouncedSearch ? "Ничего не нашлось" : feedTab === "following" ? "Пока пусто в подписках" : "Пока пусто"}
           </div>
