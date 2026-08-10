@@ -477,3 +477,44 @@ def test_create_post_without_coordinates_stays_null(client, register_user):
     post = r.json()
     assert post["last_seen_lat"] is None
     assert post["last_seen_lng"] is None
+
+
+def test_post_not_found_error_translated_to_serbian(client):
+    r = client.get("/api/posts/nonexistent-id", headers={"X-Lang": "sr"})
+    assert r.status_code == 404
+    assert r.json()["detail"] == "Objava nije pronađena"
+
+
+def test_post_not_found_error_default_russian(client):
+    r = client.get("/api/posts/nonexistent-id")
+    assert r.status_code == 404
+    assert r.json()["detail"] == "Пост не найден"
+
+
+def test_edit_other_users_post_error_translated_to_serbian(client, register_user):
+    headers_author = register_user("Автор")
+    headers_other = register_user("Другой")
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "Тест", "body": "Текст"}, headers=headers_author
+    ).json()
+
+    r = client.patch(
+        f"/api/posts/{post['id']}", json={"title": "Новый заголовок"},
+        headers={**headers_other, "X-Lang": "sr"},
+    )
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Možeš izmeniti samo svoju objavu"
+
+
+def test_empty_comment_error_translated_to_serbian(client, register_user):
+    headers = register_user()
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "Тест", "body": "Текст"}, headers=headers
+    ).json()
+
+    r = client.post(
+        f"/api/posts/{post['id']}/comments", json={"body": "   "},
+        headers={**headers, "X-Lang": "sr"},
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Komentar ne može biti prazan"

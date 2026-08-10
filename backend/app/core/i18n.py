@@ -63,6 +63,54 @@ ERRORS: dict[str, dict[str, str]] = {
         "ru": "Неверный пароль",
         "sr": "Netačna lozinka",
     },
+    "unknown_post_type": {
+        "ru": "Неизвестный тип поста",
+        "sr": "Nepoznat tip objave",
+    },
+    "login_required_for_following_feed": {
+        "ru": "Войди, чтобы смотреть ленту подписок",
+        "sr": "Prijavi se da vidiš listu praćenja",
+    },
+    "title_and_body_required": {
+        "ru": "Заголовок и описание не могут быть пустыми",
+        "sr": "Naslov i opis ne mogu biti prazni",
+    },
+    "must_join_community_to_post": {
+        "ru": "Нужно вступить в сообщество, чтобы публиковать в нём",
+        "sr": "Moraš se pridružiti zajednici da bi objavljivao(la) u njoj",
+    },
+    "post_not_found": {
+        "ru": "Пост не найден",
+        "sr": "Objava nije pronađena",
+    },
+    "can_only_resolve_own_post": {
+        "ru": "Можно закрыть только свой пост",
+        "sr": "Možeš zatvoriti samo svoju objavu",
+    },
+    "can_only_edit_own_post": {
+        "ru": "Можно редактировать только свой пост",
+        "sr": "Možeš izmeniti samo svoju objavu",
+    },
+    "title_required": {
+        "ru": "Заголовок не может быть пустым",
+        "sr": "Naslov ne može biti prazan",
+    },
+    "body_required": {
+        "ru": "Описание не может быть пустым",
+        "sr": "Opis ne može biti prazan",
+    },
+    "can_only_delete_own_post": {
+        "ru": "Можно удалить только свой пост",
+        "sr": "Možeš obrisati samo svoju objavu",
+    },
+    "comment_required": {
+        "ru": "Комментарий не может быть пустым",
+        "sr": "Komentar ne može biti prazan",
+    },
+    "sighting_only_for_lost_found": {
+        "ru": "Отметить наблюдение можно только у потеряшки или находки",
+        "sr": "Zapažanje se može dodati samo kod izgubljenih ili pronađenih",
+    },
 }
 
 

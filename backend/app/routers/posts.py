@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.rate_limit import post_limiter, comment_limiter, report_limiter, sighting_limiter
 from app.core.security import get_current_user, get_current_user_optional
 from app.core.ws_manager import manager
@@ -37,13 +38,14 @@ def list_posts(
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     user: Optional[User] = Depends(get_current_user_optional),
+    lang: str = Depends(get_lang),
 ):
     query = db.query(Post).options(joinedload(Post.author))
     if type:
         try:
             query = query.filter(Post.type == PostType(type))
         except ValueError:
-            raise HTTPException(status_code=400, detail="Неизвестный тип поста")
+            raise HTTPException(status_code=400, detail=t("unknown_post_type", lang))
     if author_id:
         query = query.filter(Post.author_id == author_id)
     if community_id:
@@ -52,7 +54,7 @@ def list_posts(
         query = query.filter(Post.is_resolved == is_resolved)
     if following:
         if not user:
-            raise HTTPException(status_code=401, detail="Войди, чтобы смотреть ленту подписок")
+            raise HTTPException(status_code=401, detail=t("login_required_for_following_feed", lang))
         followed_ids = [
             row.following_id
             for row in db.query(Follow.following_id).filter(Follow.follower_id == user.id).all()
@@ -92,23 +94,26 @@ def list_posts(
 
 
 @router.post("", response_model=PostOut)
-def create_post(data: PostCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def create_post(
+    data: PostCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     post_limiter.check(user.id)
 
     if not data.title.strip() or not data.body.strip():
-        raise HTTPException(status_code=400, detail="Заголовок и описание не могут быть пустыми")
+        raise HTTPException(status_code=400, detail=t("title_and_body_required", lang))
 
     try:
         post_type = PostType(data.type)
     except ValueError:
-        raise HTTPException(status_code=400, detail="Неизвестный тип поста")
+        raise HTTPException(status_code=400, detail=t("unknown_post_type", lang))
 
     if data.community_id:
         is_member = db.query(CommunityMember).filter(
             CommunityMember.community_id == data.community_id, CommunityMember.user_id == user.id
         ).first()
         if not is_member:
-            raise HTTPException(status_code=403, detail="Нужно вступить в сообщество, чтобы публиковать в нём")
+            raise HTTPException(status_code=403, detail=t("must_join_community_to_post", lang))
 
     post = Post(
         author_id=user.id,
@@ -171,10 +176,13 @@ def local_pulse(db: Session = Depends(get_db)):
 
 
 @router.get("/{post_id}", response_model=PostOut)
-def get_post(post_id: str, db: Session = Depends(get_db), user: Optional[User] = Depends(get_current_user_optional)):
+def get_post(
+    post_id: str, db: Session = Depends(get_db), user: Optional[User] = Depends(get_current_user_optional),
+    lang: str = Depends(get_lang),
+):
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
     saved_ids = set()
     if user:
         exists = db.query(SavedPost).filter(SavedPost.user_id == user.id, SavedPost.post_id == post_id).first()
@@ -184,12 +192,15 @@ def get_post(post_id: str, db: Session = Depends(get_db), user: Optional[User] =
 
 
 @router.patch("/{post_id}/resolve", response_model=PostOut)
-def resolve_post(post_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def resolve_post(
+    post_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
     if post.author_id != user.id:
-        raise HTTPException(status_code=403, detail="Можно закрыть только свой пост")
+        raise HTTPException(status_code=403, detail=t("can_only_resolve_own_post", lang))
     post.is_resolved = True
     db.commit()
     db.refresh(post)
@@ -197,20 +208,23 @@ def resolve_post(post_id: str, db: Session = Depends(get_db), user: User = Depen
 
 
 @router.patch("/{post_id}", response_model=PostOut)
-def update_post(post_id: str, data: PostUpdate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def update_post(
+    post_id: str, data: PostUpdate, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     post = db.query(Post).options(joinedload(Post.author)).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
     if post.author_id != user.id:
-        raise HTTPException(status_code=403, detail="Можно редактировать только свой пост")
+        raise HTTPException(status_code=403, detail=t("can_only_edit_own_post", lang))
 
     if data.title is not None:
         if not data.title.strip():
-            raise HTTPException(status_code=400, detail="Заголовок не может быть пустым")
+            raise HTTPException(status_code=400, detail=t("title_required", lang))
         post.title = data.title
     if data.body is not None:
         if not data.body.strip():
-            raise HTTPException(status_code=400, detail="Описание не может быть пустым")
+            raise HTTPException(status_code=400, detail=t("body_required", lang))
         post.body = data.body
     if data.photo_url is not None:
         post.photo_url = data.photo_url
@@ -223,12 +237,15 @@ def update_post(post_id: str, data: PostUpdate, db: Session = Depends(get_db), u
 
 
 @router.delete("/{post_id}")
-def delete_post(post_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def delete_post(
+    post_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
     if post.author_id != user.id:
-        raise HTTPException(status_code=403, detail="Можно удалить только свой пост")
+        raise HTTPException(status_code=403, detail=t("can_only_delete_own_post", lang))
     db.delete(post)
     db.commit()
     return {"ok": True}
@@ -251,15 +268,16 @@ def add_comment(
     data: CommentCreate,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
 ):
     comment_limiter.check(user.id)
 
     if not data.body.strip():
-        raise HTTPException(status_code=400, detail="Комментарий не может быть пустым")
+        raise HTTPException(status_code=400, detail=t("comment_required", lang))
 
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
     comment = Comment(post_id=post_id, author_id=user.id, body=data.body)
     db.add(comment)
     notify_author = post.author_id != user.id
@@ -273,10 +291,13 @@ def add_comment(
 
 
 @router.post("/{post_id}/save")
-def save_post(post_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def save_post(
+    post_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
 
     exists = db.query(SavedPost).filter(SavedPost.user_id == user.id, SavedPost.post_id == post_id).first()
     if exists:
@@ -304,12 +325,13 @@ def report_post(
     data: ReportCreate,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
 ):
     report_limiter.check(user.id)
 
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
 
     db.add(Report(reporter_id=user.id, post_id=post_id, reason=data.reason))
     db.commit()
@@ -333,6 +355,7 @@ def add_sighting(
     data: SightingCreate,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
 ):
     """'Видел питомца тут' — только для потеряшек/находок, не для обычных постов:
     у вопроса или пристройства нет смысла отмечать место наблюдения."""
@@ -340,9 +363,9 @@ def add_sighting(
 
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Пост не найден")
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
     if post.type not in (PostType.LOST, PostType.FOUND):
-        raise HTTPException(status_code=400, detail="Отметить наблюдение можно только у потеряшки или находки")
+        raise HTTPException(status_code=400, detail=t("sighting_only_for_lost_found", lang))
 
     sighting = Sighting(
         post_id=post_id,
