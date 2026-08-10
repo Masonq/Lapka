@@ -6,17 +6,19 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PhotoPicker from "../components/PhotoPicker";
+import { useTranslation } from "react-i18next";
 
 const TYPES = [
-  { value: "lost", label: "Потерялся" },
-  { value: "found", label: "Найден" },
-  { value: "adopt", label: "Ищет дом" },
-  { value: "question", label: "Вопрос" },
-  { value: "general", label: "Общий пост" },
+  { value: "lost", labelKey: "new_post.type_lost" },
+  { value: "found", labelKey: "new_post.type_found" },
+  { value: "adopt", labelKey: "new_post.type_adopt" },
+  { value: "question", labelKey: "new_post.type_question" },
+  { value: "general", labelKey: "new_post.type_general" },
 ];
 
 export default function NewPost() {
-  useDocumentTitle("Новый пост");
+  const { t } = useTranslation();
+  useDocumentTitle(t("new_post.title"));
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -44,11 +46,11 @@ export default function NewPost() {
   if (!isAuthed) {
     return (
       <div className="empty-state">
-        <div className="empty-state-title">Нужно войти</div>
-        Чтобы опубликовать пост, сначала войди в аккаунт
+        <div className="empty-state-title">{t("new_post.login_required_title")}</div>
+        {t("new_post.login_required_hint")}
         <div style={{ marginTop: 16 }}>
           <button className="btn btn-primary" onClick={() => navigate("/profile")}>
-            Войти
+            {t("new_post.login_button")}
           </button>
         </div>
       </div>
@@ -57,7 +59,7 @@ export default function NewPost() {
 
   function useMyLocation() {
     if (!navigator.geolocation) {
-      setLocationError("Геолокация не поддерживается этим браузером");
+      setLocationError(t("new_post.geo_not_supported"));
       return;
     }
     setLocatingMe(true);
@@ -69,7 +71,7 @@ export default function NewPost() {
         setLocatingMe(false);
       },
       () => {
-        setLocationError("Не удалось определить местоположение — разреши доступ в настройках браузера");
+        setLocationError(t("new_post.geo_failed"));
         setLocatingMe(false);
       },
       { timeout: 10000 }
@@ -92,7 +94,7 @@ export default function NewPost() {
         community_id: communityId,
         show_staff_badge: showStaffBadge,
       });
-      showToast("Пост опубликован");
+      showToast(t("new_post.published_toast"));
       navigate(`/posts/${post.id}`);
     } catch (err) {
       setError(err.message);
@@ -107,61 +109,61 @@ export default function NewPost() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("new_post.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Новый пост</span>
+        <span className="page-title">{t("new_post.title")}</span>
         <span style={{ width: 44 }} />
       </div>
 
       <div className="detail-shell">
         <div className="field">
-          <label id="post-type-label">Тип поста</label>
+          <label id="post-type-label">{t("new_post.post_type_label")}</label>
           <div className="chip-row" role="group" aria-labelledby="post-type-label" style={{ paddingBottom: 2 }}>
-            {TYPES.map((t) => (
+            {TYPES.map((tp) => (
               <button
-                key={t.value}
+                key={tp.value}
                 type="button"
-                className={`chip${type === t.value ? " active" : ""}`}
-                onClick={() => setType(t.value)}
+                className={`chip${type === tp.value ? " active" : ""}`}
+                onClick={() => setType(tp.value)}
               >
-                {t.label}
+                {t(tp.labelKey)}
               </button>
             ))}
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="card" style={{ borderRadius: 20, padding: 18 }}>
-        <PhotoPicker value={photoUrl} onChange={setPhotoUrl} label="Фото (необязательно)" />
+        <PhotoPicker value={photoUrl} onChange={setPhotoUrl} label={t("new_post.photo_label")} />
 
         <div className="field">
-          <label htmlFor="post-title">Заголовок</label>
+          <label htmlFor="post-title">{t("new_post.title_label")}</label>
           <input
             id="post-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
             maxLength={200}
-            placeholder="Например: Бела, вест-хайленд-терьер"
+            placeholder={t("new_post.title_placeholder")}
           />
         </div>
 
         <div className="field">
-          <label htmlFor="post-body">Описание</label>
+          <label htmlFor="post-body">{t("new_post.description_label")}</label>
           <textarea
             id="post-body"
             rows={5}
             value={body}
             onChange={(e) => setBody(e.target.value)}
             required
-            placeholder="Опиши, что случилось, приметы, обстоятельства"
+            placeholder={t("new_post.description_placeholder")}
           />
         </div>
 
         {needsLocation && (
           <div className="field">
-            <label htmlFor="post-location">Где видели (район, улица)</label>
-            <input id="post-location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Например: Ташмайдан" />
+            <label htmlFor="post-location">{t("new_post.location_label")}</label>
+            <input id="post-location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder={t("new_post.location_placeholder")} />
             <button
               type="button"
               onClick={useMyLocation}
@@ -173,7 +175,7 @@ export default function NewPost() {
               }}
             >
               {locatingMe ? <LoaderCircle size={14} className="spin" /> : <MapPin size={14} />}
-              {locatingMe ? "Определяем…" : lat ? "Точка на карте добавлена ✓" : "Добавить точку на карту"}
+              {locatingMe ? t("new_post.locating") : lat ? t("new_post.location_added") : t("new_post.add_location")}
             </button>
             {locationError && <p style={{ color: "var(--red)", fontSize: 12, marginTop: 4 }}>{locationError}</p>}
           </div>
@@ -187,14 +189,14 @@ export default function NewPost() {
               onChange={(e) => setShowStaffBadge(e.target.checked)}
               style={{ width: 16, height: 16 }}
             />
-            Показывать бейдж «Администрация» на этом посте
+            {t("new_post.staff_badge_checkbox")}
           </label>
         )}
 
         {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
 
         <button className="btn btn-primary btn-block" disabled={submitting}>
-          {submitting ? "Публикуем…" : "Опубликовать"}
+          {submitting ? t("new_post.publishing") : t("new_post.publish")}
         </button>
         </form>
       </div>
