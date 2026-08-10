@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.db import Base, engine
-from app.routers import admin, auth, blocks, communities, events, follows, marketplace, messages, notifications, pets, posts, services, stories, uploads, users
+from app.routers import admin, auth, blocks, communities, events, follows, marketplace, messages, notifications, pets, posts, prerender, services, stories, uploads, users
 
 logger = logging.getLogger("lapabg")
 
@@ -52,6 +52,7 @@ app.include_router(notifications.router)
 app.include_router(admin.router)
 app.include_router(blocks.router)
 app.include_router(stories.router)
+app.include_router(prerender.router)
 app.include_router(communities.router)
 app.include_router(messages.router)
 app.include_router(events.router)
