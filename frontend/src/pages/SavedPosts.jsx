@@ -6,9 +6,11 @@ import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import EmptyStateImage from "../components/EmptyStateImage";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useTranslation } from "react-i18next";
 
 export default function SavedPosts() {
-  useDocumentTitle("Сохранённое");
+  const { t } = useTranslation();
+  useDocumentTitle(t("saved_posts.title"));
   const navigate = useNavigate();
   const [posts, setPosts] = useState(null);
 
@@ -19,10 +21,10 @@ export default function SavedPosts() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("saved_posts.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Сохранённое</span>
+        <span className="page-title">{t("saved_posts.title")}</span>
         <span style={{ width: 44 }} />
       </div>
 
@@ -36,8 +38,8 @@ export default function SavedPosts() {
       {posts?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
-          <div className="empty-state-title">Пока ничего не сохранено</div>
-          Нажми на закладку у поста, чтобы вернуться к нему позже
+          <div className="empty-state-title">{t("saved_posts.empty_title")}</div>
+          {t("saved_posts.empty_hint")}
         </div>
       )}
 

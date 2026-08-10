@@ -6,11 +6,12 @@ import { ArrowLeft } from "lucide-react";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 import ErrorState from "../components/ErrorState";
+import { useTranslation } from "react-i18next";
 
 // Белград — разумный центр по умолчанию, если у постов пока нет геоточек рядом
 const BELGRADE_CENTER = [44.7866, 20.4489];
 
-const TYPE_LABELS = { lost: "Потерялся", found: "Найден" };
+const TYPE_LABELS = { lost: "post_type.lost", found: "post_type.found" };
 
 function pawDivIcon(color) {
   return L.divIcon({
@@ -32,7 +33,8 @@ const ICONS = {
 };
 
 export default function MapView() {
-  useDocumentTitle("Карта потеряшек");
+  const { t } = useTranslation();
+  useDocumentTitle(t("map_view.title"));
   const navigate = useNavigate();
   const [posts, setPosts] = useState(null);
   const [loadError, setLoadError] = useState(false);
@@ -55,17 +57,17 @@ export default function MapView() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("map_view.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Карта потеряшек</span>
+        <span className="page-title">{t("map_view.title")}</span>
         <span style={{ width: 44 }} />
       </div>
 
       <p style={{ fontSize: 12, color: "var(--text-faint)", marginBottom: 12 }}>
-        Показаны только посты, где автор указал точку на карте при публикации.
-        <span style={{ color: "var(--red)", fontWeight: 700 }}> ●</span> потерялся,
-        <span style={{ color: "var(--green-strong)", fontWeight: 700 }}> ●</span> найден
+        {t("map_view.legend")}
+        <span style={{ color: "var(--red)", fontWeight: 700 }}> ●</span> {t("map_view.legend_lost")}
+        <span style={{ color: "var(--green-strong)", fontWeight: 700 }}> ●</span> {t("map_view.legend_found")}
       </p>
 
       {loadError && <ErrorState onRetry={load} />}
@@ -85,9 +87,9 @@ export default function MapView() {
               <Marker key={p.id} position={[p.last_seen_lat, p.last_seen_lng]} icon={ICONS[p.type]}>
                 <Popup>
                   <div style={{ minWidth: 160 }}>
-                    <b>{TYPE_LABELS[p.type]}</b>
+                    <b>{t(TYPE_LABELS[p.type])}</b>
                     <div style={{ margin: "4px 0", fontWeight: 700 }}>{p.title}</div>
-                    <Link to={`/posts/${p.id}`}>Открыть пост →</Link>
+                    <Link to={`/posts/${p.id}`}>{t("map_view.open_post")}</Link>
                   </div>
                 </Popup>
               </Marker>
@@ -98,7 +100,7 @@ export default function MapView() {
 
       {!loadError && posts?.length === 0 && (
         <p style={{ fontSize: 13, color: "var(--text-faint)", textAlign: "center", marginTop: 12 }}>
-          Пока никто не указал точку на карте — будь первым
+          {t("map_view.empty")}
         </p>
       )}
     </div>

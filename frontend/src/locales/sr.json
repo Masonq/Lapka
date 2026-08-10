@@ -255,5 +255,51 @@
     "no_comments": "Još nema komentara — budi prvi",
     "comment_placeholder": "Napiši komentar…",
     "login_to_comment": "Prijavi se da ostaviš komentar"
+  },
+  "not_found": {
+    "title": "Ova stranica ne postoji",
+    "hint": "Možda je link zastareo ili je adresa pogrešno uneta",
+    "go_home": "Na početnu"
+  },
+  "follow_list": {
+    "following_title": "Praćenja",
+    "followers_title": "Pratioci",
+    "back_aria": "Nazad",
+    "empty_title": "Još nikog nema",
+    "empty_following_hint": "Još nikog ne pratiš",
+    "empty_followers_hint": "Još nema pratilaca"
+  },
+  "saved_posts": {
+    "title": "Sačuvano",
+    "back_aria": "Nazad",
+    "empty_title": "Još ništa nije sačuvano",
+    "empty_hint": "Klikni na oznaku kod objave da joj se kasnije vratiš"
+  },
+  "message_thread": {
+    "title": "Poruke",
+    "back_aria": "Nazad",
+    "empty": "Još ništa nije napisano — počni prvi",
+    "placeholder": "Napiši poruku…",
+    "send_aria": "Pošalji"
+  },
+  "adoption": {
+    "filter_active": "Traže dom",
+    "filter_resolved": "Već zbrinuti",
+    "title": "Skloništa i udomljavanje",
+    "back_aria": "Nazad",
+    "page_title": "Udomljavanje",
+    "add_aria": "Objavi ljubimca",
+    "empty_active": "Trenutno niko ne traži dom",
+    "empty_resolved": "Još niko nije zbrinut",
+    "empty_hint": "Ako tražiš dom za ljubimca — kreiraj objavu preko + gore"
+  },
+  "map_view": {
+    "title": "Mapa nestalih",
+    "back_aria": "Nazad",
+    "legend": "Prikazane su samo objave gde je autor označio tačku na mapi prilikom objavljivanja.",
+    "legend_lost": "izgubljen,",
+    "legend_found": "pronađen",
+    "open_post": "Otvori objavu →",
+    "empty": "Još niko nije označio tačku na mapi — budi prvi"
   }
 }

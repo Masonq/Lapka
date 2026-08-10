@@ -7,8 +7,10 @@ import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PawLoader from "../components/PawLoader";
 import { useRealtimeEvent } from "../RealtimeContext";
+import { useTranslation } from "react-i18next";
 
 export default function MessageThread() {
+  const { t } = useTranslation();
   const { userId } = useParams();
   const navigate = useNavigate();
   const { userId: myId } = useAuth();
@@ -18,7 +20,7 @@ export default function MessageThread() {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
-  useDocumentTitle(partner ? partner.display_name : "Сообщения");
+  useDocumentTitle(partner ? partner.display_name : t("message_thread.title"));
 
   function load() {
     api.messageThread(userId).then(setMessages).catch(() => setMessages([]));
@@ -62,7 +64,7 @@ export default function MessageThread() {
   return (
     <div>
       <div className="page-header" style={{ paddingTop: "calc(6px + env(safe-area-inset-top, 0px))" }}>
-        <button className="icon-btn" onClick={() => navigate("/messages")} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate("/messages")} aria-label={t("message_thread.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
         <span className="page-title">{partner ? partner.display_name : "…"}</span>
@@ -81,7 +83,7 @@ export default function MessageThread() {
 
         {messages?.length === 0 && (
           <p style={{ fontSize: 13, color: "var(--text-faint)", textAlign: "center", marginTop: 20 }}>
-            Пока ничего не написано — начни первым
+            {t("message_thread.empty")}
           </p>
         )}
 
@@ -115,13 +117,13 @@ export default function MessageThread() {
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Написать…"
+          placeholder={t("message_thread.placeholder")}
           style={{
             flex: 1, border: "1px solid var(--border)", borderRadius: 999, padding: "12px 18px",
             fontSize: 16, background: "var(--surface)", boxShadow: "var(--shadow-card)",
           }}
         />
-        <button className="btn btn-primary" disabled={sending} aria-label="Отправить" style={{ padding: "0 16px" }}>
+        <button className="btn btn-primary" disabled={sending} aria-label={t("message_thread.send_aria")} style={{ padding: "0 16px" }}>
           <Send size={17} />
         </button>
       </form>

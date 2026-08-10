@@ -8,14 +8,16 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PostCard from "../components/PostCard";
+import { useTranslation } from "react-i18next";
 
 const TABS = [
-  { value: "active", label: "Ищут дом" },
-  { value: "resolved", label: "Уже пристроены" },
+  { value: "active", label: "adoption.filter_active" },
+  { value: "resolved", label: "adoption.filter_resolved" },
 ];
 
 export default function Adoption() {
-  useDocumentTitle("Приюты и пристройство");
+  const { t } = useTranslation();
+  useDocumentTitle(t("adoption.title"));
   const navigate = useNavigate();
   const { isAuthed } = useAuth();
   const [tab, setTab] = useState("active");
@@ -36,12 +38,12 @@ export default function Adoption() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("adoption.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Пристройство</span>
+        <span className="page-title">{t("adoption.page_title")}</span>
         {isAuthed ? (
-          <Link to="/new-post?type=adopt" className="icon-btn" aria-label="Разместить питомца">
+          <Link to="/new-post?type=adopt" className="icon-btn" aria-label={t("adoption.add_aria")}>
             <PlusCircle size={17} strokeWidth={2.2} />
           </Link>
         ) : (
@@ -50,9 +52,9 @@ export default function Adoption() {
       </div>
 
       <div className="chip-row" style={{ marginBottom: 16 }}>
-        {TABS.map((t) => (
-          <button key={t.value} className={`chip${tab === t.value ? " active" : ""}`} onClick={() => setTab(t.value)}>
-            {t.label}
+        {TABS.map((tb) => (
+          <button key={tb.value} className={`chip${tab === tb.value ? " active" : ""}`} onClick={() => setTab(tb.value)}>
+            {t(tb.label)}
           </button>
         ))}
       </div>
@@ -65,9 +67,9 @@ export default function Adoption() {
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">
-            {tab === "active" ? "Пока никого не пристраивают" : "Пока никого не пристроили"}
+            {tab === "active" ? t("adoption.empty_active") : t("adoption.empty_resolved")}
           </div>
-          {tab === "active" && isAuthed && "Если ищешь дом для питомца — создай пост через + вверху"}
+          {tab === "active" && isAuthed && t("adoption.empty_hint")}
         </div>
       )}
 

@@ -5,14 +5,16 @@ import ListItemSkeleton from "../components/ListItemSkeleton";
 import EmptyStateImage from "../components/EmptyStateImage";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useTranslation } from "react-i18next";
 
 export default function FollowList() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode") === "following" ? "following" : "followers";
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [list, setList] = useState(null);
-  const title = mode === "following" ? "Подписки" : "Подписчики";
+  const title = mode === "following" ? t("follow_list.following_title") : t("follow_list.followers_title");
   useDocumentTitle(title);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function FollowList() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("follow_list.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
         <span className="page-title">{title}</span>
@@ -36,8 +38,8 @@ export default function FollowList() {
       {list?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
-          <div className="empty-state-title">Пока никого</div>
-          {mode === "following" ? "Ещё ни на кого не подписан(а)" : "Пока нет подписчиков"}
+          <div className="empty-state-title">{t("follow_list.empty_title")}</div>
+          {mode === "following" ? t("follow_list.empty_following_hint") : t("follow_list.empty_followers_hint")}
         </div>
       )}
 
