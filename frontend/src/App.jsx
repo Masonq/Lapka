@@ -86,7 +86,7 @@ export default function App() {
         ) : (
           <>
             <div className="brand-block">
-              <img src="/logo.png" alt="Lapki BG" className="brand-logo" />
+              <img src="/logo.png" alt="Lapki.info" className="brand-logo" />
             </div>
 
             <nav className="desktop-nav">
