@@ -8,22 +8,25 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useTranslation } from "react-i18next";
 
 const TABS = [
-  { value: "", label: "Все" },
-  { value: "walk", label: "Прогулки" },
-  { value: "event", label: "События" },
+  { value: "", labelKey: "events.filter_all" },
+  { value: "walk", labelKey: "events.filter_walk" },
+  { value: "event", labelKey: "events.filter_event" },
 ];
 
-function formatDate(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" }) + ", " +
-    d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-}
-
 export default function Events() {
-  useDocumentTitle("События и прогулки");
+  const { t, i18n } = useTranslation();
+  useDocumentTitle(t("events.title"));
   const navigate = useNavigate();
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    const locale = i18n.language === "sr" ? "sr-RS" : "ru-RU";
+    return d.toLocaleDateString(locale, { day: "numeric", month: "long" }) + ", " +
+      d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+  }
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const [tab, setTab] = useState("");
@@ -58,7 +61,7 @@ export default function Events() {
         pet_id: form.pet_id || undefined,
         capacity: form.capacity ? Number(form.capacity) : undefined,
       });
-      showToast(form.type === "walk" ? "Прогулка создана" : "Событие создано");
+      showToast(form.type === "walk" ? t("events.walk_created_toast") : t("events.event_created_toast"));
       navigate(`/events/${event.id}`);
     } catch (err) {
       setError(err.message);
@@ -70,12 +73,12 @@ export default function Events() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("events.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Прогулки и события</span>
+        <span className="page-title">{t("events.page_title")}</span>
         {isAuthed ? (
-          <button className="icon-btn" onClick={() => setShowForm((v) => !v)} aria-label="Создать">
+          <button className="icon-btn" onClick={() => setShowForm((v) => !v)} aria-label={t("events.create_aria")}>
             <Plus size={17} strokeWidth={2.2} />
           </button>
         ) : (
@@ -86,28 +89,28 @@ export default function Events() {
       {showForm && (
         <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
           <div className="field">
-            <label id="event-type-label">Тип</label>
+            <label id="event-type-label">{t("events.type_label")}</label>
             <div className="chip-row" role="group" aria-labelledby="event-type-label" style={{ paddingBottom: 2 }}>
               <button type="button" className={`chip${form.type === "walk" ? " active" : ""}`} onClick={() => setForm({ ...form, type: "walk" })}>
-                Прогулка
+                {t("events.walk_chip")}
               </button>
               <button type="button" className={`chip${form.type === "event" ? " active" : ""}`} onClick={() => setForm({ ...form, type: "event" })}>
-                Событие
+                {t("events.event_chip")}
               </button>
             </div>
           </div>
           <div className="field">
-            <label htmlFor="event-title">Название</label>
+            <label htmlFor="event-title">{t("events.name_label")}</label>
             <input
               id="event-title"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               required
-              placeholder="Например: Вечерняя прогулка в Ушче"
+              placeholder={t("events.name_placeholder")}
             />
           </div>
           <div className="field">
-            <label htmlFor="event-starts">Дата и время</label>
+            <label htmlFor="event-starts">{t("events.datetime_label")}</label>
             <input
               id="event-starts"
               type="datetime-local"
@@ -117,17 +120,17 @@ export default function Events() {
             />
           </div>
           <div className="field">
-            <label htmlFor="event-location">Место встречи</label>
+            <label htmlFor="event-location">{t("events.location_label")}</label>
             <input
               id="event-location"
               value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })}
-              placeholder="Необязательно"
+              placeholder={t("events.location_placeholder")}
             />
           </div>
           {form.type === "walk" && myPets.length > 0 && (
             <div className="field">
-              <label id="event-pet-label">Питомец</label>
+              <label id="event-pet-label">{t("events.pet_label")}</label>
               <div className="chip-row" role="group" aria-labelledby="event-pet-label" style={{ paddingBottom: 2 }}>
                 {myPets.map((p) => (
                   <button
@@ -143,27 +146,27 @@ export default function Events() {
             </div>
           )}
           <div className="field">
-            <label htmlFor="event-capacity">Вместимость</label>
+            <label htmlFor="event-capacity">{t("events.capacity_label")}</label>
             <input
               id="event-capacity"
               type="number"
               min="1"
               value={form.capacity}
               onChange={(e) => setForm({ ...form, capacity: e.target.value })}
-              placeholder="Без ограничений"
+              placeholder={t("events.capacity_placeholder")}
             />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
           <button className="btn btn-primary btn-block" disabled={submitting}>
-            {submitting ? "Создаём…" : form.type === "walk" ? "Создать прогулку" : "Создать событие"}
+            {submitting ? t("events.creating") : form.type === "walk" ? t("events.create_walk") : t("events.create_event")}
           </button>
         </form>
       )}
 
       <div className="chip-row" style={{ marginBottom: 16 }}>
-        {TABS.map((t) => (
-          <button key={t.value} className={`chip${tab === t.value ? " active" : ""}`} onClick={() => setTab(t.value)}>
-            {t.label}
+        {TABS.map((tb) => (
+          <button key={tb.value} className={`chip${tab === tb.value ? " active" : ""}`} onClick={() => setTab(tb.value)}>
+            {t(tb.labelKey)}
           </button>
         ))}
       </div>
@@ -175,8 +178,8 @@ export default function Events() {
       {!loadError && events?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
-          <div className="empty-state-title">Пока ничего не запланировано</div>
-          {isAuthed ? "Создай первую прогулку или событие" : "Войди, чтобы создать своё"}
+          <div className="empty-state-title">{t("events.empty_title")}</div>
+          {isAuthed ? t("events.empty_authed") : t("events.empty_guest")}
         </div>
       )}
 
@@ -185,7 +188,7 @@ export default function Events() {
           {events.map((ev) => (
             <Link key={ev.id} to={`/events/${ev.id}`} className="card" style={{ borderRadius: 20, padding: 16, display: "flex", flexDirection: "column", height: "100%" }}>
               <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
-                {ev.type === "walk" ? "Прогулка" : "Событие"}
+                {ev.type === "walk" ? t("events.walk_chip") : t("events.event_chip")}
               </span>
               <h3 className="post-title" style={{ marginTop: 8 }}>{ev.title}</h3>
               <div className="post-meta" style={{ marginTop: 8 }}>
@@ -199,7 +202,7 @@ export default function Events() {
                 </span>
               </div>
               {ev.is_going && (
-                <span style={{ fontSize: 11, fontWeight: 700, color: "var(--green-strong)" }}>Ты идёшь</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "var(--green-strong)" }}>{t("events.going_badge")}</span>
               )}
             </Link>
           ))}

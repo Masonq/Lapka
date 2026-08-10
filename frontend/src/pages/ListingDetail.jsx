@@ -6,10 +6,12 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
+import { useTranslation } from "react-i18next";
 
-const TYPE_LABELS = { sell: "Продажа", wanted: "Ищут", give_away: "Отдам даром" };
+const TYPE_LABELS = { sell: "marketplace.type_sell", wanted: "marketplace.type_wanted", give_away: "marketplace.filter_give_away" };
 
 export default function ListingDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthed, userId } = useAuth();
@@ -21,7 +23,7 @@ export default function ListingDetail() {
   const [reportReason, setReportReason] = useState("");
   const [reported, setReported] = useState(false);
 
-  useDocumentTitle(listing ? listing.title : "Объявление");
+  useDocumentTitle(listing ? listing.title : t("listing_detail.title"));
 
   function load() {
     api.listing(id).then(setListing).catch(() => setNotFound(true));
@@ -45,7 +47,7 @@ export default function ListingDetail() {
   async function markSold() {
     try {
       await api.markListingSold(id);
-      showToast("Отмечено как продано");
+      showToast(t("listing_detail.sold_toast"));
       load();
     } catch (err) {
       showToast(err.message, "error");
@@ -55,7 +57,7 @@ export default function ListingDetail() {
   async function remove() {
     try {
       await api.deleteListing(id);
-      showToast("Объявление удалено");
+      showToast(t("listing_detail.deleted_toast"));
       navigate("/marketplace");
     } catch (err) {
       showToast(err.message, "error");
@@ -68,7 +70,7 @@ export default function ListingDetail() {
       await api.reportListing(id, reportReason.trim() || undefined);
       setReported(true);
       setShowReportForm(false);
-      showToast("Жалоба отправлена");
+      showToast(t("listing_detail.report_sent_toast"));
     } catch (err) {
       showToast(err.message, "error");
     }
@@ -77,8 +79,8 @@ export default function ListingDetail() {
   if (notFound) {
     return (
       <div className="empty-state">
-        <div className="empty-state-title">Не найдено</div>
-        Возможно, объявление удалили
+        <div className="empty-state-title">{t("listing_detail.not_found_title")}</div>
+        {t("listing_detail.not_found_hint")}
       </div>
     );
   }
@@ -87,10 +89,10 @@ export default function ListingDetail() {
     return (
       <div>
         <div className="page-header">
-          <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+          <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("listing_detail.back_aria")}>
             <ArrowLeft size={17} strokeWidth={2.2} />
           </button>
-          <span className="page-title">Объявление</span>
+          <span className="page-title">{t("listing_detail.title")}</span>
           <span style={{ width: 44 }} />
         </div>
         <div className="detail-shell">
@@ -105,22 +107,22 @@ export default function ListingDetail() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("listing_detail.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Объявление</span>
+        <span className="page-title">{t("listing_detail.title")}</span>
         <span style={{ width: 44 }} />
       </div>
 
       <div className="detail-shell">
         <div className="card" style={{ borderRadius: 20, padding: 20, marginBottom: 16, position: "relative" }}>
           {isAuthed && !isOwner && !reported && (
-            <button className="post-save-btn" style={{ right: 12, top: 12 }} onClick={() => setShowReportForm((v) => !v)} aria-label="Пожаловаться">
+            <button className="post-save-btn" style={{ right: 12, top: 12 }} onClick={() => setShowReportForm((v) => !v)} aria-label={t("listing_detail.report_aria")}>
               <Flag size={16} />
             </button>
           )}
           {reported && (
-            <span className="post-save-btn" style={{ right: 12, top: 12, color: "var(--text-faint)" }} aria-label="Жалоба отправлена">
+            <span className="post-save-btn" style={{ right: 12, top: 12, color: "var(--text-faint)" }} aria-label={t("listing_detail.report_sent_aria")}>
               <Flag size={16} />
             </span>
           )}
@@ -129,13 +131,13 @@ export default function ListingDetail() {
           )}
 
           <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
-            {TYPE_LABELS[listing.type]}{listing.is_sold ? " · Продано" : ""}
+            {t(TYPE_LABELS[listing.type])}{listing.is_sold ? t("listing_detail.sold_suffix") : ""}
           </span>
 
           <h2 style={{ fontWeight: 800, fontSize: 20, margin: "10px 0 4px" }}>{listing.title}</h2>
 
           {listing.price != null && (
-            <div style={{ fontWeight: 800, fontSize: 22, margin: "4px 0 10px" }}>{listing.price} дин.</div>
+            <div style={{ fontWeight: 800, fontSize: 22, margin: "4px 0 10px" }}>{t("listing_detail.price_din", { price: listing.price })}</div>
           )}
 
           {listing.city && (
@@ -151,14 +153,14 @@ export default function ListingDetail() {
           )}
 
           <Link to={`/users/${listing.seller.id}`} style={{ fontSize: 13, color: "var(--text-faint)", display: "block", marginBottom: 14, textDecoration: "none" }}>
-            {listing.type === "wanted" ? "Ищет" : "Продавец"}: {listing.seller.display_name}
+            {listing.type === "wanted" ? t("listing_detail.wanted_by") : t("listing_detail.seller")}: {listing.seller.display_name}
           </Link>
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {isAuthed && !isOwner && (
               <>
                 <Link to={`/messages/${listing.seller.id}`} className="btn btn-primary" style={{ flex: 1 }}>
-                  <MessageCircle size={16} /> Написать
+                  <MessageCircle size={16} /> {t("listing_detail.write")}
                 </Link>
                 <button className="btn btn-ghost" onClick={toggleSave} disabled={busy}>
                   <Bookmark size={16} fill={listing.is_saved ? "currentColor" : "none"} />
@@ -167,12 +169,12 @@ export default function ListingDetail() {
             )}
             {isOwner && !listing.is_sold && listing.type === "sell" && (
               <button className="btn btn-ghost" onClick={markSold}>
-                <CheckCircle2 size={16} /> Отметить проданным
+                <CheckCircle2 size={16} /> {t("listing_detail.mark_sold")}
               </button>
             )}
             {isOwner && (
               <button className="btn btn-ghost" style={{ color: "var(--red)" }} onClick={remove}>
-                <Trash2 size={16} /> Удалить
+                <Trash2 size={16} /> {t("listing_detail.delete")}
               </button>
             )}
           </div>
@@ -183,15 +185,15 @@ export default function ListingDetail() {
                 rows={2}
                 value={reportReason}
                 onChange={(e) => setReportReason(e.target.value)}
-                placeholder="Что не так с объявлением? (необязательно)"
+                placeholder={t("listing_detail.report_placeholder")}
                 style={{
                   width: "100%", border: "1px solid var(--border)", borderRadius: 12,
                   padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
                 }}
               />
               <div style={{ display: "flex", gap: 8 }}>
-                <button className="btn btn-primary">Отправить жалобу</button>
-                <button type="button" className="btn btn-ghost" onClick={() => setShowReportForm(false)}>Отмена</button>
+                <button className="btn btn-primary">{t("listing_detail.send_report")}</button>
+                <button type="button" className="btn btn-ghost" onClick={() => setShowReportForm(false)}>{t("listing_detail.cancel")}</button>
               </div>
             </form>
           )}
