@@ -27,6 +27,9 @@
 
   --gray-tint: #EFEFF0;
 
+  --skeleton-base: #E3E3E5;
+  --skeleton-shine: #F5F5F6;
+
   --star: #F1AD32;
 
   --font-body: "Golos Text", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -70,6 +73,9 @@
   --blue-tint: #1A2540;
 
   --gray-tint: #2A2A2E;
+
+  --skeleton-base: #2C2C30;
+  --skeleton-shine: #3B3B42;
 
   --star: #F5BB4D;
 
@@ -708,7 +714,7 @@ a {
 .skeleton {
   display: block;
   border-radius: var(--radius-pill);
-  background: linear-gradient(90deg, #E3E3E5 25%, #F5F5F6 37%, #E3E3E5 63%);
+  background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 37%, var(--skeleton-base) 63%);
   background-size: 400% 100%;
   animation: skeleton-shimmer 1.4s ease infinite;
 }
