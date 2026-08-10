@@ -6,20 +6,22 @@ import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
-
-function timeAgo(iso) {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const min = Math.floor(diffMs / 60000);
-  if (min < 1) return "только что";
-  if (min < 60) return `${min} мин назад`;
-  const hrs = Math.floor(min / 60);
-  if (hrs < 24) return `${hrs} ч назад`;
-  return `${Math.floor(hrs / 24)} дн назад`;
-}
+import { useTranslation } from "react-i18next";
 
 export default function Notifications() {
-  useDocumentTitle("Уведомления");
+  const { t } = useTranslation();
+  useDocumentTitle(t("notifications.title"));
   const navigate = useNavigate();
+
+  function timeAgo(iso) {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const min = Math.floor(diffMs / 60000);
+    if (min < 1) return t("time.just_now");
+    if (min < 60) return t("time.min_ago", { min });
+    const hrs = Math.floor(min / 60);
+    if (hrs < 24) return t("time.hours_ago", { hours: hrs });
+    return t("time.days_ago", { days: Math.floor(hrs / 24) });
+  }
   const [items, setItems] = useState(null);
   const [loadError, setLoadError] = useState(false);
 
@@ -46,13 +48,13 @@ export default function Notifications() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("notifications.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Уведомления</span>
+        <span className="page-title">{t("notifications.title")}</span>
         {hasUnread ? (
           <button className="btn btn-ghost" onClick={markAllRead} style={{ padding: "8px 12px", fontSize: 12 }}>
-            Прочитать всё
+            {t("notifications.mark_all_read")}
           </button>
         ) : (
           <span style={{ width: 44 }} />
@@ -64,15 +66,15 @@ export default function Notifications() {
           flexShrink: 0, width: 260, borderRadius: 18, padding: 16,
           background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%)", color: "#fff",
         }}>
-          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>Lapki — свои для своих</div>
-          <div style={{ fontSize: 12, opacity: 0.9 }}>Потеряшки, находки, пристройство и соседи с животными — всё в одном месте в Белграде</div>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>{t("notifications.promo1_title")}</div>
+          <div style={{ fontSize: 12, opacity: 0.9 }}>{t("notifications.promo1_text")}</div>
         </div>
         <Link to="/settings" style={{
           flexShrink: 0, width: 260, borderRadius: 18, padding: 16, textDecoration: "none",
           background: "var(--surface)", border: "1px solid var(--border)", display: "block",
         }}>
-          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4, color: "var(--text)" }}>Оказываешь услуги питомцам?</div>
-          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Регистрация в каталоге бесплатная — станьте исполнителем в Настройках</div>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4, color: "var(--text)" }}>{t("notifications.promo2_title")}</div>
+          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{t("notifications.promo2_text")}</div>
         </Link>
       </div>
 
@@ -83,8 +85,8 @@ export default function Notifications() {
       {!loadError && items?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
-          <div className="empty-state-title">Пока тихо</div>
-          Здесь появятся подписки и комментарии к твоим постам
+          <div className="empty-state-title">{t("notifications.empty_title")}</div>
+          {t("notifications.empty_hint")}
         </div>
       )}
 
@@ -111,18 +113,17 @@ export default function Notifications() {
           <div style={{ flex: 1, minWidth: 0 }}>
             {n.type === "welcome" ? (
               <div style={{ fontSize: 14, lineHeight: 1.5 }}>
-                <b>Добро пожаловать в Lapki! 🐾</b>
+                <b>{t("notifications.welcome_title")}</b>
                 <div style={{ color: "var(--text-muted)", marginTop: 2 }}>
-                  Спасибо, что зарегистрировались. Ищите потеряшек, находите новых друзей питомцам,
-                  публикуйте объявления и общайтесь с соседями. Если появятся вопросы — просто напишите нам.
+                  {t("notifications.welcome_text")}
                 </div>
               </div>
             ) : (
               <div style={{ fontSize: 14 }}>
                 <b>{n.actor.display_name}</b>{" "}
-                {n.type === "follow" && "подписался(-ась) на тебя"}
-                {n.type === "comment" && "прокомментировал(а) пост"}
-                {n.type === "sighting" && "отметил(а) наблюдение в посте"}
+                {n.type === "follow" && t("notifications.action_follow")}
+                {n.type === "comment" && t("notifications.action_comment")}
+                {n.type === "sighting" && t("notifications.action_sighting")}
                 {n.post_title && <> «{n.post_title}»</>}
               </div>
             )}

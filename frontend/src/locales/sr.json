@@ -358,5 +358,38 @@
     "write_to_community": "Piši u zajednicu",
     "community_posts": "Objave zajednice",
     "empty_posts": "Još niko nije pisao ovde — budi prvi"
+  },
+  "create": {
+    "title": "Kreiraj",
+    "login_required_title": "Potrebna prijava",
+    "login_required_hint": "Da bi nešto objavio(la), prvo se prijavi na nalog",
+    "login_button": "Prijavi se",
+    "page_title": "Šta kreiramo?",
+    "type_lost_label": "Ljubimac je izgubljen",
+    "type_lost_desc": "Hitna objava sa opisom i lokacijom",
+    "type_found_label": "Ljubimac je pronađen",
+    "type_found_desc": "Neko je izgubio — javi gde si video(la)",
+    "type_adopt_label": "Traži dom",
+    "type_adopt_desc": "Udomljavanje ljubimca u dobre ruke",
+    "type_question_label": "Pitanje za komšije",
+    "type_question_desc": "Pitaj zajednicu za savet",
+    "type_general_label": "Obična objava",
+    "type_general_desc": "Podeli bilo šta o svom ljubimcu"
+  },
+  "notifications": {
+    "title": "Obaveštenja",
+    "back_aria": "Nazad",
+    "mark_all_read": "Označi sve kao pročitano",
+    "promo1_title": "Lapki — svoji za svoje",
+    "promo1_text": "Nestali, pronađeni, udomljavanje i komšije sa životinjama — sve na jednom mestu u Beogradu",
+    "promo2_title": "Pružaš usluge ljubimcima?",
+    "promo2_text": "Registracija u katalogu je besplatna — postani pružalac usluga u Podešavanjima",
+    "empty_title": "Za sada tiho",
+    "empty_hint": "Ovde će se pojaviti praćenja i komentari na tvoje objave",
+    "welcome_title": "Dobrodošao/la u Lapki! 🐾",
+    "welcome_text": "Hvala što si se registrovao(la). Traži nestale, pronalazi nove prijatelje za ljubimce, objavljuj oglase i komuniciraj sa komšijama. Ako imaš pitanja — samo nam piši.",
+    "action_follow": "te je zapratio(la)",
+    "action_comment": "je prokomentarisao(la) objavu",
+    "action_sighting": "je zabeležio(la) zapažanje u objavi"
   }
 }
