@@ -424,6 +424,7 @@ a {
 .post-badge {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   gap: 5px;
   font-size: 12px;
   font-weight: 700;
@@ -443,6 +444,7 @@ a {
 .badge {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   gap: 5px;
   font-size: 12px;
   font-weight: 700;

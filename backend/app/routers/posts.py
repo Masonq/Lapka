@@ -119,6 +119,7 @@ def create_post(data: PostCreate, db: Session = Depends(get_db), user: User = De
         last_seen_lat=data.last_seen_lat,
         last_seen_lng=data.last_seen_lng,
         community_id=data.community_id,
+        show_staff_badge=data.show_staff_badge,
     )
     db.add(post)
     db.commit()

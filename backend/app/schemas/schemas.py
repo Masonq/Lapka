@@ -108,6 +108,7 @@ class PostCreate(BaseModel):
     last_seen_lat: Optional[float] = None
     last_seen_lng: Optional[float] = None
     community_id: Optional[str] = None
+    show_staff_badge: bool = True
 
 
 class PostOut(BaseModel):
@@ -121,10 +122,16 @@ class PostOut(BaseModel):
     last_seen_lat: Optional[float] = None
     last_seen_lng: Optional[float] = None
     is_resolved: bool
+    show_staff_badge: bool = True
     created_at: datetime
     comments_count: int = 0
     is_saved: bool = False
     community_id: Optional[str] = None
+
+    @field_validator("show_staff_badge", mode="before")
+    @classmethod
+    def _null_to_true(cls, v):
+        return True if v is None else v
 
     model_config = ConfigDict(from_attributes=True)
 

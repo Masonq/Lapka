@@ -386,3 +386,24 @@ def test_post_author_is_staff_reflects_editor(client, register_with_role):
         "/api/posts", json={"type": "general", "title": "От редактора", "body": "Текст"}, headers=headers_editor
     ).json()
     assert post["author"]["is_staff"] is True
+
+
+def test_show_staff_badge_defaults_true(client, register_user):
+    headers = register_user()
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "Тест", "body": "Тело"}, headers=headers
+    ).json()
+    assert post["show_staff_badge"] is True
+
+
+def test_show_staff_badge_can_be_hidden(client, register_user):
+    headers = register_user()
+    post = client.post(
+        "/api/posts",
+        json={"type": "general", "title": "Тест", "body": "Тело", "show_staff_badge": False},
+        headers=headers,
+    ).json()
+    assert post["show_staff_badge"] is False
+
+    r = client.get(f"/api/posts/{post['id']}")
+    assert r.json()["show_staff_badge"] is False

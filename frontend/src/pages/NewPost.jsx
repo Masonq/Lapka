@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api } from "../api/client";
@@ -30,6 +30,12 @@ export default function NewPost() {
   const [photoUrl, setPhotoUrl] = useState(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
+  const [showStaffBadge, setShowStaffBadge] = useState(true);
+
+  useEffect(() => {
+    if (isAuthed) api.me().then((me) => setIsStaff(me.is_staff)).catch(() => {});
+  }, [isAuthed]);
 
   if (!isAuthed) {
     return (
@@ -57,6 +63,7 @@ export default function NewPost() {
         photo_url: photoUrl || undefined,
         last_seen_location: location || undefined,
         community_id: communityId,
+        show_staff_badge: showStaffBadge,
       });
       showToast("Пост опубликован");
       navigate(`/posts/${post.id}`);
@@ -129,6 +136,18 @@ export default function NewPost() {
             <label htmlFor="post-location">Где видели (район, улица)</label>
             <input id="post-location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Например: Ташмайдан" />
           </div>
+        )}
+
+        {isStaff && (
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, marginBottom: 14, cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={showStaffBadge}
+              onChange={(e) => setShowStaffBadge(e.target.checked)}
+              style={{ width: 16, height: 16 }}
+            />
+            Показывать бейдж «Администрация» на этом посте
+          </label>
         )}
 
         {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}

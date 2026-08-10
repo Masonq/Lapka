@@ -103,6 +103,7 @@ class Post(Base):
     last_seen_lat = Column(Float, nullable=True)
     last_seen_lng = Column(Float, nullable=True)
     is_resolved = Column(Boolean, default=False)  # нашёлся / пристроен
+    show_staff_badge = Column(Boolean, default=True)  # автор-сотрудник может скрыть бейдж "Администрация" на конкретном посте
 
     community_id = Column(UUID(as_uuid=False), ForeignKey("communities.id", ondelete="SET NULL"), nullable=True)
 

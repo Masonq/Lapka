@@ -63,15 +63,17 @@ export default function PostCard({ post }) {
         {post.photo_url && (
           <img src={post.photo_url} alt={post.title} className="post-card-photo" />
         )}
-        <span className={`post-badge ${post.type}`}>
-          {post.is_resolved && <CheckCircle2 size={12} />}
-          {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
-        </span>
-        {post.author.is_staff && (
-          <span className="badge badge-solid badge-sm" style={{ marginLeft: 6 }}>
-            <ShieldCheck size={11} /> Администрация
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          <span className={`post-badge ${post.type}`}>
+            {post.is_resolved && <CheckCircle2 size={12} />}
+            {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
           </span>
-        )}
+          {post.author.is_staff && post.show_staff_badge && (
+            <span className="badge badge-solid badge-sm">
+              <ShieldCheck size={11} /> Администрация
+            </span>
+          )}
+        </div>
 
         <h3 className="post-title">{post.title}</h3>
         <p className="post-body">
