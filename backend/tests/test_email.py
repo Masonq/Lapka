@@ -1,6 +1,7 @@
-"""Тесты app/core/email.py — в основном ветвление SMTP_SSL (порт 465, implicit SSL,
-как у Resend по умолчанию) vs SMTP+STARTTLS (порт 587, как у Gmail/Яндекс, и тоже
-поддерживается Resend). Реальных писем никуда не уходит — smtplib подменяется моками.
+"""Тесты app/core/email.py — в основном ветвление SMTP_SSL (порты 465/2465,
+implicit SSL) vs SMTP+STARTTLS (порты 587/2587). 2465/2587 — альтернативные
+порты Resend именно на случай блокировки стандартных хостером. Реальных
+писем никуда не уходит — smtplib подменяется моками.
 
 Патчим атрибуты УЖЕ импортированного модуля через monkeypatch.setattr, а не
 importlib.reload — reload меняет состояние модуля напрямую в его __dict__, которое
@@ -11,12 +12,15 @@ importlib.reload — reload меняет состояние модуля нап�
 откатывает изменения после теста — безопаснее."""
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 import app.core.email as email_module
 
 
-def test_port_465_uses_implicit_ssl(monkeypatch):
+@pytest.mark.parametrize("port", [465, 2465])
+def test_ssl_ports_use_implicit_ssl(monkeypatch, port):
     monkeypatch.setattr(email_module, "SMTP_HOST", "smtp.resend.com")
-    monkeypatch.setattr(email_module, "SMTP_PORT", 465)
+    monkeypatch.setattr(email_module, "SMTP_PORT", port)
     monkeypatch.setattr(email_module, "SMTP_USER", "resend")
     monkeypatch.setattr(email_module, "SMTP_PASSWORD", "re_fake_key_for_test")
     monkeypatch.setattr(email_module, "SMTP_FROM", "noreply@example.com")
@@ -29,14 +33,15 @@ def test_port_465_uses_implicit_ssl(monkeypatch):
          patch.object(email_module.smtplib, "SMTP") as plain_cls:
         email_module.send_email("to@example.com", "Тема", "Текст")
 
-        ssl_cls.assert_called_once_with("smtp.resend.com", 465, timeout=10)
+        ssl_cls.assert_called_once_with("smtp.resend.com", port, timeout=10)
         plain_cls.assert_not_called()
         mock_ssl.login.assert_called_once_with("resend", "re_fake_key_for_test")
 
 
-def test_port_587_uses_starttls(monkeypatch):
+@pytest.mark.parametrize("port", [587, 2587])
+def test_starttls_ports_use_starttls(monkeypatch, port):
     monkeypatch.setattr(email_module, "SMTP_HOST", "smtp.resend.com")
-    monkeypatch.setattr(email_module, "SMTP_PORT", 587)
+    monkeypatch.setattr(email_module, "SMTP_PORT", port)
     monkeypatch.setattr(email_module, "SMTP_USER", "resend")
     monkeypatch.setattr(email_module, "SMTP_PASSWORD", "re_fake_key_for_test")
     monkeypatch.setattr(email_module, "SMTP_FROM", "noreply@example.com")
@@ -49,7 +54,7 @@ def test_port_587_uses_starttls(monkeypatch):
          patch.object(email_module.smtplib, "SMTP_SSL") as ssl_cls:
         email_module.send_email("to@example.com", "Тема", "Текст")
 
-        plain_cls.assert_called_once_with("smtp.resend.com", 587, timeout=10)
+        plain_cls.assert_called_once_with("smtp.resend.com", port, timeout=10)
         mock_plain.starttls.assert_called_once()
         ssl_cls.assert_not_called()
 
