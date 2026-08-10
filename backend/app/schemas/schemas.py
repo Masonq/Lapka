@@ -59,6 +59,7 @@ class MeOut(UserOut):
     светиться в общей UserOut, которая отдаётся везде (автор поста/комментария и т.д.)."""
 
     is_admin: bool
+    role: str = "user"
     has_completed_onboarding: bool
 
 
@@ -406,12 +407,17 @@ class AdminUserOut(BaseModel):
     email: Optional[str] = None
     city: str
     is_admin: bool
+    role: str = "user"
     is_service_provider: bool
     created_at: datetime
     posts_count: int = 0
     pets_count: int = 0
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class RoleUpdate(BaseModel):
+    role: str
 
 
 # ---------- Stories ----------

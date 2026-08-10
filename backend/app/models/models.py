@@ -55,6 +55,7 @@ class User(Base):
     is_service_provider = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
     has_completed_onboarding = Column(Boolean, default=False)
+    role = Column(String(20), default="user")  # "user" / "editor" / "moderator" — admin отдельно, через is_admin
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     pets = relationship("Pet", back_populates="owner", cascade="all, delete-orphan")

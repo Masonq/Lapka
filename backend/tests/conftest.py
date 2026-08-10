@@ -103,3 +103,27 @@ def register_admin(register_user_with_id):
         return headers, user_id
 
     return _register
+
+
+@pytest.fixture
+def register_with_role(register_user_with_id):
+    """Регистрирует пользователя с заданной ролью (moderator/editor) — та же логика,
+    что register_admin, но для промежуточных уровней прав."""
+
+    def _register(role, display_name="Модератор", password="password123"):
+        headers, user_id = register_user_with_id(display_name, password)
+
+        from app.core.db import SessionLocal
+        from app.models.models import User
+
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.id == user_id).first()
+            user.role = role
+            db.commit()
+        finally:
+            db.close()
+
+        return headers, user_id
+
+    return _register

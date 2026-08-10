@@ -99,3 +99,19 @@ def get_current_admin(user: User = Depends(get_current_user)) -> User:
     if not user.is_admin:
         raise HTTPException(status_code=403, detail="Нужны права администратора")
     return user
+
+
+def get_current_moderator(user: User = Depends(get_current_user)) -> User:
+    """Модерация контента: жалобы, удаление постов/объявлений/историй.
+    Админ имеет все права модератора автоматически."""
+    if not user.is_admin and user.role != "moderator":
+        raise HTTPException(status_code=403, detail="Нужны права модератора")
+    return user
+
+
+def get_current_editor(user: User = Depends(get_current_user)) -> User:
+    """Подтверждение исполнителей услуг. Модератор и админ имеют права редактора
+    автоматически — иерархия admin > moderator > editor."""
+    if not user.is_admin and user.role not in ("moderator", "editor"):
+        raise HTTPException(status_code=403, detail="Нужны права редактора")
+    return user

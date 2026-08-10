@@ -5,9 +5,11 @@ from sqlalchemy import desc, func
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
-from app.core.security import get_current_admin
-from app.models.models import AuditLog, Comment, Listing, Pet, Post, Report, ServiceProvider, User
-from app.schemas.schemas import AdminActionResult, AdminOverview, AdminUserOut, AuditLogOut, ReportQueueItem, ServiceProviderOut
+from app.core.security import get_current_admin, get_current_editor, get_current_moderator
+from app.models.models import AuditLog, Comment, Listing, Pet, Post, Report, ServiceProvider, Story, User
+from app.schemas.schemas import (
+    AdminActionResult, AdminOverview, AdminUserOut, AuditLogOut, ReportQueueItem, RoleUpdate, ServiceProviderOut
+)
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -17,7 +19,7 @@ def _log(db: Session, admin: User, action: str, target_type: str, target_id: Opt
 
 
 @router.get("/overview", response_model=AdminOverview)
-def overview(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def overview(db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
     return AdminOverview(
         users_count=db.query(User).count(),
         posts_count=db.query(Post).count(),
@@ -31,7 +33,7 @@ def overview(db: Session = Depends(get_db), admin: User = Depends(get_current_ad
 def list_reports(
     resolved: Optional[bool] = None,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin),
+    admin: User = Depends(get_current_moderator),
 ):
     query = db.query(Report).options(
         joinedload(Report.reporter), joinedload(Report.post), joinedload(Report.listing)
@@ -61,7 +63,7 @@ def list_reports(
 
 
 @router.patch("/reports/{report_id}/dismiss", response_model=AdminActionResult)
-def dismiss_report(report_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def dismiss_report(report_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
     """Жалоба рассмотрена, но контент оставлен — например, при повторной/необоснованной жалобе."""
     report = db.query(Report).filter(Report.id == report_id).first()
     if not report:
@@ -74,7 +76,7 @@ def dismiss_report(report_id: str, db: Session = Depends(get_db), admin: User = 
 
 
 @router.delete("/posts/{post_id}", response_model=AdminActionResult)
-def admin_delete_post(post_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def admin_delete_post(post_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
     """В отличие от DELETE /api/posts/{id} — админ может удалить любой пост, не только свой.
     Связанные жалобы остаются (post_id уходит в NULL), остальное (сохранения, уведомления,
     комментарии) удаляется каскадом вместе с постом."""
@@ -92,7 +94,7 @@ def admin_delete_post(post_id: str, db: Session = Depends(get_db), admin: User =
 
 
 @router.delete("/listings/{listing_id}", response_model=AdminActionResult)
-def admin_delete_listing(listing_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def admin_delete_listing(listing_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
     """Как admin_delete_post — админ может удалить любое объявление, не только своё
     (у продавцов такого права нет ни на чужие объявления). Связанные жалобы остаются
     (listing_id уходит в NULL), сохранения удаляются каскадом вместе с объявлением."""
@@ -105,6 +107,20 @@ def admin_delete_listing(listing_id: str, db: Session = Depends(get_db), admin: 
     )
     _log(db, admin, "delete_listing", "listing", listing_id, note=listing.title[:200])
     db.delete(listing)
+    db.commit()
+    return AdminActionResult()
+
+
+@router.delete("/stories/{story_id}", response_model=AdminActionResult)
+def admin_delete_story(story_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
+    """Раньше удалить чужую историю не мог никто, кроме самого автора — модерация
+    неприемлемого контента в историях была структурно невозможна."""
+    story = db.query(Story).filter(Story.id == story_id).first()
+    if not story:
+        raise HTTPException(status_code=404, detail="История не найдена")
+
+    _log(db, admin, "delete_story", "story", story_id)
+    db.delete(story)
     db.commit()
     return AdminActionResult()
 
@@ -154,8 +170,33 @@ def list_users(
     return out
 
 
+@router.patch("/users/{user_id}/role", response_model=AdminUserOut)
+def set_user_role(
+    user_id: str, data: RoleUpdate, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)
+):
+    """Строго для is_admin — иначе модератор мог бы назначить себя/кого угодно
+    модератором в обход иерархии. Роль назначается, is_admin этим эндпоинтом
+    не выдаётся вообще (для этого нет API — только напрямую в БД, осознанно)."""
+    if data.role not in ("user", "editor", "moderator"):
+        raise HTTPException(status_code=400, detail="Роль должна быть одной из: user, editor, moderator")
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    target.role = data.role
+    _log(db, admin, "set_role", "user", user_id, note=data.role)
+    db.commit()
+    db.refresh(target)
+
+    item = AdminUserOut.model_validate(target)
+    item.posts_count = db.query(Post).filter(Post.author_id == user_id).count()
+    item.pets_count = db.query(Pet).filter(Pet.owner_id == user_id).count()
+    return item
+
+
 @router.get("/service-providers", response_model=list[ServiceProviderOut])
-def list_service_providers(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def list_service_providers(db: Session = Depends(get_db), admin: User = Depends(get_current_editor)):
     return (
         db.query(ServiceProvider)
         .options(joinedload(ServiceProvider.user))
@@ -166,7 +207,7 @@ def list_service_providers(db: Session = Depends(get_db), admin: User = Depends(
 
 @router.patch("/service-providers/{provider_id}/verify", response_model=ServiceProviderOut)
 def toggle_verify_provider(
-    provider_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)
+    provider_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_editor)
 ):
     """Раздел 18 блюпринта — verified badge. Переключатель (не только 'включить') —
     удобно снять статус, если позже выяснится, что подтверждали ошибочно."""
