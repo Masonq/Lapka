@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 # ---------- Auth ----------
@@ -61,6 +61,18 @@ class MeOut(UserOut):
     is_admin: bool
     role: str = "user"
     has_completed_onboarding: bool
+
+    @field_validator("has_completed_onboarding", mode="before")
+    @classmethod
+    def _null_to_false(cls, v):
+        """Защита от NULL в базе (легаси-строки до миграции, либо будущий баг) —
+        без этого /auth/me падает 500 вместо того, чтобы просто вернуть False."""
+        return False if v is None else v
+
+    @field_validator("role", mode="before")
+    @classmethod
+    def _null_role_to_user(cls, v):
+        return "user" if v is None else v
 
 
 # ---------- Pet ----------
@@ -152,6 +164,11 @@ class ServiceProviderOut(BaseModel):
     rating_avg: float
     rating_count: int
     is_verified: bool = False
+
+    @field_validator("is_verified", mode="before")
+    @classmethod
+    def _null_to_false(cls, v):
+        return False if v is None else v
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -412,6 +429,11 @@ class AdminUserOut(BaseModel):
     created_at: datetime
     posts_count: int = 0
     pets_count: int = 0
+
+    @field_validator("role", mode="before")
+    @classmethod
+    def _null_role_to_user(cls, v):
+        return "user" if v is None else v
 
     model_config = ConfigDict(from_attributes=True)
 
