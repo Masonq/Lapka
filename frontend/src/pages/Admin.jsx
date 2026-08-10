@@ -212,7 +212,7 @@ export default function Admin() {
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <Link to={`/users/${u.id}`} className="subhead" style={{ fontSize: 14 }}>{u.display_name}</Link>
-              {u.is_admin && <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>admin</span>}
+              {u.is_admin && <span className="badge badge-neutral badge-sm">admin</span>}
             </div>
             <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
               {u.email || "телеграм"} · {u.city} · {u.posts_count} постов · {u.pets_count} питомцев

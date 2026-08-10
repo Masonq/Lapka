@@ -31,11 +31,12 @@
 
   --font-body: "Golos Text", -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --radius-lg: 20px;
+  --radius-lg: 22px;
   --radius-md: 14px;
   --radius-pill: 999px;
 
-  --shadow-card: 0 1px 2px rgba(26, 26, 26, 0.04), 0 8px 24px rgba(26, 26, 26, 0.06);
+  --shadow-card: 0 1px 2px rgba(26, 26, 26, 0.02), 0 6px 18px rgba(26, 26, 26, 0.04);
+  --shadow-card-hover: 0 2px 6px rgba(26, 26, 26, 0.04), 0 14px 32px rgba(26, 26, 26, 0.07);
   --shadow-float: 0 10px 30px rgba(26, 26, 26, 0.16);
 }
 
@@ -85,6 +86,11 @@ a {
   background: var(--surface);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
 .card-strong {
@@ -341,7 +347,7 @@ a {
 .post-card {
   position: relative;
   border-radius: var(--radius-lg);
-  padding: 16px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -416,7 +422,7 @@ a {
   gap: 5px;
   font-size: 12px;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: var(--radius-pill);
 }
 
@@ -425,6 +431,79 @@ a {
 .post-badge.adopt { background: var(--primary-tint); color: #95491B; }
 .post-badge.question { background: var(--blue-tint); color: var(--blue); }
 .post-badge.general { background: var(--gray-tint); color: var(--text-muted); }
+
+/* --- Универсальные бейджи (.badge) — для всего, что не тип поста:
+   статусы, счётчики, метки verified и т.п. Всегда таблетка. --- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.badge-sm {
+  font-size: 11px;
+  padding: 4px 9px;
+  gap: 4px;
+}
+
+.badge-primary {
+  background: var(--primary-tint);
+  color: #95491B;
+}
+
+.badge-solid {
+  background: var(--primary-strong);
+  color: #FFFFFF;
+}
+
+.badge-neutral {
+  background: var(--gray-tint);
+  color: var(--text-muted);
+}
+
+.badge-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+/* --- Блоки (.block) — секции внутри страницы (не карточки в гриде):
+   те же мягкие тени и воздух, плюс чистый заголовок --- */
+
+.block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+  transition: box-shadow 0.2s ease;
+}
+
+.block:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.block-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
 
 .post-title {
   font-weight: 800;
@@ -774,7 +853,7 @@ a {
 
 .chip {
   flex-shrink: 0;
-  padding: 8px 15px;
+  padding: 9px 16px;
   border-radius: var(--radius-pill);
   font-size: 13px;
   font-weight: 700;
