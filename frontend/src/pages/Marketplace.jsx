@@ -59,7 +59,7 @@ export default function Marketplace() {
 
       {loadError && <ErrorState onRetry={load} />}
 
-      {listings?.length === 0 && (
+      {!loadError && listings?.length === 0 && (
         <div className="empty-state">
           <ShoppingBag size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
           <div className="empty-state-title">Пока пусто</div>
@@ -67,7 +67,7 @@ export default function Marketplace() {
         </div>
       )}
 
-      {listings?.length > 0 && (
+      {!loadError && listings?.length > 0 && (
         <div className="card-grid">
           {listings.map((l) => (
             <Link key={l.id} to={`/marketplace/${l.id}`} className="card" style={{ borderRadius: 20, padding: 16, display: "flex", flexDirection: "column", height: "100%" }}>

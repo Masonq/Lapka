@@ -60,7 +60,7 @@ export default function Adoption() {
 
       {loadError && <ErrorState onRetry={load} />}
 
-      {posts?.length === 0 && (
+      {!loadError && posts?.length === 0 && (
         <div className="empty-state">
           <Heart size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
           <div className="empty-state-title">
@@ -70,7 +70,7 @@ export default function Adoption() {
         </div>
       )}
 
-      {posts?.length > 0 && (
+      {!loadError && posts?.length > 0 && (
         <div className="card-grid">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />

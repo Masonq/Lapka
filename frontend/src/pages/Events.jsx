@@ -171,7 +171,7 @@ export default function Events() {
 
       {loadError && <ErrorState onRetry={load} />}
 
-      {events?.length === 0 && (
+      {!loadError && events?.length === 0 && (
         <div className="empty-state">
           <CalendarDays size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
           <div className="empty-state-title">Пока ничего не запланировано</div>
@@ -179,7 +179,7 @@ export default function Events() {
         </div>
       )}
 
-      {events?.length > 0 && (
+      {!loadError && events?.length > 0 && (
         <div className="card-grid">
           {events.map((ev) => (
             <Link key={ev.id} to={`/events/${ev.id}`} className="card" style={{ borderRadius: 20, padding: 16, display: "flex", flexDirection: "column", height: "100%" }}>

@@ -49,7 +49,7 @@ export default function Nearby() {
 
       {loadError && <ErrorState onRetry={load} />}
 
-      {pets?.length === 0 && (
+      {!loadError && pets?.length === 0 && (
         <div className="empty-state">
           <MapPin size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
           <div className="empty-state-title">Никого не нашлось</div>
@@ -57,7 +57,7 @@ export default function Nearby() {
         </div>
       )}
 
-      {pets?.length > 0 && (
+      {!loadError && pets?.length > 0 && (
         <div className="card-grid">
           {pets.map((pet) => {
             const avatarTint = pet.species === "Собака" ? "var(--blue-tint)" : pet.species === "Кошка" ? "var(--primary-tint)" : "var(--gray-tint)";

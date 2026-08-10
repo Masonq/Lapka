@@ -51,7 +51,7 @@ export default function Messages() {
 
       {loadError && <ErrorState onRetry={load} />}
 
-      {conversations?.length === 0 && (
+      {!loadError && conversations?.length === 0 && (
         <div className="empty-state">
           <MessageCircle size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
           <div className="empty-state-title">Пока пусто</div>
@@ -59,7 +59,7 @@ export default function Messages() {
         </div>
       )}
 
-      {conversations?.map((c) => (
+      {!loadError && conversations?.map((c) => (
         <Link
           key={c.partner.id}
           to={`/messages/${c.partner.id}`}

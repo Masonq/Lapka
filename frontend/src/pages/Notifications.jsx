@@ -79,7 +79,7 @@ export default function Notifications() {
 
       {loadError && <ErrorState onRetry={load} />}
 
-      {items?.length === 0 && (
+      {!loadError && items?.length === 0 && (
         <div className="empty-state">
           <Bell size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
           <div className="empty-state-title">Пока тихо</div>
@@ -87,7 +87,7 @@ export default function Notifications() {
         </div>
       )}
 
-      {items?.map((n) => (
+      {!loadError && items?.map((n) => (
         <button
           key={n.id}
           onClick={() => openNotification(n)}

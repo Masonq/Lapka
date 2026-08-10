@@ -136,7 +136,7 @@ export default function Feed() {
         </div>
       )}
 
-      {!loading && posts.length > 0 && (
+      {!loading && !loadError && posts.length > 0 && (
         <div className="card-grid">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
@@ -144,7 +144,7 @@ export default function Feed() {
         </div>
       )}
 
-      {!loading && hasMore && (
+      {!loading && !loadError && hasMore && (
         <button
           className="btn btn-ghost btn-block"
           style={{ marginTop: 14 }}

@@ -112,7 +112,7 @@ export default function Communities() {
 
       {loadError && <ErrorState onRetry={load} />}
 
-      {communities?.length === 0 && (
+      {!loadError && communities?.length === 0 && (
         <div className="empty-state">
           <Users size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
           <div className="empty-state-title">Пока никого нет</div>
@@ -120,7 +120,7 @@ export default function Communities() {
         </div>
       )}
 
-      {communities?.length > 0 && (
+      {!loadError && communities?.length > 0 && (
         <div className="card-grid">
           {communities.map((c) => (
             <Link key={c.id} to={`/communities/${c.id}`} className="card" style={{
