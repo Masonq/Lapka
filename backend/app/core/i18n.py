@@ -111,6 +111,26 @@ ERRORS: dict[str, dict[str, str]] = {
         "ru": "Отметить наблюдение можно только у потеряшки или находки",
         "sr": "Zapažanje se može dodati samo kod izgubljenih ili pronađenih",
     },
+    "listing_type_must_be_one_of": {
+        "ru": "Тип должен быть одним из",
+        "sr": "Tip mora biti jedan od",
+    },
+    "price_required_for_sale": {
+        "ru": "Для продажи нужно указать цену",
+        "sr": "Za prodaju je potrebno navesti cenu",
+    },
+    "listing_not_found": {
+        "ru": "Объявление не найдено",
+        "sr": "Oglas nije pronađen",
+    },
+    "can_only_mark_own_listing_sold": {
+        "ru": "Можно отметить проданным только своё объявление",
+        "sr": "Možeš označiti kao prodato samo svoj oglas",
+    },
+    "can_only_delete_own_listing": {
+        "ru": "Можно удалить только своё объявление",
+        "sr": "Možeš obrisati samo svoj oglas",
+    },
 }
 
 

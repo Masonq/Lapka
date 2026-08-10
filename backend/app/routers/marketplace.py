@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.rate_limit import listing_limiter, report_limiter
 from app.core.security import get_current_user, get_current_user_optional
 from app.models.models import Listing, Report, SavedListing, User
@@ -81,13 +82,16 @@ def list_saved_listings(db: Session = Depends(get_db), user: User = Depends(get_
 
 
 @router.post("", response_model=ListingOut)
-def create_listing(data: ListingCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def create_listing(
+    data: ListingCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     listing_limiter.check(user.id)
 
     if data.type not in LISTING_TYPES:
-        raise HTTPException(status_code=400, detail=f"Тип должен быть одним из {sorted(LISTING_TYPES)}")
+        raise HTTPException(status_code=400, detail=f"{t('listing_type_must_be_one_of', lang)} {sorted(LISTING_TYPES)}")
     if data.type == "sell" and data.price is None:
-        raise HTTPException(status_code=400, detail="Для продажи нужно указать цену")
+        raise HTTPException(status_code=400, detail=t("price_required_for_sale", lang))
 
     listing = Listing(seller_id=user.id, **data.model_dump())
     db.add(listing)
@@ -98,11 +102,12 @@ def create_listing(data: ListingCreate, db: Session = Depends(get_db), user: Use
 
 @router.get("/{listing_id}", response_model=ListingOut)
 def get_listing(
-    listing_id: str, db: Session = Depends(get_db), user: Optional[User] = Depends(get_current_user_optional)
+    listing_id: str, db: Session = Depends(get_db), user: Optional[User] = Depends(get_current_user_optional),
+    lang: str = Depends(get_lang),
 ):
     listing = db.query(Listing).filter(Listing.id == listing_id).first()
     if not listing:
-        raise HTTPException(status_code=404, detail="Объявление не найдено")
+        raise HTTPException(status_code=404, detail=t("listing_not_found", lang))
 
     saved_ids = set()
     if user:
@@ -115,12 +120,15 @@ def get_listing(
 
 
 @router.patch("/{listing_id}/mark-sold", response_model=ListingOut)
-def mark_sold(listing_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def mark_sold(
+    listing_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     listing = db.query(Listing).filter(Listing.id == listing_id).first()
     if not listing:
-        raise HTTPException(status_code=404, detail="Объявление не найдено")
+        raise HTTPException(status_code=404, detail=t("listing_not_found", lang))
     if listing.seller_id != user.id:
-        raise HTTPException(status_code=403, detail="Можно отметить проданным только своё объявление")
+        raise HTTPException(status_code=403, detail=t("can_only_mark_own_listing_sold", lang))
 
     listing.is_sold = True
     db.commit()
@@ -129,12 +137,15 @@ def mark_sold(listing_id: str, db: Session = Depends(get_db), user: User = Depen
 
 
 @router.delete("/{listing_id}")
-def delete_listing(listing_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def delete_listing(
+    listing_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     listing = db.query(Listing).filter(Listing.id == listing_id).first()
     if not listing:
-        raise HTTPException(status_code=404, detail="Объявление не найдено")
+        raise HTTPException(status_code=404, detail=t("listing_not_found", lang))
     if listing.seller_id != user.id:
-        raise HTTPException(status_code=403, detail="Можно удалить только своё объявление")
+        raise HTTPException(status_code=403, detail=t("can_only_delete_own_listing", lang))
 
     db.delete(listing)
     db.commit()
@@ -142,10 +153,13 @@ def delete_listing(listing_id: str, db: Session = Depends(get_db), user: User = 
 
 
 @router.post("/{listing_id}/save")
-def save_listing(listing_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def save_listing(
+    listing_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     listing = db.query(Listing).filter(Listing.id == listing_id).first()
     if not listing:
-        raise HTTPException(status_code=404, detail="Объявление не найдено")
+        raise HTTPException(status_code=404, detail=t("listing_not_found", lang))
 
     exists = db.query(SavedListing).filter(
         SavedListing.user_id == user.id, SavedListing.listing_id == listing_id
@@ -176,12 +190,13 @@ def report_listing(
     data: ReportCreate,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
 ):
     report_limiter.check(user.id)
 
     listing = db.query(Listing).filter(Listing.id == listing_id).first()
     if not listing:
-        raise HTTPException(status_code=404, detail="Объявление не найдено")
+        raise HTTPException(status_code=404, detail=t("listing_not_found", lang))
 
     db.add(Report(reporter_id=user.id, listing_id=listing_id, reason=data.reason))
     db.commit()

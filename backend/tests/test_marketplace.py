@@ -291,3 +291,31 @@ def test_list_saved_listings_query_count_does_not_scale_with_result_size(client,
     # 1 запрос сохранённых id + 1 запрос объявлений (с joinedload seller) + сама
     # авторизация — небольшая константа, не растёт с числом объявлений
     assert query_count <= 3
+
+
+def test_listing_not_found_error_translated_to_serbian(client):
+    r = client.get("/api/marketplace/nonexistent-id", headers={"X-Lang": "sr"})
+    assert r.status_code == 404
+    assert r.json()["detail"] == "Oglas nije pronađen"
+
+
+def test_price_required_error_translated_to_serbian(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/marketplace", json={"type": "sell", "title": "Тест"},
+        headers={**headers, "X-Lang": "sr"},
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Za prodaju je potrebno navesti cenu"
+
+
+def test_delete_other_users_listing_error_translated_to_serbian(client, register_user):
+    headers_owner = register_user("Владелец")
+    headers_other = register_user("Другой")
+    listing = client.post(
+        "/api/marketplace", json={"type": "give_away", "title": "Тест"}, headers=headers_owner
+    ).json()
+
+    r = client.delete(f"/api/marketplace/{listing['id']}", headers={**headers_other, "X-Lang": "sr"})
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Možeš obrisati samo svoj oglas"
