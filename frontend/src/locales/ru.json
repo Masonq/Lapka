@@ -11,7 +11,8 @@
     "close_search": "Закрыть поиск",
     "go_home": "На главную",
     "notifications": "Уведомления",
-    "loading": "Загрузка"
+    "loading": "Загрузка",
+    "site_tagline": "Lapki — соцсеть для питомцев Белграда"
   },
   "settings": {
     "language": "Язык",
@@ -168,5 +169,52 @@
     "preview_alt": "Предпросмотр фото",
     "remove_aria": "Убрать фото",
     "add_photo": "Добавить фото"
+  },
+  "api_error": {
+    "default": "Что-то пошло не так",
+    "photo_upload_failed": "Не удалось загрузить фото"
+  },
+  "plural": {
+    "follower_one": "подписчик",
+    "follower_few": "подписчика",
+    "follower_many": "подписчиков",
+    "following_one": "подписка",
+    "following_few": "подписки",
+    "following_many": "подписок",
+    "member_one": "участник",
+    "member_few": "участника",
+    "member_many": "участников"
+  },
+  "profile": {
+    "title": "Профиль",
+    "login_title": "Вход",
+    "register_title": "Регистрация",
+    "verify_title": "Подтверждение",
+    "logout_aria": "Выйти",
+    "followers_dots": "подписчиков",
+    "following_dots": "подписок",
+    "my_pets": "Мои питомцы",
+    "saved": "Сохранённое",
+    "settings": "Настройки",
+    "admin": "Админка",
+    "code_sent_to": "Отправили код на",
+    "code_sent_hint": "— введи его ниже, чтобы завершить регистрацию",
+    "code_label": "Код из письма",
+    "resent": "Код отправлен заново",
+    "checking": "Проверяем…",
+    "confirm": "Подтвердить",
+    "resend_code": "Отправить код ещё раз",
+    "name_label": "Имя",
+    "name_placeholder": "Как к тебе обращаться",
+    "email_label": "Email",
+    "password_label": "Пароль",
+    "just_a_sec": "Секунду…",
+    "login_button": "Войти",
+    "get_code_button": "Получить код",
+    "no_account": "Нет аккаунта? ",
+    "have_account": "Уже есть аккаунт? ",
+    "register_link": "Зарегистрироваться",
+    "login_link": "Войти",
+    "telegram_soon": "Вход через Telegram появится здесь позже"
   }
 }

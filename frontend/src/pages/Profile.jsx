@@ -5,10 +5,12 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { pluralize } from "../pluralize";
+import { useTranslation } from "react-i18next";
 
 export default function Profile() {
+  const { t } = useTranslation();
   const { isAuthed, userId, login, requestRegisterCode, verifyRegisterCode, logout } = useAuth();
-  useDocumentTitle(isAuthed ? "Профиль" : "Вход");
+  useDocumentTitle(isAuthed ? t("profile.title") : t("profile.login_title"));
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -37,7 +39,7 @@ export default function Profile() {
     return (
       <div>
         <div className="page-header">
-          <span className="page-title">Профиль</span>
+          <span className="page-title">{t("profile.title")}</span>
         </div>
 
         <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", flexDirection: "column", gap: 10, marginBottom: 10 }}>
@@ -68,7 +70,7 @@ export default function Profile() {
                 </div>
               </Link>
             )}
-            <button className="btn btn-ghost" onClick={logout} aria-label="Выйти">
+            <button className="btn btn-ghost" onClick={logout} aria-label={t("profile.logout_aria")}>
               <LogOut size={16} />
             </button>
           </div>
@@ -76,11 +78,11 @@ export default function Profile() {
             <div style={{ display: "flex", gap: 12 }}>
               <Link to={`/users/${userId}/connections?mode=followers`} style={{ fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
                 <b>{followersCount === null ? "…" : followersCount}</b>{" "}
-                {followersCount === null ? "подписчиков" : pluralize(followersCount, ["подписчик", "подписчика", "подписчиков"])}
+                {followersCount === null ? t("profile.followers_dots") : pluralize(followersCount, [t("plural.follower_one"), t("plural.follower_few"), t("plural.follower_many")])}
               </Link>
               <Link to={`/users/${userId}/connections?mode=following`} style={{ fontSize: 13, color: "var(--text)", textDecoration: "none" }}>
                 <b>{followingCount === null ? "…" : followingCount}</b>{" "}
-                {followingCount === null ? "подписок" : pluralize(followingCount, ["подписка", "подписки", "подписок"])}
+                {followingCount === null ? t("profile.following_dots") : pluralize(followingCount, [t("plural.following_one"), t("plural.following_few"), t("plural.following_many")])}
               </Link>
             </div>
           )}
@@ -96,7 +98,7 @@ export default function Profile() {
             <PawPrint size={17} strokeWidth={2.2} />
           </div>
           <div style={{ flex: 1 }}>
-            <div className="subhead" style={{ fontSize: 14 }}>Мои питомцы</div>
+            <div className="subhead" style={{ fontSize: 14 }}>{t("profile.my_pets")}</div>
           </div>
           <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
         </Link>
@@ -111,18 +113,18 @@ export default function Profile() {
             <Bookmark size={17} strokeWidth={2.2} />
           </div>
           <div style={{ flex: 1 }}>
-            <div className="subhead" style={{ fontSize: 14 }}>Сохранённое</div>
+            <div className="subhead" style={{ fontSize: 14 }}>{t("profile.saved")}</div>
           </div>
           <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
         </Link>
 
         <Link to="/settings" className="btn btn-ghost btn-block">
-          <SettingsIcon size={16} /> Настройки
+          <SettingsIcon size={16} /> {t("profile.settings")}
         </Link>
 
         {me?.is_admin && (
           <Link to="/admin" className="btn btn-ghost btn-block" style={{ marginTop: 10 }}>
-            <ShieldAlert size={16} /> Админка
+            <ShieldAlert size={16} /> {t("profile.admin")}
           </Link>
         )}
       </div>
@@ -175,16 +177,16 @@ export default function Profile() {
   return (
     <div>
       <div className="page-header">
-        <span className="page-title">{mode === "login" ? "Вход" : mode === "register" ? "Регистрация" : "Подтверждение"}</span>
+        <span className="page-title">{mode === "login" ? t("profile.login_title") : mode === "register" ? t("profile.register_title") : t("profile.verify_title")}</span>
       </div>
 
       {mode === "verify-code" ? (
         <form onSubmit={submitCode} className="card" style={{ borderRadius: 20, padding: 18 }}>
           <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 0, marginBottom: 14 }}>
-            Отправили код на <b>{pendingEmail}</b> — введи его ниже, чтобы завершить регистрацию
+            {t("profile.code_sent_to")} <b>{pendingEmail}</b> {t("profile.code_sent_hint")}
           </p>
           <div className="field">
-            <label htmlFor="auth-code">Код из письма</label>
+            <label htmlFor="auth-code">{t("profile.code_label")}</label>
             <input
               id="auth-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
               required inputMode="numeric" pattern="\d{6}" maxLength={6} placeholder="123456"
@@ -192,52 +194,52 @@ export default function Profile() {
             />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
-          {resent && <p style={{ color: "var(--green-strong)", fontSize: 13 }}>Код отправлен заново</p>}
+          {resent && <p style={{ color: "var(--green-strong)", fontSize: 13 }}>{t("profile.resent")}</p>}
           <button className="btn btn-primary btn-block" disabled={busy || code.length !== 6}>
-            {busy ? "Проверяем…" : "Подтвердить"}
+            {busy ? t("profile.checking") : t("profile.confirm")}
           </button>
           <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 8 }} onClick={resendCode}>
-            Отправить код ещё раз
+            {t("profile.resend_code")}
           </button>
         </form>
       ) : (
       <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 18 }}>
         {mode === "register" && (
           <div className="field">
-            <label htmlFor="auth-name">Имя</label>
-            <input id="auth-name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Как к тебе обращаться" autoComplete="name" />
+            <label htmlFor="auth-name">{t("profile.name_label")}</label>
+            <input id="auth-name" value={name} onChange={(e) => setName(e.target.value)} required placeholder={t("profile.name_placeholder")} autoComplete="name" />
           </div>
         )}
         <div className="field">
-          <label htmlFor="auth-email">Email</label>
+          <label htmlFor="auth-email">{t("profile.email_label")}</label>
           <input id="auth-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" autoComplete="email" />
         </div>
         <div className="field">
-          <label htmlFor="auth-password">Пароль</label>
-          <input id="auth-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="Минимум 6 символов" autoComplete={mode === "login" ? "current-password" : "new-password"} />
+          <label htmlFor="auth-password">{t("profile.password_label")}</label>
+          <input id="auth-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder={t("settings.min_6_chars")} autoComplete={mode === "login" ? "current-password" : "new-password"} />
         </div>
         {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
         <button className="btn btn-primary btn-block" disabled={busy}>
-          {busy ? "Секунду…" : mode === "login" ? "Войти" : "Получить код"}
+          {busy ? t("profile.just_a_sec") : mode === "login" ? t("profile.login_button") : t("profile.get_code_button")}
         </button>
       </form>
       )}
 
       {mode !== "verify-code" && (
         <p style={{ textAlign: "center", fontSize: 13, marginTop: 14, color: "var(--text-muted)" }}>
-          {mode === "login" ? "Нет аккаунта? " : "Уже есть аккаунт? "}
+          {mode === "login" ? t("profile.no_account") : t("profile.have_account")}
           <a
             href="#"
             style={{ color: "var(--black)", fontWeight: 700 }}
             onClick={(e) => { e.preventDefault(); setMode(mode === "login" ? "register" : "login"); }}
           >
-            {mode === "login" ? "Зарегистрироваться" : "Войти"}
+            {mode === "login" ? t("profile.register_link") : t("profile.login_link")}
           </a>
         </p>
       )}
 
       <p style={{ textAlign: "center", fontSize: 12, color: "var(--text-faint)", marginTop: 20 }}>
-        Вход через Telegram появится здесь позже
+        {t("profile.telegram_soon")}
       </p>
     </div>
   );

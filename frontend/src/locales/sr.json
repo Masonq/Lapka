@@ -11,7 +11,8 @@
     "close_search": "Zatvori pretragu",
     "go_home": "Na početnu",
     "notifications": "Obaveštenja",
-    "loading": "Učitavanje"
+    "loading": "Učitavanje",
+    "site_tagline": "Lapki — društvena mreža za ljubimce Beograda"
   },
   "settings": {
     "language": "Jezik",
@@ -168,5 +169,52 @@
     "preview_alt": "Pregled fotografije",
     "remove_aria": "Ukloni fotografiju",
     "add_photo": "Dodaj fotografiju"
+  },
+  "api_error": {
+    "default": "Nešto je pošlo po zlu",
+    "photo_upload_failed": "Nije uspelo učitavanje fotografije"
+  },
+  "plural": {
+    "follower_one": "pratilac",
+    "follower_few": "pratioca",
+    "follower_many": "pratilaca",
+    "following_one": "praćenje",
+    "following_few": "praćenja",
+    "following_many": "praćenja",
+    "member_one": "učesnik",
+    "member_few": "učesnika",
+    "member_many": "učesnika"
+  },
+  "profile": {
+    "title": "Profil",
+    "login_title": "Prijava",
+    "register_title": "Registracija",
+    "verify_title": "Potvrda",
+    "logout_aria": "Odjavi se",
+    "followers_dots": "pratilaca",
+    "following_dots": "praćenja",
+    "my_pets": "Moji ljubimci",
+    "saved": "Sačuvano",
+    "settings": "Podešavanja",
+    "admin": "Administracija",
+    "code_sent_to": "Poslali smo kod na",
+    "code_sent_hint": "— unesi ga ispod da završiš registraciju",
+    "code_label": "Kod iz e-pošte",
+    "resent": "Kod ponovo poslat",
+    "checking": "Proveravamo…",
+    "confirm": "Potvrdi",
+    "resend_code": "Pošalji kod ponovo",
+    "name_label": "Ime",
+    "name_placeholder": "Kako da te oslovljavamo",
+    "email_label": "Email",
+    "password_label": "Lozinka",
+    "just_a_sec": "Sekund…",
+    "login_button": "Prijavi se",
+    "get_code_button": "Dobij kod",
+    "no_account": "Nemaš nalog? ",
+    "have_account": "Već imaš nalog? ",
+    "register_link": "Registruj se",
+    "login_link": "Prijavi se",
+    "telegram_soon": "Prijava preko Telegrama biće dostupna uskoro"
   }
 }

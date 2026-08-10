@@ -1,3 +1,5 @@
+import i18n from "../i18n";
+
 const TOKEN_KEY = "lapabg_token";
 
 export function getToken() {
@@ -43,7 +45,7 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
   });
 
   if (!res.ok) {
-    let detail = "Что-то пошло не так";
+    let detail = i18n.t("api_error.default");
     try {
       const data = await res.json();
       detail = extractErrorDetail(data, detail);
@@ -69,7 +71,7 @@ async function uploadImage(file) {
   });
 
   if (!res.ok) {
-    let detail = "Не удалось загрузить фото";
+    let detail = i18n.t("api_error.photo_upload_failed");
     try {
       const data = await res.json();
       detail = extractErrorDetail(data, detail);
