@@ -391,5 +391,24 @@
     "action_follow": "te je zapratio(la)",
     "action_comment": "je prokomentarisao(la) objavu",
     "action_sighting": "je zabeležio(la) zapažanje u objavi"
+  },
+  "communities": {
+    "title": "Zajednice",
+    "back_aria": "Nazad",
+    "create_aria": "Kreiraj zajednicu",
+    "search_placeholder": "Pretraži zajednice…",
+    "created_toast": "Zajednica kreirana",
+    "name_label": "Naziv",
+    "name_placeholder": "Npr: Francuski buldozi Beograda",
+    "description_label": "Opis",
+    "description_placeholder": "O čemu je zajednica, za koga",
+    "city_label": "Grad",
+    "city_placeholder": "Opciono",
+    "creating": "Kreiramo…",
+    "create_button": "Kreiraj zajednicu",
+    "empty_title": "Još nikog nema",
+    "empty_authed": "Kreiraj prvu zajednicu",
+    "empty_guest": "Prijavi se da kreiraš svoju",
+    "member_badge": "U klubu si"
   }
 }

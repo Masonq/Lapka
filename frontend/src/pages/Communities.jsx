@@ -3,15 +3,18 @@ import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Plus } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import EmptyStateImage from "../components/EmptyStateImage";
+import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useSearchContext } from "../SearchContext";
 import { pluralize } from "../pluralize";
+import { useTranslation } from "react-i18next";
 
 export default function Communities() {
-  useDocumentTitle("Сообщества");
+  const { t } = useTranslation();
+  useDocumentTitle(t("communities.title"));
   const navigate = useNavigate();
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
@@ -30,13 +33,13 @@ export default function Communities() {
   }
 
   useEffect(() => {
-    const t = setTimeout(load, 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(load, 300);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   useEffect(() => {
-    setSearchConfig({ value: query, onChange: setQuery, placeholder: "Искать сообщества…" });
+    setSearchConfig({ value: query, onChange: setQuery, placeholder: t("communities.search_placeholder") });
     return () => setSearchConfig(null);
   }, [query, setSearchConfig]);
 
@@ -46,7 +49,7 @@ export default function Communities() {
     setSubmitting(true);
     try {
       const community = await api.createCommunity(form);
-      showToast("Сообщество создано");
+      showToast(t("communities.created_toast"));
       navigate(`/communities/${community.id}`);
     } catch (err) {
       setError(err.message);
@@ -58,12 +61,12 @@ export default function Communities() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("communities.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Сообщества</span>
+        <span className="page-title">{t("communities.title")}</span>
         {isAuthed ? (
-          <button className="icon-btn" onClick={() => setShowForm((v) => !v)} aria-label="Создать сообщество">
+          <button className="icon-btn" onClick={() => setShowForm((v) => !v)} aria-label={t("communities.create_aria")}>
             <Plus size={17} strokeWidth={2.2} />
           </button>
         ) : (
@@ -74,37 +77,37 @@ export default function Communities() {
       {showForm && (
         <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
           <div className="field">
-            <label htmlFor="community-name">Название</label>
+            <label htmlFor="community-name">{t("communities.name_label")}</label>
             <input
               id="community-name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
-              placeholder="Например: Французские бульдоги Белграда"
+              placeholder={t("communities.name_placeholder")}
             />
           </div>
           <div className="field">
-            <label htmlFor="community-description">Описание</label>
+            <label htmlFor="community-description">{t("communities.description_label")}</label>
             <textarea
               id="community-description"
               rows={3}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="О чём сообщество, для кого"
+              placeholder={t("communities.description_placeholder")}
             />
           </div>
           <div className="field">
-            <label htmlFor="community-city">Город</label>
+            <label htmlFor="community-city">{t("communities.city_label")}</label>
             <input
               id="community-city"
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
-              placeholder="Необязательно"
+              placeholder={t("communities.city_placeholder")}
             />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
           <button className="btn btn-primary btn-block" disabled={submitting}>
-            {submitting ? "Создаём…" : "Создать сообщество"}
+            {submitting ? t("communities.creating") : t("communities.create_button")}
           </button>
         </form>
       )}
@@ -116,8 +119,8 @@ export default function Communities() {
       {!loadError && communities?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
-          <div className="empty-state-title">Пока никого нет</div>
-          {isAuthed ? "Создай первое сообщество" : "Войди, чтобы создать своё"}
+          <div className="empty-state-title">{t("communities.empty_title")}</div>
+          {isAuthed ? t("communities.empty_authed") : t("communities.empty_guest")}
         </div>
       )}
 
@@ -140,13 +143,13 @@ export default function Communities() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="subhead" style={{ fontSize: 15 }}>{c.name}</div>
                 <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                  {c.members_count} {pluralize(c.members_count, ["участник", "участника", "участников"])}
+                  {c.members_count} {pluralize(c.members_count, [t("plural.member_one"), t("plural.member_few"), t("plural.member_many")])}
                   {c.city ? ` · ${c.city}` : ""}
                 </div>
               </div>
               {c.is_member && (
                 <span style={{ fontSize: 11, fontWeight: 700, color: "var(--green-strong)", flexShrink: 0 }}>
-                  Ты в клубе
+                  {t("communities.member_badge")}
                 </span>
               )}
             </Link>

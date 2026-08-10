@@ -391,5 +391,24 @@
     "action_follow": "подписался(-ась) на тебя",
     "action_comment": "прокомментировал(а) пост",
     "action_sighting": "отметил(а) наблюдение в посте"
+  },
+  "communities": {
+    "title": "Сообщества",
+    "back_aria": "Назад",
+    "create_aria": "Создать сообщество",
+    "search_placeholder": "Искать сообщества…",
+    "created_toast": "Сообщество создано",
+    "name_label": "Название",
+    "name_placeholder": "Например: Французские бульдоги Белграда",
+    "description_label": "Описание",
+    "description_placeholder": "О чём сообщество, для кого",
+    "city_label": "Город",
+    "city_placeholder": "Необязательно",
+    "creating": "Создаём…",
+    "create_button": "Создать сообщество",
+    "empty_title": "Пока никого нет",
+    "empty_authed": "Создай первое сообщество",
+    "empty_guest": "Войди, чтобы создать своё",
+    "member_badge": "Ты в клубе"
   }
 }
