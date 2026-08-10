@@ -551,7 +551,10 @@
     "empty_hint": "Добавь первого — это займёт минуту",
     "photo_alt": "Фото {{name}}",
     "years_short": "г.",
-    "delete_aria": "Удалить {{name}}"
+    "delete_aria": "Удалить {{name}}",
+    "breed_search_placeholder": "Поиск породы…",
+    "breed_use_custom": "Использовать «{{text}}»",
+    "breed_not_found_hint": "Не нашёл породу? Впиши свой вариант выше и выбери его"
   },
   "pet_profile": {
     "cat_vaccination": "Вакцинация",
@@ -687,5 +690,32 @@
     "city_belgrade": "Белград",
     "city_novi_sad": "Нови-Сад",
     "city_nis": "Ниш"
+  },
+  "breeds": {
+    "mixed": "Дворняга/метис",
+    "mixed_cat": "Дворовая/метис",
+    "labrador": "Лабрадор",
+    "german_shepherd": "Немецкая овчарка",
+    "golden_retriever": "Золотистый ретривер",
+    "yorkshire_terrier": "Йоркширский терьер",
+    "chihuahua": "Чихуахуа",
+    "husky": "Хаски",
+    "dachshund": "Такса",
+    "pug": "Мопс",
+    "beagle": "Бигль",
+    "french_bulldog": "Французский бульдог",
+    "rottweiler": "Ротвейлер",
+    "border_collie": "Бордер-колли",
+    "poodle": "Пудель",
+    "dalmatian": "Далматин",
+    "sarplaninac": "Шарпланинец",
+    "british_shorthair": "Британская короткошёрстная",
+    "maine_coon": "Мейн-кун",
+    "siamese": "Сиамская",
+    "persian": "Персидская",
+    "scottish_fold": "Шотландская вислоухая",
+    "sphynx": "Сфинкс",
+    "bengal": "Бенгальская",
+    "abyssinian": "Абиссинская"
   }
 }

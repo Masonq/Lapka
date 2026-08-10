@@ -9,6 +9,8 @@ import { useDocumentTitle } from "../useDocumentTitle";
 import PhotoPicker from "../components/PhotoPicker";
 import { useTranslation } from "react-i18next";
 import { translateSpecies, translateGender, translateActivity } from "../dataLabels";
+import { translateBreed } from "../breeds";
+import BreedPicker from "../components/BreedPicker";
 
 const SPECIES = ["dog", "cat", "other"];
 const GENDERS = ["male", "female"];
@@ -113,7 +115,7 @@ export default function Pets() {
           </div>
           <div className="field">
             <label htmlFor="pet-breed">{t("pets.breed_label")}</label>
-            <input id="pet-breed" value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} placeholder={t("pets.breed_placeholder")} />
+            <BreedPicker species={form.species} value={form.breed} onChange={(breed) => setForm({ ...form, breed })} />
           </div>
           <div className="field">
             <label id="pet-gender-label">{t("pets.gender_label")}</label>
@@ -194,7 +196,7 @@ export default function Pets() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="subhead">{pet.name}</div>
                     <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                      {translateSpecies(t, pet.species)}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} ${t("pets.years_short")}` : ""}
+                      {translateSpecies(t, pet.species)}{pet.breed ? `, ${translateBreed(t, pet.breed)}` : ""}{pet.age_years ? ` · ${pet.age_years} ${t("pets.years_short")}` : ""}
                     </div>
                   </div>
                 </Link>

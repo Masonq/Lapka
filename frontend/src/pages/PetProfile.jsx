@@ -9,6 +9,7 @@ import WeightChart from "../components/WeightChart";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { translateSpecies, translateGender, translateActivity } from "../dataLabels";
+import { translateBreed } from "../breeds";
 import { useTranslation } from "react-i18next";
 
 const HEALTH_CATEGORIES = [
@@ -118,7 +119,7 @@ export default function PetProfile() {
 
   const facts = [
     translateSpecies(t, pet.species),
-    pet.breed,
+    translateBreed(t, pet.breed),
     translateGender(t, pet.gender),
     pet.age_years ? `${pet.age_years} ${t("pets.years_short")}` : null,
   ].filter(Boolean).join(" · ");

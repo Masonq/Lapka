@@ -8,6 +8,7 @@ import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useTranslation } from "react-i18next";
 import { translateSpecies, translateCity } from "../dataLabels";
+import { translateBreed } from "../breeds";
 
 const CITIES = ["Белград", "Нови-Сад", "Ниш"];
 
@@ -83,7 +84,7 @@ export default function Nearby() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="subhead">{pet.name}</div>
                   <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                    {translateSpecies(t, pet.species)}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} ${t("nearby.years_short")}` : ""}
+                    {translateSpecies(t, pet.species)}{pet.breed ? `, ${translateBreed(t, pet.breed)}` : ""}{pet.age_years ? ` · ${pet.age_years} ${t("nearby.years_short")}` : ""}
                   </div>
                 </div>
               </Link>

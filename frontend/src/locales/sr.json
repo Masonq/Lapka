@@ -551,7 +551,10 @@
     "empty_hint": "Dodaj prvog — traje samo minut",
     "photo_alt": "Fotografija {{name}}",
     "years_short": "g.",
-    "delete_aria": "Obriši {{name}}"
+    "delete_aria": "Obriši {{name}}",
+    "breed_search_placeholder": "Pretraga rase…",
+    "breed_use_custom": "Koristi „{{text}}”",
+    "breed_not_found_hint": "Nisi našao rasu? Upiši svoju iznad i izaberi je"
   },
   "pet_profile": {
     "cat_vaccination": "Vakcinacija",
@@ -687,5 +690,32 @@
     "city_belgrade": "Beograd",
     "city_novi_sad": "Novi Sad",
     "city_nis": "Niš"
+  },
+  "breeds": {
+    "mixed": "Mešanac",
+    "mixed_cat": "Domaća mačka/mešanac",
+    "labrador": "Labrador",
+    "german_shepherd": "Nemački ovčar",
+    "golden_retriever": "Zlatni retriver",
+    "yorkshire_terrier": "Jorkširski terijer",
+    "chihuahua": "Čivava",
+    "husky": "Haski",
+    "dachshund": "Jazavičar",
+    "pug": "Mops",
+    "beagle": "Bigl",
+    "french_bulldog": "Francuski buldog",
+    "rottweiler": "Rotvajler",
+    "border_collie": "Border koli",
+    "poodle": "Pudlica",
+    "dalmatian": "Dalmatinac",
+    "sarplaninac": "Šarplaninac",
+    "british_shorthair": "Britanska kratkodlaka",
+    "maine_coon": "Mejn kun",
+    "siamese": "Sijamska",
+    "persian": "Persijska",
+    "scottish_fold": "Škotska preklopljenih ušiju",
+    "sphynx": "Sfinks",
+    "bengal": "Bengalska",
+    "abyssinian": "Abisinska"
   }
 }
