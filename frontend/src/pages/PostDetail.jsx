@@ -377,7 +377,7 @@ export default function PostDetail() {
                 </span>
               )}
             </div>
-            <div style={{ fontSize: 14 }}>{c.body}</div>
+            <div style={{ fontSize: 14, whiteSpace: "pre-wrap" }}>{c.body}</div>
           </div>
         ))}
 

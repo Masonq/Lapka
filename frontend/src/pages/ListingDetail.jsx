@@ -145,7 +145,7 @@ export default function ListingDetail() {
           )}
 
           {listing.description && (
-            <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5, marginBottom: 14 }}>
+            <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5, marginBottom: 14, whiteSpace: "pre-wrap" }}>
               {listing.description}
             </p>
           )}

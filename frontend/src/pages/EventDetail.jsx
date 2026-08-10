@@ -106,7 +106,7 @@ export default function EventDetail() {
           </div>
 
           {event.description && (
-            <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5, marginBottom: 14 }}>
+            <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5, marginBottom: 14, whiteSpace: "pre-wrap" }}>
               {event.description}
             </p>
           )}

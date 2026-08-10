@@ -105,7 +105,7 @@ export default function CommunityDetail() {
           </div>
 
           {community.description && (
-            <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "0 0 14px", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "0 0 14px", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
               {community.description}
             </p>
           )}

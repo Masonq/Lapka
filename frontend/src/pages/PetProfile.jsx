@@ -163,7 +163,7 @@ export default function PetProfile() {
         {pet.about && (
           <div className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
             <h3 className="subhead" style={{ fontSize: 14, marginBottom: 6 }}>О питомце</h3>
-            <p style={{ fontSize: 14, color: "var(--text-muted)", margin: 0, lineHeight: 1.5 }}>{pet.about}</p>
+            <p style={{ fontSize: 14, color: "var(--text-muted)", margin: 0, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{pet.about}</p>
           </div>
         )}
 
