@@ -900,6 +900,19 @@ a {
   box-shadow: 0 0 0 3px var(--primary-tint);
 }
 
+/* Safari/Chrome красят автозаполненные поля жёлтым принудительно (через
+   internal !important) — обычным background их не перебить. Единственный
+   рабочий способ — inset box-shadow того же цвета, что фон поля, плюс
+   text-fill-color для текста. Автозаполнение продолжает работать как
+   обычно, просто визуально не отличается от пустого поля до заполнения */
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  -webkit-text-fill-color: var(--text);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 /* --- Фильтр-чипы --- */
 
 .chip-row {
