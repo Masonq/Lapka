@@ -5,6 +5,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.rate_limit import story_limiter
 from app.core.security import get_current_user
 from app.models.models import Block, Story, User
@@ -46,12 +47,15 @@ def create_story(data: StoryCreate, db: Session = Depends(get_db), user: User = 
 
 
 @router.delete("/{story_id}")
-def delete_story(story_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def delete_story(
+    story_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     story = db.query(Story).filter(Story.id == story_id).first()
     if not story:
-        raise HTTPException(status_code=404, detail="История не найдена")
+        raise HTTPException(status_code=404, detail=t("story_not_found", lang))
     if story.author_id != user.id:
-        raise HTTPException(status_code=403, detail="Можно удалить только свою историю")
+        raise HTTPException(status_code=403, detail=t("can_only_delete_own_story", lang))
     db.delete(story)
     db.commit()
     return {"ok": True}

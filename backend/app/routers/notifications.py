@@ -3,6 +3,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.security import get_current_user
 from app.models.models import Notification, User
 from app.schemas.schemas import NotificationOut
@@ -55,12 +56,15 @@ def mark_all_read(db: Session = Depends(get_db), user: User = Depends(get_curren
 
 
 @router.patch("/{notification_id}/read")
-def mark_read(notification_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def mark_read(
+    notification_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     n = db.query(Notification).filter(Notification.id == notification_id).first()
     if not n:
-        raise HTTPException(status_code=404, detail="Уведомление не найдено")
+        raise HTTPException(status_code=404, detail=t("notification_not_found", lang))
     if n.user_id != user.id:
-        raise HTTPException(status_code=403, detail="Это не твоё уведомление")
+        raise HTTPException(status_code=403, detail=t("not_your_notification", lang))
     n.is_read = True
     db.commit()
     return {"ok": True}

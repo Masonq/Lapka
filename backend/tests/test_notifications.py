@@ -138,3 +138,20 @@ def test_list_notifications_query_count_does_not_scale_with_result_size(client, 
     # 1 запрос уведомлений (с joinedload actor+post) + сама авторизация — небольшая
     # константа, не растёт с числом уведомлений
     assert query_count <= 3
+
+
+def test_not_your_notification_error_translated_to_serbian(client, register_user):
+    headers_a = register_user("Пользователь А")
+    headers_b = register_user("Пользователь Б")
+
+    # уведомление появится у А, если Б на него подпишется
+    a_id = client.get("/api/auth/me", headers=headers_a).json()["id"]
+    client.post(f"/api/follows/{a_id}", headers=headers_b)
+
+    notif = client.get("/api/notifications", headers=headers_a).json()[0]
+
+    r = client.patch(
+        f"/api/notifications/{notif['id']}/read", headers={**headers_b, "X-Lang": "sr"}
+    )
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Ovo nije tvoje obaveštenje"

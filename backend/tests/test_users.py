@@ -72,3 +72,9 @@ def test_filter_posts_by_author(client, register_user):
     r = client.get("/api/posts", params={"author_id": author_a_id})
     titles = [p["title"] for p in r.json()]
     assert titles == ["Пост Аны"]
+
+
+def test_user_not_found_error_translated_to_serbian(client):
+    r = client.get("/api/users/nonexistent-id", headers={"X-Lang": "sr"})
+    assert r.status_code == 404
+    assert r.json()["detail"] == "Korisnik nije pronađen"

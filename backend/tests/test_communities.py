@@ -211,3 +211,19 @@ def test_list_members_query_count_does_not_scale_with_result_size(client, regist
 
     assert len(r.json()) == 4  # создатель + 3 участника
     assert query_count <= 2  # 1 запрос участников (с joinedload user) — без отдельных на каждого
+
+
+def test_community_not_found_error_translated_to_serbian(client):
+    r = client.get("/api/communities/nonexistent-id", headers={"X-Lang": "sr"})
+    assert r.status_code == 404
+    assert r.json()["detail"] == "Zajednica nije pronađena"
+
+
+def test_last_admin_cannot_leave_error_translated_to_serbian(client, register_user):
+    headers = register_user()
+    community = client.post("/api/communities", json={"name": "Тест"}, headers=headers).json()
+    r = client.delete(
+        f"/api/communities/{community['id']}/leave", headers={**headers, "X-Lang": "sr"}
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Ti si poslednji admin zajednice — prvo postavi drugog ili obriši zajednicu"

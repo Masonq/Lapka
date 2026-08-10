@@ -110,3 +110,15 @@ def test_list_stories_query_count_does_not_scale_with_result_size(client, regist
 
     assert len(r.json()) == 4
     assert query_count <= 3
+
+
+def test_delete_other_users_story_error_translated_to_serbian(client, register_user):
+    headers_author = register_user("Автор")
+    headers_other = register_user("Другой")
+    story = client.post(
+        "/api/stories", json={"photo_url": "https://example.com/photo.jpg"}, headers=headers_author
+    ).json()
+
+    r = client.delete(f"/api/stories/{story['id']}", headers={**headers_other, "X-Lang": "sr"})
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Možeš obrisati samo svoju priču"

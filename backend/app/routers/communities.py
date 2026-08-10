@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.rate_limit import RateLimiter
 from app.core.security import get_current_user, get_current_user_optional
 from app.models.models import Community, CommunityMember, User
@@ -63,12 +64,13 @@ def list_communities(
 
 @router.post("", response_model=CommunityOut)
 def create_community(
-    data: CommunityCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+    data: CommunityCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
 ):
     community_limiter.check(user.id)
 
     if not data.name.strip():
-        raise HTTPException(status_code=400, detail="Название не может быть пустым")
+        raise HTTPException(status_code=400, detail=t("community_name_required", lang))
 
     community = Community(
         name=data.name,
@@ -89,11 +91,12 @@ def create_community(
 
 @router.get("/{community_id}", response_model=CommunityOut)
 def get_community(
-    community_id: str, db: Session = Depends(get_db), user: Optional[User] = Depends(get_current_user_optional)
+    community_id: str, db: Session = Depends(get_db), user: Optional[User] = Depends(get_current_user_optional),
+    lang: str = Depends(get_lang),
 ):
     community = db.query(Community).filter(Community.id == community_id).first()
     if not community:
-        raise HTTPException(status_code=404, detail="Сообщество не найдено")
+        raise HTTPException(status_code=404, detail=t("community_not_found", lang))
 
     member_ids = set()
     if user:
@@ -106,10 +109,13 @@ def get_community(
 
 
 @router.post("/{community_id}/join")
-def join_community(community_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def join_community(
+    community_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     community = db.query(Community).filter(Community.id == community_id).first()
     if not community:
-        raise HTTPException(status_code=404, detail="Сообщество не найдено")
+        raise HTTPException(status_code=404, detail=t("community_not_found", lang))
 
     exists = db.query(CommunityMember).filter(
         CommunityMember.community_id == community_id, CommunityMember.user_id == user.id
@@ -126,7 +132,10 @@ def join_community(community_id: str, db: Session = Depends(get_db), user: User 
 
 
 @router.delete("/{community_id}/leave")
-def leave_community(community_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def leave_community(
+    community_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     member = db.query(CommunityMember).filter(
         CommunityMember.community_id == community_id, CommunityMember.user_id == user.id
     ).first()
@@ -139,7 +148,7 @@ def leave_community(community_id: str, db: Session = Depends(get_db), user: User
         if other_admins == 0:
             raise HTTPException(
                 status_code=400,
-                detail="Ты последний админ сообщества — сначала назначь другого или удали сообщество",
+                detail=t("last_admin_cannot_leave", lang),
             )
 
     db.query(CommunityMember).filter(

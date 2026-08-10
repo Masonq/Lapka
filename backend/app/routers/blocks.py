@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.security import get_current_user
 from app.models.models import Block, Follow, User
 from app.schemas.schemas import BlockedUserOut
@@ -23,13 +24,16 @@ def list_blocked(db: Session = Depends(get_db), user: User = Depends(get_current
 
 
 @router.post("/{user_id}")
-def block_user(user_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def block_user(
+    user_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     if user_id == user.id:
-        raise HTTPException(status_code=400, detail="Нельзя заблокировать самого себя")
+        raise HTTPException(status_code=400, detail=t("cannot_block_self", lang))
 
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
+        raise HTTPException(status_code=404, detail=t("user_not_found", lang))
 
     exists = db.query(Block).filter(Block.blocker_id == user.id, Block.blocked_id == user_id).first()
     if not exists:

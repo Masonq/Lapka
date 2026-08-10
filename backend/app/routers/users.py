@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.models.models import User
 from app.routers.auth import SYSTEM_ACCOUNT_EMAIL
 from app.schemas.schemas import UserOut
@@ -27,8 +28,8 @@ def search_users(
 
 
 @router.get("/{user_id}", response_model=UserOut)
-def get_user(user_id: str, db: Session = Depends(get_db)):
+def get_user(user_id: str, db: Session = Depends(get_db), lang: str = Depends(get_lang)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
+        raise HTTPException(status_code=404, detail=t("user_not_found", lang))
     return user

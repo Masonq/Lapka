@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 from app.core.security import get_current_user
+from app.core.i18n import get_lang, t
 from app.models.models import User
 
 router = APIRouter(prefix="/api/uploads", tags=["uploads"])
@@ -18,15 +19,17 @@ ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 
 @router.post("")
-async def upload_image(file: UploadFile = File(...), user: User = Depends(get_current_user)):
+async def upload_image(
+    file: UploadFile = File(...), user: User = Depends(get_current_user), lang: str = Depends(get_lang)
+):
     if file.content_type not in ALLOWED_TYPES:
-        raise HTTPException(status_code=400, detail="Можно загружать только JPEG, PNG или WebP")
+        raise HTTPException(status_code=400, detail=t("only_jpeg_png_webp", lang))
 
     contents = await file.read()
     if len(contents) == 0:
-        raise HTTPException(status_code=400, detail="Пустой файл")
+        raise HTTPException(status_code=400, detail=t("empty_file", lang))
     if len(contents) > MAX_UPLOAD_BYTES:
-        raise HTTPException(status_code=400, detail="Файл слишком большой — максимум 8 МБ")
+        raise HTTPException(status_code=400, detail=t("file_too_large", lang))
 
     # Не доверяем заявленному Content-Type — открываем через Pillow, чтобы убедиться,
     # что это действительно изображение, а не что-то замаскированное под него
@@ -34,7 +37,7 @@ async def upload_image(file: UploadFile = File(...), user: User = Depends(get_cu
         image = Image.open(io.BytesIO(contents))
         image.load()
     except (UnidentifiedImageError, OSError):
-        raise HTTPException(status_code=400, detail="Файл повреждён или не является изображением")
+        raise HTTPException(status_code=400, detail=t("file_corrupted_not_image", lang))
 
     # Фото с телефона часто несут EXIF с GPS-координатами места съёмки — это может
     # выдать домашний адрес человека. Применяем поворот из EXIF (чтобы фото не легло

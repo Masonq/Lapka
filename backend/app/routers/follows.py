@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.security import get_current_user
 from app.core.ws_manager import manager
 from app.models.models import Block, Follow, Notification, User
@@ -12,20 +13,23 @@ router = APIRouter(prefix="/api/follows", tags=["follows"])
 
 
 @router.post("/{user_id}")
-def follow_user(user_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def follow_user(
+    user_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     if user_id == user.id:
-        raise HTTPException(status_code=400, detail="Нельзя подписаться на себя")
+        raise HTTPException(status_code=400, detail=t("cannot_follow_self", lang))
 
     target = db.query(User).filter(User.id == user_id).first()
     if not target:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
+        raise HTTPException(status_code=404, detail=t("user_not_found", lang))
 
     blocked = db.query(Block).filter(
         ((Block.blocker_id == user.id) & (Block.blocked_id == user_id))
         | ((Block.blocker_id == user_id) & (Block.blocked_id == user.id))
     ).first()
     if blocked:
-        raise HTTPException(status_code=403, detail="Нельзя подписаться на этого пользователя")
+        raise HTTPException(status_code=403, detail=t("cannot_follow_this_user", lang))
 
     exists = db.query(Follow).filter(
         Follow.follower_id == user.id, Follow.following_id == user_id

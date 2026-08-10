@@ -75,3 +75,14 @@ def test_uploaded_photo_attaches_to_post(client, register_user):
     ).json()
 
     assert post["photo_url"] == upload["url"]
+
+
+def test_wrong_file_type_error_translated_to_serbian(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/uploads",
+        files={"file": ("test.txt", b"not an image", "text/plain")},
+        headers={**headers, "X-Lang": "sr"},
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Možeš učitati samo JPEG, PNG ili WebP"

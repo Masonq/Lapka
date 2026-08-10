@@ -227,6 +227,54 @@ ERRORS: dict[str, dict[str, str]] = {
         "ru": "Мест больше нет",
         "sr": "Nema više mesta",
     },
+    "only_jpeg_png_webp": {
+        "ru": "Можно загружать только JPEG, PNG или WebP",
+        "sr": "Možeš učitati samo JPEG, PNG ili WebP",
+    },
+    "empty_file": {
+        "ru": "Пустой файл",
+        "sr": "Prazan fajl",
+    },
+    "file_too_large": {
+        "ru": "Файл слишком большой — максимум 8 МБ",
+        "sr": "Fajl je prevelik — maksimum 8 MB",
+    },
+    "file_corrupted_not_image": {
+        "ru": "Файл повреждён или не является изображением",
+        "sr": "Fajl je oštećen ili nije slika",
+    },
+    "community_name_required": {
+        "ru": "Название не может быть пустым",
+        "sr": "Naziv ne može biti prazan",
+    },
+    "last_admin_cannot_leave": {
+        "ru": "Ты последний админ сообщества — сначала назначь другого или удали сообщество",
+        "sr": "Ti si poslednji admin zajednice — prvo postavi drugog ili obriši zajednicu",
+    },
+    "cannot_follow_self": {
+        "ru": "Нельзя подписаться на себя",
+        "sr": "Ne možeš zapratiti samog sebe",
+    },
+    "cannot_follow_this_user": {
+        "ru": "Нельзя подписаться на этого пользователя",
+        "sr": "Ne možeš zapratiti ovog korisnika",
+    },
+    "can_only_delete_own_story": {
+        "ru": "Можно удалить только свою историю",
+        "sr": "Možeš obrisati samo svoju priču",
+    },
+    "notification_not_found": {
+        "ru": "Уведомление не найдено",
+        "sr": "Obaveštenje nije pronađeno",
+    },
+    "not_your_notification": {
+        "ru": "Это не твоё уведомление",
+        "sr": "Ovo nije tvoje obaveštenje",
+    },
+    "cannot_block_self": {
+        "ru": "Нельзя заблокировать самого себя",
+        "sr": "Ne možeš blokirati samog sebe",
+    },
 }
 
 

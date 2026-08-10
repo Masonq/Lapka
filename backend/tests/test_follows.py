@@ -80,3 +80,10 @@ def test_following_of_user_with_no_subscriptions_is_empty_list(client, register_
     r = client.get(f"/api/follows/{user_id}/following")
     assert r.status_code == 200
     assert r.json() == []
+
+
+def test_follow_self_error_translated_to_serbian(client, register_user_with_id):
+    headers, user_id = register_user_with_id()
+    r = client.post(f"/api/follows/{user_id}", headers={**headers, "X-Lang": "sr"})
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Ne možeš zapratiti samog sebe"

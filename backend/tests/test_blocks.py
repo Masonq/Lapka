@@ -109,3 +109,10 @@ def test_blocked_user_cannot_follow_blocker(client, register_user_with_id):
 
     r = client.post(f"/api/follows/{id_a}", headers=headers_b)
     assert r.status_code == 403
+
+
+def test_block_self_error_translated_to_serbian(client, register_user_with_id):
+    headers, user_id = register_user_with_id()
+    r = client.post(f"/api/blocks/{user_id}", headers={**headers, "X-Lang": "sr"})
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Ne možeš blokirati samog sebe"
