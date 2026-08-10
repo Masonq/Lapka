@@ -39,22 +39,32 @@ export default function Profile() {
 
         <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", flexDirection: "column", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <Link to={`/users/${userId}`} style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0, textDecoration: "none", color: "inherit" }}>
-              <div style={{
-                width: 52, height: 52, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
-                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, flexShrink: 0, overflow: "hidden",
-              }}>
-                {me?.avatar_url ? (
-                  <img src={me.avatar_url} alt={me.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                ) : (
-                  me?.display_name?.[0]?.toUpperCase() || "•"
-                )}
+            {me === null ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1 }}>
+                <span className="skeleton" style={{ width: 52, height: 52, borderRadius: "50%", flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <span className="skeleton skeleton-title" style={{ width: "50%", marginBottom: 6 }} />
+                  <span className="skeleton skeleton-line" style={{ width: "30%", marginBottom: 0 }} />
+                </div>
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="subhead" style={{ fontSize: 16 }}>{me?.display_name || "Ты в Lapki"}</div>
-                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{me?.city}</div>
-              </div>
-            </Link>
+            ) : (
+              <Link to={`/users/${userId}`} style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0, textDecoration: "none", color: "inherit" }}>
+                <div style={{
+                  width: 52, height: 52, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, flexShrink: 0, overflow: "hidden",
+                }}>
+                  {me?.avatar_url ? (
+                    <img src={me.avatar_url} alt={me.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    me?.display_name?.[0]?.toUpperCase() || "•"
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="subhead" style={{ fontSize: 16 }}>{me?.display_name}</div>
+                  <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{me?.city}</div>
+                </div>
+              </Link>
+            )}
             <button className="btn btn-ghost" onClick={logout} aria-label="Выйти">
               <LogOut size={16} />
             </button>

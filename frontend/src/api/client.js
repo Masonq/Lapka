@@ -154,6 +154,7 @@ export const api = {
   adminServiceProviders: () => request("/admin/service-providers", { auth: true }),
   adminUsers: (q) => request(`/admin/users${q ? `?q=${encodeURIComponent(q)}` : ""}`, { auth: true }),
   adminSetUserRole: (id, role) => request(`/admin/users/${id}/role`, { method: "PATCH", body: { role }, auth: true }),
+  adminDeleteCommunity: (id) => request(`/admin/communities/${id}`, { method: "DELETE", auth: true }),
   adminToggleVerifyProvider: (id) => request(`/admin/service-providers/${id}/verify`, { method: "PATCH", auth: true }),
 
   communities: (params = {}) => {

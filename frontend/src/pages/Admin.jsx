@@ -19,6 +19,7 @@ export default function Admin() {
   const [reports, setReports] = useState(null);
   const [providers, setProviders] = useState(null);
   const [users, setUsers] = useState(null);
+  const [communities, setCommunities] = useState(null);
   const [userQuery, setUserQuery] = useState("");
 
   useEffect(() => {
@@ -54,6 +55,17 @@ export default function Admin() {
     api.adminOverview().then(setOverview).catch(() => setOverview(null));
     api.adminReports(false).then(setReports).catch(() => setReports([]));
     api.adminServiceProviders().then(setProviders).catch(() => setProviders([]));
+    api.communities().then(setCommunities).catch(() => setCommunities([]));
+  }
+
+  async function deleteCommunity(id) {
+    try {
+      await api.adminDeleteCommunity(id);
+      showToast("Сообщество удалено");
+      load();
+    } catch (err) {
+      showToast(err.message, "error");
+    }
   }
 
   useEffect(() => {
@@ -251,6 +263,30 @@ export default function Admin() {
               <option value="moderator">Модератор</option>
             </select>
           )}
+        </div>
+      ))}
+
+      <h3 className="subhead" style={{ margin: "24px 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+        <Users size={16} /> Сообщества
+      </h3>
+
+      {communities?.length === 0 && (
+        <div className="empty-state" style={{ padding: "24px 20px" }}>Сообществ пока нет</div>
+      )}
+
+      {communities?.map((c) => (
+        <div key={c.id} className="card" style={{
+          borderRadius: 16, padding: 14, marginBottom: 8, display: "flex", alignItems: "center", gap: 10,
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="subhead" style={{ fontSize: 14 }}>{c.name}</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+              {c.members_count} участников{c.city ? ` · ${c.city}` : ""}
+            </div>
+          </div>
+          <button className="btn" style={{ background: "var(--red-tint)", color: "var(--red)" }} onClick={() => deleteCommunity(c.id)}>
+            <Trash2 size={14} /> Удалить
+          </button>
         </div>
       ))}
     </div>

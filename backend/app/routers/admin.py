@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
 from app.core.security import get_current_admin, get_current_editor, get_current_moderator
-from app.models.models import AuditLog, Comment, Listing, Pet, Post, Report, ServiceProvider, Story, User
+from app.models.models import AuditLog, Comment, Community, Listing, Pet, Post, Report, ServiceProvider, Story, User
 from app.schemas.schemas import (
     AdminActionResult, AdminOverview, AdminUserOut, AuditLogOut, ReportQueueItem, RoleUpdate, ServiceProviderOut
 )
@@ -121,6 +121,22 @@ def admin_delete_story(story_id: str, db: Session = Depends(get_db), admin: User
 
     _log(db, admin, "delete_story", "story", story_id)
     db.delete(story)
+    db.commit()
+    return AdminActionResult()
+
+
+@router.delete("/communities/{community_id}", response_model=AdminActionResult)
+def admin_delete_community(community_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
+    """Раньше удалить сообщество не мог никто, кроме прямого доступа к БД — не было
+    ни своего эндпоинта на удаление у создателя, ни админского. Посты/события внутри
+    сообщества не удаляются вместе с ним (ondelete=SET NULL) — просто отвязываются,
+    остаются у своих авторов. Участники удаляются каскадом (ondelete=CASCADE)."""
+    community = db.query(Community).filter(Community.id == community_id).first()
+    if not community:
+        raise HTTPException(status_code=404, detail="Сообщество не найдено")
+
+    _log(db, admin, "delete_community", "community", community_id, note=community.name[:200])
+    db.delete(community)
     db.commit()
     return AdminActionResult()
 

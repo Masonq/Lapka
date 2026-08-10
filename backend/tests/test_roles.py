@@ -97,3 +97,53 @@ def test_editor_cannot_access_overview(client, register_with_role):
     headers_editor, _ = register_with_role("editor")
     r = client.get("/api/admin/overview", headers=headers_editor)
     assert r.status_code == 403
+
+
+def test_moderator_can_delete_community(client, register_with_role, register_user):
+    headers_mod, _ = register_with_role("moderator")
+    headers_creator = register_user("Создатель")
+    community = client.post(
+        "/api/communities", json={"name": "Тестовое сообщество", "description": "Описание"}, headers=headers_creator
+    ).json()
+
+    r = client.delete(f"/api/admin/communities/{community['id']}", headers=headers_mod)
+    assert r.status_code == 200
+
+    r = client.get(f"/api/communities/{community['id']}", headers=headers_creator)
+    assert r.status_code == 404
+
+
+def test_regular_user_cannot_delete_community(client, register_user):
+    headers = register_user("Создатель")
+    community = client.post(
+        "/api/communities", json={"name": "Тест", "description": "X"}, headers=headers
+    ).json()
+
+    r = client.delete(f"/api/admin/communities/{community['id']}", headers=headers)
+    assert r.status_code == 403
+
+
+def test_delete_community_detaches_but_keeps_posts(client, register_with_role, register_user):
+    """Посты внутри сообщества не удаляются вместе с ним — просто отвязываются."""
+    headers_mod, _ = register_with_role("moderator")
+    headers_creator = register_user("Автор")
+    community = client.post(
+        "/api/communities", json={"name": "Тест", "description": "X"}, headers=headers_creator
+    ).json()
+    post = client.post(
+        "/api/posts",
+        json={"type": "general", "title": "Пост в сообществе", "body": "Текст", "community_id": community["id"]},
+        headers=headers_creator,
+    ).json()
+
+    client.delete(f"/api/admin/communities/{community['id']}", headers=headers_mod)
+
+    r = client.get(f"/api/posts/{post['id']}")
+    assert r.status_code == 200
+    assert r.json()["community_id"] is None
+
+
+def test_delete_nonexistent_community_404(client, register_with_role):
+    headers_mod, _ = register_with_role("moderator")
+    r = client.delete("/api/admin/communities/does-not-exist", headers=headers_mod)
+    assert r.status_code == 404
