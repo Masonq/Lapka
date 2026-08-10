@@ -87,6 +87,8 @@ async function uploadImage(file) {
 export const api = {
   requestRegisterCode: (data) => request("/auth/register/request-code", { method: "POST", body: data }),
   verifyRegisterCode: (data) => request("/auth/register/verify-code", { method: "POST", body: data }),
+  forgotPassword: (data) => request("/auth/password/forgot", { method: "POST", body: data }),
+  resetPassword: (data) => request("/auth/password/reset", { method: "POST", body: data }),
   login: (data) => request("/auth/login", { method: "POST", body: data }),
   telegramAuth: (data) => request("/auth/telegram", { method: "POST", body: data }),
   me: () => request("/auth/me", { auth: true }),

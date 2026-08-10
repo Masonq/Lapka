@@ -33,6 +33,16 @@ export function AuthProvider({ children }) {
     setTokenState(access_token);
   }, []);
 
+  const forgotPassword = useCallback(async (email) => {
+    await api.forgotPassword({ email });
+  }, []);
+
+  const resetPassword = useCallback(async (email, code, new_password) => {
+    const { access_token } = await api.resetPassword({ email, code, new_password });
+    setToken(access_token);
+    setTokenState(access_token);
+  }, []);
+
   const loginWithTelegram = useCallback(async (tgData) => {
     const { access_token } = await api.telegramAuth(tgData);
     setToken(access_token);
@@ -46,7 +56,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthed: !!token, userId, login, requestRegisterCode, verifyRegisterCode, loginWithTelegram, logout }}
+      value={{ isAuthed: !!token, userId, login, requestRegisterCode, verifyRegisterCode, forgotPassword, resetPassword, loginWithTelegram, logout }}
     >
       {children}
     </AuthContext.Provider>

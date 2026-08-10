@@ -215,7 +215,16 @@
     "have_account": "Уже есть аккаунт? ",
     "register_link": "Зарегистрироваться",
     "login_link": "Войти",
-    "telegram_soon": "Вход через Telegram появится здесь позже"
+    "telegram_soon": "Вход через Telegram появится здесь позже",
+    "forgot_password_link": "Забыл пароль?",
+    "forgot_password_title": "Восстановление пароля",
+    "forgot_password_hint": "Введи свою почту — пришлём код для сброса пароля",
+    "send_reset_code": "Отправить код",
+    "reset_password_title": "Новый пароль",
+    "reset_code_hint": "— введи его ниже вместе с новым паролем",
+    "new_password_label": "Новый пароль",
+    "reset_password_button": "Сбросить пароль",
+    "back_to_login": "Назад ко входу"
   },
   "post_detail": {
     "title": "Пост",

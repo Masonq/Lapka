@@ -215,7 +215,16 @@
     "have_account": "Već imaš nalog? ",
     "register_link": "Registruj se",
     "login_link": "Prijavi se",
-    "telegram_soon": "Prijava preko Telegrama biće dostupna uskoro"
+    "telegram_soon": "Prijava preko Telegrama biće dostupna uskoro",
+    "forgot_password_link": "Zaboravio(la) si lozinku?",
+    "forgot_password_title": "Oporavak lozinke",
+    "forgot_password_hint": "Unesi svoju e-poštu — poslaćemo kod za resetovanje lozinke",
+    "send_reset_code": "Pošalji kod",
+    "reset_password_title": "Nova lozinka",
+    "reset_code_hint": "— unesi ga ispod zajedno sa novom lozinkom",
+    "new_password_label": "Nova lozinka",
+    "reset_password_button": "Resetuj lozinku",
+    "back_to_login": "Nazad na prijavu"
   },
   "post_detail": {
     "title": "Objava",

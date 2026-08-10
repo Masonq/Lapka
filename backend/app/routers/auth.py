@@ -13,8 +13,8 @@ from app.core.security import (
 from app.core.ws_manager import manager
 from app.models.models import AuthProvider, EmailVerificationCode, Notification, User
 from app.schemas.schemas import (
-    ChangePassword, DeleteAccount, LoginEmail, MeOut, RegisterEmail, RequestPasswordChangeCode,
-    TelegramAuth, Token, UserOut, VerifyRegisterCode
+    ChangePassword, DeleteAccount, ForgotPassword, LoginEmail, MeOut, RegisterEmail, RequestPasswordChangeCode,
+    ResetPassword, TelegramAuth, Token, UserOut, VerifyRegisterCode
 )
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -26,6 +26,10 @@ account_action_limiter = RateLimiter(max_actions=5, window_seconds=600)
 # Запрос кода — отдельный, более щадящий лимит: пользователь мог не заметить письмо
 # и запросить код повторно, это не то же самое, что попытки входа/смены пароля
 code_request_limiter = RateLimiter(max_actions=5, window_seconds=600)
+
+# forgot_password не требует авторизации (в отличие от password/request-code) —
+# защита нужна по IP, как у самой регистрации, не по user_id
+forgot_password_limiter = RateLimiter(max_actions=5, window_seconds=600)
 
 CODE_TTL_MINUTES = 10
 MAX_CODE_ATTEMPTS = 5
@@ -259,6 +263,40 @@ def change_password(
     user.password_hash = hash_password(data.new_password)
     db.commit()
     return {"ok": True}
+
+
+@router.post("/password/forgot")
+def forgot_password(
+    data: ForgotPassword, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
+):
+    """Восстановление забытого пароля — в отличие от /password/request-code
+    не требует авторизации вообще (пользователь по определению не может
+    войти, раз забыл пароль). Ответ ВСЕГДА одинаковый, независимо от того,
+    нашёлся ли аккаунт с таким email — иначе по разнице в ответе можно было
+    бы перебором узнавать, какие email вообще зарегистрированы на сайте."""
+    forgot_password_limiter.check(client_ip(request))
+
+    user = db.query(User).filter(User.email == data.email).first()
+    if user and user.auth_provider == AuthProvider.EMAIL and user.password_hash:
+        code = _issue_code(db, data.email, "password_reset", user_id=user.id)
+        background_tasks.add_task(send_verification_code, data.email, code, "password_reset")
+
+    return {"message": "Если аккаунт с таким email существует, код отправлен на почту"}
+
+
+@router.post("/password/reset", response_model=Token)
+def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
+    _verify_code(db, data.email, "password_reset", data.code)
+
+    user = db.query(User).filter(User.email == data.email).first()
+    if not user or user.auth_provider != AuthProvider.EMAIL:
+        # Код мог быть верным (для существующего email), но сам аккаунт с тех
+        # пор мог быть удалён — редкий, но реальный edge case
+        raise HTTPException(status_code=400, detail="Не удалось сбросить пароль — попробуй запросить код заново")
+
+    user.password_hash = hash_password(data.new_password)
+    db.commit()
+    return Token(access_token=create_access_token(user.id))
 
 
 @router.delete("/me")

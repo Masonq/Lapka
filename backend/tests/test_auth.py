@@ -375,3 +375,100 @@ def test_password_request_code_wrong_current_password_rejected(client, register_
     headers = register_user(password="original-pass")
     r = client.post("/api/auth/password/request-code", json={"current_password": "wrong"}, headers=headers)
     assert r.status_code == 401
+
+
+def test_forgot_password_sends_code_for_existing_email(client, register_user):
+    register_user()
+    # register_user использует случайный email — достаю его через отдельную регистрацию
+    # с известным email, чтобы не парсить внутренности фикстуры
+    client.post(
+        "/api/auth/register/request-code",
+        json={"display_name": "Забыл Пароль", "email": "forgot-test@example.com", "password": "original-pass"},
+    )
+    code = _read_code("forgot-test@example.com")
+    client.post("/api/auth/register/verify-code", json={"email": "forgot-test@example.com", "code": code})
+
+    r = client.post("/api/auth/password/forgot", json={"email": "forgot-test@example.com"})
+    assert r.status_code == 200
+
+    reset_code = _read_code("forgot-test@example.com", purpose="password_reset")
+    assert reset_code is not None
+
+
+def test_forgot_password_same_response_for_nonexistent_email(client):
+    """Ответ не должен отличаться в зависимости от того, существует ли
+    аккаунт — иначе можно перебором узнавать зарегистрированные email."""
+    r1 = client.post("/api/auth/password/forgot", json={"email": "nobody-here@example.com"})
+    r2_email = "forgot-existing-2@example.com"
+    client.post(
+        "/api/auth/register/request-code",
+        json={"display_name": "Тест", "email": r2_email, "password": "password123"},
+    )
+    code = _read_code(r2_email)
+    client.post("/api/auth/register/verify-code", json={"email": r2_email, "code": code})
+    r2 = client.post("/api/auth/password/forgot", json={"email": r2_email})
+
+    assert r1.status_code == r2.status_code == 200
+    assert r1.json() == r2.json()
+
+
+def test_forgot_password_nonexistent_email_does_not_create_code(client):
+    client.post("/api/auth/password/forgot", json={"email": "definitely-nobody@example.com"})
+    code = _read_code("definitely-nobody@example.com", purpose="password_reset")
+    assert code is None
+
+
+def test_reset_password_with_valid_code_changes_password(client):
+    email = "reset-flow@example.com"
+    client.post(
+        "/api/auth/register/request-code",
+        json={"display_name": "Тест", "email": email, "password": "old-password"},
+    )
+    code = _read_code(email)
+    client.post("/api/auth/register/verify-code", json={"email": email, "code": code})
+
+    client.post("/api/auth/password/forgot", json={"email": email})
+    reset_code = _read_code(email, purpose="password_reset")
+
+    r = client.post(
+        "/api/auth/password/reset",
+        json={"email": email, "code": reset_code, "new_password": "brand-new-password"},
+    )
+    assert r.status_code == 200
+    assert "access_token" in r.json()  # сразу авторизует, не нужно логиниться отдельно
+
+    # старый пароль больше не работает
+    r = client.post("/api/auth/login", json={"email": email, "password": "old-password"})
+    assert r.status_code == 401
+
+    # новый — работает, БЕЗ необходимости знать старый пароль вообще
+    r = client.post("/api/auth/login", json={"email": email, "password": "brand-new-password"})
+    assert r.status_code == 200
+
+
+def test_reset_password_wrong_code_rejected(client):
+    email = "reset-wrong-code@example.com"
+    client.post(
+        "/api/auth/register/request-code",
+        json={"display_name": "Тест", "email": email, "password": "password123"},
+    )
+    code = _read_code(email)
+    client.post("/api/auth/register/verify-code", json={"email": email, "code": code})
+    client.post("/api/auth/password/forgot", json={"email": email})
+
+    r = client.post(
+        "/api/auth/password/reset",
+        json={"email": email, "code": "000000", "new_password": "new-password-123"},
+    )
+    assert r.status_code == 400
+
+
+def test_reset_password_without_requesting_code_first_rejected(client, register_user):
+    """Прямая попытка сбросить пароль без предварительного запроса кода —
+    не должно быть 'кода по умолчанию', который всегда сработает."""
+    register_user()
+    r = client.post(
+        "/api/auth/password/reset",
+        json={"email": "never-requested@example.com", "code": "123456", "new_password": "new-password-123"},
+    )
+    assert r.status_code == 400
