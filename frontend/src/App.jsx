@@ -43,6 +43,7 @@ export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const { config: searchConfig } = useSearchContext();
   const location = useLocation();
+  const isThreadPage = /^\/messages\/[^/]+$/.test(location.pathname);
 
   useEffect(() => setSearchOpen(false), [location.pathname]);
   useEffect(() => {
@@ -76,10 +77,11 @@ export default function App() {
     <div className="app-shell">
       <ScrollToTop />
       {showOnboarding && <OnboardingModal onDone={() => setShowOnboarding(false)} />}
-      <div className="top-header card">
-        {searchOpen && searchConfig ? (
-          <div className="header-search-active">
-            <Search size={17} strokeWidth={2.2} style={{ color: "var(--text-faint)", flexShrink: 0 }} />
+      {!isThreadPage && (
+        <div className="top-header card">
+          {searchOpen && searchConfig ? (
+            <div className="header-search-active">
+              <Search size={17} strokeWidth={2.2} style={{ color: "var(--text-faint)", flexShrink: 0 }} />
             <input
               type="text"
               autoFocus
@@ -134,7 +136,8 @@ export default function App() {
             </div>
           </>
         )}
-      </div>
+        </div>
+      )}
 
       <Routes>
         <Route path="/" element={<Feed />} />
