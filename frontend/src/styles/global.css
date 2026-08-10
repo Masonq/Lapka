@@ -40,6 +40,52 @@
   --shadow-float: 0 10px 30px rgba(26, 26, 26, 0.16);
 }
 
+/* --- Тёмная тема — переопределение тех же переменных, сохраняя относительные
+   соотношения (tint-варианты остаются "тонированными" версиями базового цвета,
+   просто на тёмном фоне вместо светлого, не просто инверсия). Переключается через
+   [data-theme="dark"] на <html>, ставится в ThemeContext до первой отрисовки,
+   чтобы не было вспышки светлой темы при загрузке (см. main.jsx) --- */
+[data-theme="dark"] {
+  --bg: #121214;
+  --surface: #1C1C1F;
+  --border: #2E2E32;
+
+  --primary: #F0803A;
+  --primary-strong: #E6712A;
+  --primary-tint: #3D2A1F;
+
+  --black: #F2F2F2;
+  --text: #F2F2F2;
+  --text-muted: #A8A8AE;
+  --text-faint: #97979D;
+
+  --green: #4CAF63;
+  --green-strong: #3DA854;
+  --green-tint: #1B2B1F;
+
+  --red: #E2564C;
+  --red-tint: #33201E;
+
+  --blue: #5C8FFF;
+  --blue-tint: #1A2540;
+
+  --gray-tint: #2A2A2E;
+
+  --star: #F5BB4D;
+
+  /* Тень на тёмном фоне почти не видна (тёмное на тёмном) — компенсирую
+     тонкой светлой обводкой вместо/вместе с тенью там, где она даёт
+     единственный визуальный разделитель (см. .card ниже) */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 6px 18px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.25), 0 14px 32px rgba(0, 0, 0, 0.4);
+  --shadow-float: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .post-card {
+  border: 1px solid var(--border);
+}
+
 a, button, [role="button"] {
   -webkit-tap-highlight-color: transparent;
 }
@@ -419,7 +465,7 @@ a {
   border-radius: 50%;
   border: none;
   background: rgba(255, 255, 255, 0.9);
-  color: var(--black);
+  color: #1A1A1A;
   display: flex;
   align-items: center;
   justify-content: center;

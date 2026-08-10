@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, KeyRound, Trash2, UserX, ShieldCheck, Wrench, Sparkles } from "lucide-react";
+import { ArrowLeft, KeyRound, Trash2, UserX, ShieldCheck, Wrench, Sparkles, Sun, Moon } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
+import { useTheme } from "../ThemeContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 
@@ -19,6 +20,7 @@ export default function Settings() {
   useDocumentTitle("Настройки");
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const { showToast } = useToast();
 
   const [currentPassword, setCurrentPassword] = useState("");
@@ -141,6 +143,36 @@ export default function Settings() {
       </div>
 
       <div className="detail-shell">
+        <div className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 15 }}>Тёмная тема</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  {theme === "dark" ? "Включена" : "Выключена"}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Выключить тёмную тему" : "Включить тёмную тему"}
+              aria-pressed={theme === "dark"}
+              style={{
+                width: 48, height: 28, borderRadius: 999, position: "relative", flexShrink: 0,
+                background: theme === "dark" ? "var(--primary-strong)" : "var(--border)",
+                transition: "background 0.2s",
+              }}
+            >
+              <span style={{
+                position: "absolute", top: 3, left: theme === "dark" ? 23 : 3,
+                width: 22, height: 22, borderRadius: "50%", background: "#fff",
+                transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+              }} />
+            </button>
+          </div>
+        </div>
+
         {isProvider === false && !showProviderForm && (
           <div
             className="card"
