@@ -4,26 +4,28 @@ import { MapPin, MessageCircle, CheckCircle2, Bookmark, ShieldCheck } from "luci
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
+import { useTranslation } from "react-i18next";
 
 const TYPE_LABELS = {
-  lost: "Потерялся",
-  found: "Найден",
-  adopt: "Ищет дом",
-  question: "Вопрос",
-  general: "Пост",
+  lost: "post_type.lost",
+  found: "post_type.found",
+  adopt: "post_type.adopt",
+  question: "post_type.question",
+  general: "post_type.general",
 };
 
-function timeAgo(iso) {
+function timeAgo(iso, t) {
   const diffMs = Date.now() - new Date(iso).getTime();
   const min = Math.floor(diffMs / 60000);
-  if (min < 1) return "только что";
-  if (min < 60) return `${min} мин назад`;
+  if (min < 1) return t("time.just_now");
+  if (min < 60) return t("time.min_ago", { min });
   const hrs = Math.floor(min / 60);
-  if (hrs < 24) return `${hrs} ч назад`;
-  return `${Math.floor(hrs / 24)} дн назад`;
+  if (hrs < 24) return t("time.hours_ago", { hours: hrs });
+  return t("time.days_ago", { days: Math.floor(hrs / 24) });
 }
 
 export default function PostCard({ post }) {
+  const { t } = useTranslation();
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const [saved, setSaved] = useState(post.is_saved);
@@ -52,7 +54,7 @@ export default function PostCard({ post }) {
         <button
           className="post-save-btn"
           onClick={toggleSave}
-          aria-label={saved ? "Убрать из сохранённого" : "Сохранить"}
+          aria-label={saved ? t("post.save_remove_aria") : t("post.save_aria")}
           aria-pressed={saved}
         >
           <Bookmark size={16} strokeWidth={2.2} fill={saved ? "currentColor" : "none"} />
@@ -66,11 +68,11 @@ export default function PostCard({ post }) {
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
           <span className={`post-badge ${post.type}`}>
             {post.is_resolved && <CheckCircle2 size={12} />}
-            {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
+            {post.is_resolved ? t("post_type.resolved") : t(TYPE_LABELS[post.type])}
           </span>
           {post.author.is_staff && post.show_staff_badge && (
             <span className="badge badge-solid">
-              <ShieldCheck size={11} /> Администрация
+              <ShieldCheck size={11} /> {t("post.staff_badge")}
             </span>
           )}
         </div>
@@ -93,7 +95,7 @@ export default function PostCard({ post }) {
         <span className="post-meta-item" style={{ flexShrink: 0 }}>
           <MessageCircle size={13} /> {post.comments_count}
         </span>
-        <span style={{ marginLeft: "auto", flexShrink: 0 }}>{timeAgo(post.created_at)}</span>
+        <span style={{ marginLeft: "auto", flexShrink: 0 }}>{timeAgo(post.created_at, t)}</span>
       </div>
     </div>
   );

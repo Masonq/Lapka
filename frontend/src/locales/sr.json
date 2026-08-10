@@ -99,5 +99,24 @@
     "delete_story_aria": "Obriši priču",
     "close_aria": "Zatvori",
     "previous_aria": "Prethodna priča"
+  },
+  "post_type": {
+    "lost": "Izgubljen",
+    "found": "Pronađen",
+    "adopt": "Traži dom",
+    "question": "Pitanje",
+    "general": "Objava",
+    "resolved": "Rešeno"
+  },
+  "time": {
+    "just_now": "upravo sada",
+    "min_ago": "pre {{min}} min",
+    "hours_ago": "pre {{hours}} h",
+    "days_ago": "pre {{days}} d"
+  },
+  "post": {
+    "save_remove_aria": "Ukloni iz sačuvanog",
+    "save_aria": "Sačuvaj",
+    "staff_badge": "Administracija"
   }
 }

@@ -99,5 +99,24 @@
     "delete_story_aria": "Удалить историю",
     "close_aria": "Закрыть",
     "previous_aria": "Предыдущая история"
+  },
+  "post_type": {
+    "lost": "Потерялся",
+    "found": "Найден",
+    "adopt": "Ищет дом",
+    "question": "Вопрос",
+    "general": "Пост",
+    "resolved": "Решено"
+  },
+  "time": {
+    "just_now": "только что",
+    "min_ago": "{{min}} мин назад",
+    "hours_ago": "{{hours}} ч назад",
+    "days_ago": "{{days}} дн назад"
+  },
+  "post": {
+    "save_remove_aria": "Убрать из сохранённого",
+    "save_aria": "Сохранить",
+    "staff_badge": "Администрация"
   }
 }
