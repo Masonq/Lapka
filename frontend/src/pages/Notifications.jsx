@@ -59,7 +59,7 @@ export default function Notifications() {
           flexShrink: 0, width: 260, borderRadius: 18, padding: 16,
           background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%)", color: "#fff",
         }}>
-          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>PetSocial — свои для своих</div>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>Lapki — свои для своих</div>
           <div style={{ fontSize: 12, opacity: 0.9 }}>Потеряшки, находки, пристройство и соседи с животными — всё в одном месте в Белграде</div>
         </div>
         <Link to="/settings" style={{

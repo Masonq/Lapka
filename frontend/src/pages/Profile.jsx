@@ -51,7 +51,7 @@ export default function Profile() {
                 )}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="subhead" style={{ fontSize: 16 }}>{me?.display_name || "Ты в PetSocial"}</div>
+                <div className="subhead" style={{ fontSize: 16 }}>{me?.display_name || "Ты в Lapki"}</div>
                 <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{me?.city}</div>
               </div>
             </Link>

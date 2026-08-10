@@ -76,11 +76,11 @@ export default function PostCard({ post }) {
 
       <div className="post-meta">
         <Link to={`/users/${post.author.id}`} className="post-meta-item post-meta-author">
-          <span className="post-meta-text">{post.author.display_name}</span>
+          <span className="post-meta-text" title={post.author.display_name}>{post.author.display_name}</span>
         </Link>
         {post.last_seen_location && (
           <span className="post-meta-item" style={{ minWidth: 0 }}>
-            <MapPin size={13} /> <span className="post-meta-text">{post.last_seen_location}</span>
+            <MapPin size={13} /> <span className="post-meta-text" title={post.last_seen_location}>{post.last_seen_location}</span>
           </span>
         )}
         <span className="post-meta-item" style={{ flexShrink: 0 }}>

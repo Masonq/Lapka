@@ -13,7 +13,7 @@
   --black: #1A1A1A;
   --text: #1A1A1A;
   --text-muted: #6E6E73;
-  --text-faint: #9C9CA0;
+  --text-faint: #707074;
 
   --green: #349248;
   --green-strong: #2E8340;
@@ -37,6 +37,16 @@
 
   --shadow-card: 0 1px 2px rgba(26, 26, 26, 0.04), 0 8px 24px rgba(26, 26, 26, 0.06);
   --shadow-float: 0 10px 30px rgba(26, 26, 26, 0.16);
+}
+
+/* Focus-ring только при клавиатурной навигации — у кнопок, чипов, ссылок-карточек
+   и табов раньше не было видимого фокуса вовсе, только у полей ввода */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--primary-strong);
+  outline-offset: 2px;
 }
 
 * {
@@ -187,13 +197,13 @@ a {
   position: absolute;
   top: -3px;
   right: -3px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 3px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
   border-radius: var(--radius-pill);
   background: var(--red);
   color: #FFFFFF;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -203,15 +213,15 @@ a {
 
 .tab-badge {
   position: absolute;
-  top: -5px;
-  right: -7px;
-  min-width: 14px;
-  height: 14px;
-  padding: 0 3px;
+  top: -6px;
+  right: -8px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
   border-radius: var(--radius-pill);
   background: var(--red);
   color: #FFFFFF;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -303,7 +313,7 @@ a {
 }
 
 .tab-item span {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: -0.01em;
 }

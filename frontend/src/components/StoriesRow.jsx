@@ -169,7 +169,7 @@ export default function StoriesRow() {
               fontSize: 13, fontWeight: 800,
             }}>
               {activeStories[viewerIndex].author.avatar_url ? (
-                <img src={activeStories[viewerIndex].author.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src={activeStories[viewerIndex].author.avatar_url} alt={activeStories[viewerIndex].author.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
                 activeStories[viewerIndex].author.display_name[0]?.toUpperCase()
               )}
@@ -191,7 +191,7 @@ export default function StoriesRow() {
           </div>
 
           <div style={{ flex: 1, position: "relative" }} onClick={nextStory}>
-            <img src={activeStories[viewerIndex].photo_url} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            <img src={activeStories[viewerIndex].photo_url} alt={`История: ${activeStories[viewerIndex].author.display_name}`} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             {viewerIndex > 0 && (
               <button
                 onClick={(e) => { e.stopPropagation(); setViewerIndex((i) => i - 1); }}

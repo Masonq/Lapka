@@ -15,8 +15,13 @@ export default function PhotoPicker({ value, onChange, label = "Фото" }) {
     e.target.value = "";
     if (!file) return;
 
+    const isHeic = /\.hei[cf]$/i.test(file.name) || file.type === "image/heic" || file.type === "image/heif";
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      setError("Можно загружать только JPEG, PNG или WebP");
+      setError(
+        isHeic
+          ? "Формат HEIC не поддерживается — в настройках камеры iPhone включи «Наиболее совместимый» (Форматы → Совместимость), или выбери фото из галереи заново"
+          : "Можно загружать только JPEG, PNG или WebP"
+      );
       return;
     }
     if (file.size > MAX_BYTES) {
@@ -31,7 +36,8 @@ export default function PhotoPicker({ value, onChange, label = "Фото" }) {
       const { url } = await api.uploadImage(file);
       onChange(url);
     } catch (err) {
-      setError(err.message);
+      const isNetworkError = err instanceof TypeError || /fetch|network/i.test(err.message || "");
+      setError(isNetworkError ? "Не удалось загрузить — проверь интернет-соединение и попробуй снова" : err.message);
       setPreview(value || null);
     } finally {
       setUploading(false);
@@ -69,7 +75,7 @@ export default function PhotoPicker({ value, onChange, label = "Фото" }) {
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
         onChange={handleFile}
         style={{ display: "none" }}
       />
