@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, MessageCircle, CheckCircle2, Bookmark } from "lucide-react";
+import { MapPin, MessageCircle, CheckCircle2, Bookmark, ShieldCheck } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -67,6 +67,11 @@ export default function PostCard({ post }) {
           {post.is_resolved && <CheckCircle2 size={12} />}
           {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
         </span>
+        {post.author.is_staff && (
+          <span className="badge badge-solid badge-sm" style={{ marginLeft: 6 }}>
+            <ShieldCheck size={11} /> Администрация
+          </span>
+        )}
 
         <h3 className="post-title">{post.title}</h3>
         <p className="post-body">

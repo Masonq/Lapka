@@ -50,6 +50,7 @@ class UserOut(BaseModel):
     bio: Optional[str] = None
     city: str
     is_service_provider: bool
+    is_staff: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 

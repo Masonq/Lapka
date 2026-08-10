@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag, Eye, Plus } from "lucide-react";
+import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag, Eye, Plus, ShieldCheck } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -166,6 +166,11 @@ export default function PostDetail() {
             {post.is_resolved && <CheckCircle2 size={12} />}
             {post.is_resolved ? "Решено" : TYPE_LABELS[post.type]}
           </span>
+          {post.author.is_staff && (
+            <span className="badge badge-solid badge-sm" style={{ marginLeft: 6 }}>
+              <ShieldCheck size={11} /> Администрация
+            </span>
+          )}
           <h2 className="post-title">{post.title}</h2>
           <p className="post-body">{post.body}</p>
           {post.last_seen_location && (
@@ -305,9 +310,16 @@ export default function PostDetail() {
 
         {comments.map((c) => (
           <div key={c.id} className="card" style={{ borderRadius: 16, padding: "10px 14px", marginBottom: 8 }}>
-            <Link to={`/users/${c.author.id}`} className="post-meta-author" style={{ fontSize: 12, display: "inline-block", marginBottom: 2 }}>
-              {c.author.display_name}
-            </Link>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+              <Link to={`/users/${c.author.id}`} className="post-meta-author" style={{ fontSize: 12 }}>
+                {c.author.display_name}
+              </Link>
+              {c.author.is_staff && (
+                <span className="badge badge-solid badge-sm" style={{ padding: "2px 7px" }}>
+                  <ShieldCheck size={10} /> Администрация
+                </span>
+              )}
+            </div>
             <div style={{ fontSize: 14 }}>{c.body}</div>
           </div>
         ))}

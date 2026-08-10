@@ -58,6 +58,12 @@ class User(Base):
     role = Column(String(20), default="user")  # "user" / "editor" / "moderator" — admin отдельно, через is_admin
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
+    @property
+    def is_staff(self) -> bool:
+        """Для бейджа 'Администрация' на постах — не показывает конкретную роль
+        (admin/moderator/editor), только сам факт принадлежности к команде."""
+        return bool(self.is_admin) or self.role in ("moderator", "editor")
+
     pets = relationship("Pet", back_populates="owner", cascade="all, delete-orphan")
     posts = relationship("Post", back_populates="author", cascade="all, delete-orphan")
     service_profile = relationship("ServiceProvider", back_populates="user", uselist=False, cascade="all, delete-orphan")

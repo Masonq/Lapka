@@ -356,3 +356,33 @@ def test_list_comments_query_count_does_not_scale_with_result_size(client, regis
     assert len(r.json()) == 4
     # 1 запрос комментариев (с joinedload author) — без отдельных запросов на каждый
     assert query_count <= 1
+
+
+def test_post_author_is_staff_reflects_moderator_role(client, register_with_role, register_user):
+    headers_mod, _ = register_with_role("moderator", "Модератор Постов")
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "Объявление от модерации", "body": "Текст"}, headers=headers_mod
+    ).json()
+    assert post["author"]["is_staff"] is True
+
+    headers_regular = register_user("Обычный")
+    post2 = client.post(
+        "/api/posts", json={"type": "general", "title": "Обычный пост", "body": "Текст"}, headers=headers_regular
+    ).json()
+    assert post2["author"]["is_staff"] is False
+
+
+def test_post_author_is_staff_reflects_admin(client, register_admin):
+    headers_admin, _ = register_admin()
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "От админа", "body": "Текст"}, headers=headers_admin
+    ).json()
+    assert post["author"]["is_staff"] is True
+
+
+def test_post_author_is_staff_reflects_editor(client, register_with_role):
+    headers_editor, _ = register_with_role("editor", "Редактор")
+    post = client.post(
+        "/api/posts", json={"type": "general", "title": "От редактора", "body": "Текст"}, headers=headers_editor
+    ).json()
+    assert post["author"]["is_staff"] is True
