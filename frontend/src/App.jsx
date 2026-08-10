@@ -168,7 +168,7 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {!searchOpen && (
+      {!searchOpen && !isThreadPage && (
         <>
           <div className="bottom-scrim" />
           <TabBar unreadMessages={unreadMessages} />
