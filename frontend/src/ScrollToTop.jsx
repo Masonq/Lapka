@@ -24,13 +24,40 @@ export default function ScrollToTop() {
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
-    // Повторное подтверждение после отрисовки кадра — ловит случаи, когда
-    // асинхронно подгружаемый контент (картинки историй, аватарки) успевает
-    // сдвинуть layout уже ПОСЛЕ первого сброса, но до того как пользователь
-    // увидит страницу. overflow-anchor:none должен это предотвращать сам по
-    // себе, но это простая и безопасная страховка вторым слоем.
-    const raf = requestAnimationFrame(() => window.scrollTo(0, 0));
-    return () => cancelAnimationFrame(raf);
+
+    // Прошлая версия (один re-assert через requestAnimationFrame, т.е. один
+    // кадр спустя) оказалась недостаточной — баг воспроизводился, даже когда
+    // ПРЕДЫДУЩАЯ страница вообще не была проскроллена. Значит дело не в
+    // "запомненной" позиции с прошлой страницы, а в чём-то, что сдвигает
+    // САМУ новую страницу уже после её открытия — скорее всего, асинхронно
+    // подгружаемый контент (аватарки, картинки историй), который может
+    // подъехать через сотни миллисекунд, далеко за пределами одного кадра.
+    //
+    // Удерживаю scrollY=0 многократно в течение короткого окна после
+    // навигации — грубее, чем один точечный сброс, но надёжно перекрывает
+    // сдвиг независимо от того, через сколько миллисекунд он произойдёт.
+    const delays = [16, 32, 50, 80, 120, 180, 250, 350, 450, 600, 750, 900, 1050, 1200, 1350, 1500];
+    const timers = delays.map((delay) =>
+      setTimeout(() => {
+        if (window.scrollY !== 0) window.scrollTo(0, 0);
+      }, delay)
+    );
+
+    // Если пользователь сам начал скроллить (тач/колесо/стрелки) — сразу
+    // прекращаем принудительную коррекцию, чтобы не мешать реальному вводу
+    function cancelAll() {
+      timers.forEach(clearTimeout);
+      window.removeEventListener("touchstart", cancelAll);
+      window.removeEventListener("wheel", cancelAll);
+    }
+    window.addEventListener("touchstart", cancelAll, { passive: true });
+    window.addEventListener("wheel", cancelAll, { passive: true });
+
+    return () => {
+      timers.forEach(clearTimeout);
+      window.removeEventListener("touchstart", cancelAll);
+      window.removeEventListener("wheel", cancelAll);
+    };
   }, [pathname]);
 
   return null;
