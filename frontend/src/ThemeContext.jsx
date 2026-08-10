@@ -17,19 +17,14 @@ export function ThemeProvider({ children }) {
     } else {
       document.documentElement.removeAttribute("data-theme");
     }
-    // Инлайн-скрипт в index.html красит строку браузера под СИСТЕМНУЮ тему через
-    // статичные <meta media="..."> ещё до загрузки JS — но если пользователь вручную
-    // переключил тему внутри приложения вопреки системной, эти статичные варианты
-    // покажут неверный цвет. Держу актуальный theme-color в одном явном тэге, который
-    // выигрывает у media-вариантов (более специфичный/более поздний в DOM)
-    let meta = document.querySelector('meta[name="theme-color"][data-dynamic]');
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.setAttribute("name", "theme-color");
-      meta.setAttribute("data-dynamic", "true");
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute("content", theme === "dark" ? "#121214" : "#FAFAFA");
+    // Тег всегда ровно один — уже есть в index.html с самого начала (инлайн-скрипт
+    // там же правит его значение синхронно до первой отрисовки). Раньше здесь
+    // создавался ВТОРОЙ дублирующий тег поверх статичных media-вариантов —
+    // три конкурирующих meta[theme-color] одновременно, из-за чего строка
+    // браузера (Safari) не перекрашивалась мгновенно при переключении темы,
+    // только после полной перезагрузки страницы
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "dark" ? "#121214" : "#FAFAFA");
   }, [theme]);
 
   function setTheme(next) {

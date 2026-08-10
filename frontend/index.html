@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Lapki — соцсеть для питомцев Белграда</title>
     <meta name="description" content="Потеряшки, находки, пристройство и услуги для владельцев животных в Белграде — как в чате, только сайтом." />
-    <meta name="theme-color" content="#FAFAFA" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#121214" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#FAFAFA" />
 
     <link rel="icon" type="image/png" href="/favicon.png?v=2" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
@@ -38,7 +37,11 @@
       (function () {
         var saved = localStorage.getItem("theme");
         var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-        if (theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+        if (theme === "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", "#121214");
+        }
       })();
     </script>
     <div id="root"></div>
