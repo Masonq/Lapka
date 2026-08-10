@@ -29,7 +29,7 @@ def test_port_465_uses_implicit_ssl(monkeypatch):
          patch.object(email_module.smtplib, "SMTP") as plain_cls:
         email_module.send_email("to@example.com", "Тема", "Текст")
 
-        ssl_cls.assert_called_once_with("smtp.resend.com", 465)
+        ssl_cls.assert_called_once_with("smtp.resend.com", 465, timeout=10)
         plain_cls.assert_not_called()
         mock_ssl.login.assert_called_once_with("resend", "re_fake_key_for_test")
 
@@ -49,7 +49,7 @@ def test_port_587_uses_starttls(monkeypatch):
          patch.object(email_module.smtplib, "SMTP_SSL") as ssl_cls:
         email_module.send_email("to@example.com", "Тема", "Текст")
 
-        plain_cls.assert_called_once_with("smtp.resend.com", 587)
+        plain_cls.assert_called_once_with("smtp.resend.com", 587, timeout=10)
         mock_plain.starttls.assert_called_once()
         ssl_cls.assert_not_called()
 
@@ -69,3 +69,19 @@ def test_generate_code_is_six_digits():
         code = email_module.generate_code()
         assert len(code) == 6
         assert code.isdigit()
+
+
+def test_send_failure_is_caught_not_raised(monkeypatch):
+    """Критично для фоновой задачи — если SMTP реально недоступен (например,
+    порт заблокирован хостером), send_email не должен ронять вызывающий код
+    исключением, только залогировать. Раньше это было неважно (звонок был
+    синхронным, ошибка просто возвращалась пользователю), но теперь вызывается
+    из background_tasks, где необработанное исключение легко потерять."""
+    monkeypatch.setattr(email_module, "SMTP_HOST", "smtp.resend.com")
+    monkeypatch.setattr(email_module, "SMTP_PORT", 587)
+    monkeypatch.setattr(email_module, "SMTP_USER", "resend")
+    monkeypatch.setattr(email_module, "SMTP_PASSWORD", "re_fake_key_for_test")
+    monkeypatch.setattr(email_module, "SMTP_FROM", "noreply@example.com")
+
+    with patch.object(email_module.smtplib, "SMTP", side_effect=TimeoutError("Connection timed out")):
+        email_module.send_email("to@example.com", "Тема", "Текст")  # не должно бросить исключение

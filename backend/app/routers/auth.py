@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
@@ -137,10 +137,18 @@ def complete_onboarding(db: Session = Depends(get_db), user: User = Depends(get_
 
 
 @router.post("/register/request-code")
-def request_register_code(data: RegisterEmail, request: Request, db: Session = Depends(get_db)):
+def request_register_code(
+    data: RegisterEmail, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
+):
     """Первый шаг регистрации — код на почту. Реальный User ещё не создаётся:
     payload хранит display_name+хеш пароля, аккаунт появится только в
-    verify-code. Значит незавершённые регистрации не оставляют мусора в базе."""
+    verify-code. Значит незавершённые регистрации не оставляют мусора в базе.
+
+    Письмо отправляется в фоне (background_tasks), а не синхронно внутри
+    запроса — реальное SMTP-соединение может быть медленным или зависнуть
+    (например, если хостер блокирует исходящий порт 587/465), и раньше это
+    вешало весь HTTP-запрос на неопределённое время, хотя код уже успешно
+    создавался в базе. Пользователь теперь получает ответ мгновенно."""
     register_limiter.check(client_ip(request))
 
     if db.query(User).filter(User.email == data.email).first():
@@ -150,7 +158,7 @@ def request_register_code(data: RegisterEmail, request: Request, db: Session = D
         db, data.email, "register",
         payload={"display_name": data.display_name, "password_hash": hash_password(data.password)},
     )
-    send_verification_code(data.email, code, "register")
+    background_tasks.add_task(send_verification_code, data.email, code, "register")
     return {"message": "Код отправлен на почту"}
 
 
@@ -215,7 +223,8 @@ def telegram_auth(data: TelegramAuth, request: Request, db: Session = Depends(ge
 
 @router.post("/password/request-code")
 def request_password_change_code(
-    data: RequestPasswordChangeCode, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+    data: RequestPasswordChangeCode, background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db), user: User = Depends(get_current_user)
 ):
     account_action_limiter.check(user.id)
     code_request_limiter.check(user.id)
@@ -226,7 +235,7 @@ def request_password_change_code(
         raise HTTPException(status_code=401, detail="Текущий пароль неверен")
 
     code = _issue_code(db, user.email, "change_password", user_id=user.id)
-    send_verification_code(user.email, code, "change_password")
+    background_tasks.add_task(send_verification_code, user.email, code, "change_password")
     return {"message": "Код отправлен на почту"}
 
 

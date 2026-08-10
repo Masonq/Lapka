@@ -53,15 +53,22 @@ def send_email(to: str, subject: str, body: str) -> None:
     # SSL/SMTPS), starttls() там не нужен и не сработает. Порт 587 (Gmail/Яндекс/Resend
     # тоже поддерживает) — соединение начинается открытым текстом, потом апгрейдится
     # через STARTTLS. Оба варианта — легитимный стандарт, выбираем по порту автоматически.
-    if SMTP_PORT == 465:
-        with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as server:
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(SMTP_FROM, [to], msg.as_string())
-    else:
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(SMTP_FROM, [to], msg.as_string())
+    try:
+        if SMTP_PORT == 465:
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=10) as server:
+                server.login(SMTP_USER, SMTP_PASSWORD)
+                server.sendmail(SMTP_FROM, [to], msg.as_string())
+        else:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
+                server.starttls()
+                server.login(SMTP_USER, SMTP_PASSWORD)
+                server.sendmail(SMTP_FROM, [to], msg.as_string())
+    except Exception:
+        # Письмо отправляется в фоновой задаче (после того как пользователь уже получил
+        # ответ) — необработанное исключение здесь легко потерять незамеченным. Явно
+        # логируем с полным стектрейсом, чтобы в docker compose logs было видно, если
+        # письмо реально не дошло (например, хостер блокирует исходящий SMTP-порт)
+        logger.exception("Не удалось отправить письмо. To: %s, Subject: %s", to, subject)
 
 
 def send_verification_code(to: str, code: str, purpose: str) -> None:
