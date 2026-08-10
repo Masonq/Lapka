@@ -1,4 +1,8 @@
+import { useTranslation } from "react-i18next";
+
 export default function WeightChart({ records }) {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language === "sr" ? "sr-RS" : "ru-RU";
   // records — записи категории "weight", отсортированные по дате по возрастанию
   const points = records
     .filter((r) => r.value != null)
@@ -27,8 +31,8 @@ export default function WeightChart({ records }) {
   return (
     <div style={{ marginBottom: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-faint)", marginBottom: 4 }}>
-        <span>{min} кг</span>
-        <span>{max} кг</span>
+        <span>{min} {t("weight_chart.kg")}</span>
+        <span>{max} {t("weight_chart.kg")}</span>
       </div>
       <svg viewBox={`0 0 ${width} ${height}`} style={{ width: "100%", height: 70, display: "block" }} preserveAspectRatio="none">
         <path d={path} fill="none" stroke="var(--primary-strong)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
@@ -37,8 +41,8 @@ export default function WeightChart({ records }) {
         ))}
       </svg>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-faint)", marginTop: 4 }}>
-        <span>{new Date(coords[0].date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}</span>
-        <span>{new Date(coords[coords.length - 1].date).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}</span>
+        <span>{new Date(coords[0].date).toLocaleDateString(dateLocale, { day: "numeric", month: "short" })}</span>
+        <span>{new Date(coords[coords.length - 1].date).toLocaleDateString(dateLocale, { day: "numeric", month: "short" })}</span>
       </div>
     </div>
   );

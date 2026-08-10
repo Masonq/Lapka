@@ -1,10 +1,13 @@
 import { useRef, useState } from "react";
 import { Camera, X, Loader2 } from "lucide-react";
 import { api } from "../api/client";
+import { useTranslation } from "react-i18next";
 
 const MAX_BYTES = 8 * 1024 * 1024;
 
-export default function PhotoPicker({ value, onChange, label = "Фото" }) {
+export default function PhotoPicker({ value, onChange, label }) {
+  const { t } = useTranslation();
+  const displayLabel = label ?? t("photo_picker.default_label");
   const inputRef = useRef(null);
   const [preview, setPreview] = useState(value || null);
   const [uploading, setUploading] = useState(false);
@@ -17,15 +20,11 @@ export default function PhotoPicker({ value, onChange, label = "Фото" }) {
 
     const isHeic = /\.hei[cf]$/i.test(file.name) || file.type === "image/heic" || file.type === "image/heif";
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      setError(
-        isHeic
-          ? "Формат HEIC не поддерживается — в настройках камеры iPhone включи «Наиболее совместимый» (Форматы → Совместимость), или выбери фото из галереи заново"
-          : "Можно загружать только JPEG, PNG или WebP"
-      );
+      setError(isHeic ? t("photo_picker.heic_error") : t("photo_picker.wrong_format"));
       return;
     }
     if (file.size > MAX_BYTES) {
-      setError("Файл слишком большой — максимум 8 МБ");
+      setError(t("photo_picker.too_large"));
       return;
     }
 
@@ -37,7 +36,7 @@ export default function PhotoPicker({ value, onChange, label = "Фото" }) {
       onChange(url);
     } catch (err) {
       const isNetworkError = err instanceof TypeError || /fetch|network/i.test(err.message || "");
-      setError(isNetworkError ? "Не удалось загрузить — проверь интернет-соединение и попробуй снова" : err.message);
+      setError(isNetworkError ? t("photo_picker.network_error") : err.message);
       setPreview(value || null);
     } finally {
       setUploading(false);
@@ -51,17 +50,17 @@ export default function PhotoPicker({ value, onChange, label = "Фото" }) {
 
   return (
     <div className="field">
-      <label>{label}</label>
+      <label>{displayLabel}</label>
       {preview ? (
         <div className="photo-preview">
-          <img src={preview} alt="Предпросмотр фото" />
+          <img src={preview} alt={t("photo_picker.preview_alt")} />
           {uploading && (
             <div className="photo-preview-overlay">
               <Loader2 size={20} className="spin" />
             </div>
           )}
           {!uploading && (
-            <button type="button" className="photo-remove" onClick={clear} aria-label="Убрать фото">
+            <button type="button" className="photo-remove" onClick={clear} aria-label={t("photo_picker.remove_aria")}>
               <X size={14} strokeWidth={2.4} />
             </button>
           )}
@@ -69,7 +68,7 @@ export default function PhotoPicker({ value, onChange, label = "Фото" }) {
       ) : (
         <button type="button" className="photo-picker-btn" onClick={() => inputRef.current?.click()}>
           <Camera size={20} strokeWidth={2} />
-          Добавить фото
+          {t("photo_picker.add_photo")}
         </button>
       )}
       <input

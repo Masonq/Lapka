@@ -10,7 +10,8 @@
     "search_placeholder": "Traži…",
     "close_search": "Zatvori pretragu",
     "go_home": "Na početnu",
-    "notifications": "Obaveštenja"
+    "notifications": "Obaveštenja",
+    "loading": "Učitavanje"
   },
   "settings": {
     "language": "Jezik",
@@ -118,5 +119,54 @@
     "save_remove_aria": "Ukloni iz sačuvanog",
     "save_aria": "Sačuvaj",
     "staff_badge": "Administracija"
+  },
+  "error": {
+    "default_message": "Nije uspelo učitavanje",
+    "hint": "Proveri internet konekciju i pokušaj ponovo",
+    "retry": "Pokušaj ponovo"
+  },
+  "weight_chart": {
+    "kg": "kg"
+  },
+  "onboarding": {
+    "feature_search": "Pretražuj izgubljene i pronađene životinje",
+    "feature_adopt": "Pronalazi dom za ljubimce",
+    "feature_connect": "Komuniciraj sa vlasnicima i pronalazi usluge",
+    "close_aria": "Zatvori uvod",
+    "welcome_title": "Dobrodošli u Lapki",
+    "welcome_subtitle": "Društvena mreža za ljubitelje životinja u Beogradu",
+    "features_title": "Šta možeš da radiš",
+    "add_pet_title": "Dodaj svog ljubimca",
+    "add_pet_text": "Ovo traje manje od minuta. Nakon toga ćeš lakše kreirati objave i komunicirati.",
+    "next": "Dalje",
+    "add_pet_button": "Dodaj ljubimca",
+    "skip": "Preskoči"
+  },
+  "provider_card": {
+    "today": "danas",
+    "days_ago": "pre {{days}} d",
+    "months_ago": "pre {{months}} mes",
+    "review_published": "Recenzija objavljena",
+    "verified_aria": "Potvrđeni pružalac usluga",
+    "price_from": "od {{price}} din.",
+    "reviews": "Recenzije",
+    "loading": "Učitavamo…",
+    "no_reviews": "Još nema recenzija",
+    "leave_review": "Ostavi recenziju",
+    "rating_aria": "Ocena",
+    "star_aria": "{{n}} od 5",
+    "review_placeholder": "Kako je prošlo? (opciono)",
+    "sending": "Šaljemo…",
+    "send": "Pošalji"
+  },
+  "photo_picker": {
+    "default_label": "Fotografija",
+    "heic_error": "HEIC format nije podržan — u podešavanjima kamere na iPhone-u uključi „Najkompatibilnije” (Formati → Kompatibilnost), ili ponovo izaberi fotografiju iz galerije",
+    "wrong_format": "Možeš da učitaš samo JPEG, PNG ili WebP",
+    "too_large": "Fajl je prevelik — maksimum 8 MB",
+    "network_error": "Nije uspelo učitavanje — proveri internet konekciju i pokušaj ponovo",
+    "preview_alt": "Pregled fotografije",
+    "remove_aria": "Ukloni fotografiju",
+    "add_photo": "Dodaj fotografiju"
   }
 }

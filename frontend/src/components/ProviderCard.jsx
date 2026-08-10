@@ -4,20 +4,26 @@ import { Star, Phone, ChevronDown, ChevronUp, BadgeCheck } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
+import { useTranslation } from "react-i18next";
 
-const TYPE_RU = {
-  sitter: "Ситтер", boarding: "Передержка", trainer: "Кинолог", vet: "Ветеринар", groomer: "Грумер",
+// Переиспользую те же ключи, что уже есть у типов услуг в Settings.jsx —
+// один и тот же смысл (Ситтер/Передержка/Кинолог/Ветеринар/Грумер), не дублирую
+const TYPE_KEYS = {
+  sitter: "settings.service_sitter", boarding: "settings.service_boarding",
+  trainer: "settings.service_trainer", vet: "settings.service_vet", groomer: "settings.service_groomer",
 };
 
-function timeAgo(iso) {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const days = Math.floor(diffMs / 86400000);
-  if (days < 1) return "сегодня";
-  if (days < 30) return `${days} дн назад`;
-  return `${Math.floor(days / 30)} мес назад`;
-}
-
 export default function ProviderCard({ provider, onReviewed }) {
+  const { t } = useTranslation();
+
+  function timeAgo(iso) {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const days = Math.floor(diffMs / 86400000);
+    if (days < 1) return t("provider_card.today");
+    if (days < 30) return t("provider_card.days_ago", { days });
+    return t("provider_card.months_ago", { months: Math.floor(days / 30) });
+  }
+
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -43,7 +49,7 @@ export default function ProviderCard({ provider, onReviewed }) {
     setSubmitting(true);
     try {
       await api.reviewProvider(provider.id, { rating, body: body.trim() || undefined });
-      showToast("Отзыв опубликован");
+      showToast(t("provider_card.review_published"));
       setShowForm(false);
       setBody("");
       setRating(5);
@@ -66,12 +72,12 @@ export default function ProviderCard({ provider, onReviewed }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
-            {TYPE_RU[provider.service_type]}
+            {t(TYPE_KEYS[provider.service_type])}
           </span>
           <div className="subhead" style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 4 }}>
             <Link to={`/users/${provider.user.id}`} className="post-meta-author" onClick={(e) => e.stopPropagation()}>{provider.user.display_name}</Link>
             {provider.is_verified && (
-              <BadgeCheck size={15} style={{ color: "var(--green-strong)", flexShrink: 0 }} aria-label="Подтверждённый исполнитель" />
+              <BadgeCheck size={15} style={{ color: "var(--green-strong)", flexShrink: 0 }} aria-label={t("provider_card.verified_aria")} />
             )}
           </div>
         </div>
@@ -85,7 +91,7 @@ export default function ProviderCard({ provider, onReviewed }) {
       <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "8px 0" }}>{provider.description}</p>
 
       <div className="post-meta">
-        {provider.price_from != null && <span>от {provider.price_from} дин.</span>}
+        {provider.price_from != null && <span>{t("provider_card.price_from", { price: provider.price_from })}</span>}
         {provider.contact && (
           <span className="post-meta-item"><Phone size={13} /> {provider.contact}</span>
         )}
@@ -99,16 +105,16 @@ export default function ProviderCard({ provider, onReviewed }) {
           color: "var(--black)", background: "none", border: "none", cursor: "pointer", padding: 0,
         }}
       >
-        Отзывы {provider.rating_count > 0 ? `(${provider.rating_count})` : ""}
+        {t("provider_card.reviews")} {provider.rating_count > 0 ? `(${provider.rating_count})` : ""}
         {expanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
       </button>
 
       {expanded && (
         <div style={{ marginTop: 10 }} onClick={(e) => e.stopPropagation()}>
-          {loadingReviews && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+          {loadingReviews && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>{t("provider_card.loading")}</p>}
 
           {!loadingReviews && reviews?.length === 0 && (
-            <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Пока нет отзывов</p>
+            <p style={{ fontSize: 13, color: "var(--text-faint)" }}>{t("provider_card.no_reviews")}</p>
           )}
 
           {!loadingReviews && reviews?.map((r) => (
@@ -135,19 +141,19 @@ export default function ProviderCard({ provider, onReviewed }) {
 
           {isAuthed && !showForm && (
             <button type="button" className="btn btn-ghost" style={{ marginTop: 10 }} onClick={() => setShowForm(true)}>
-              Оставить отзыв
+              {t("provider_card.leave_review")}
             </button>
           )}
 
           {showForm && (
             <form onSubmit={submitReview} style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
-              <div style={{ display: "flex", gap: 4, marginBottom: 8 }} role="radiogroup" aria-label="Оценка">
+              <div style={{ display: "flex", gap: 4, marginBottom: 8 }} role="radiogroup" aria-label={t("provider_card.rating_aria")}>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => setRating(i + 1)}
-                    aria-label={`${i + 1} из 5`}
+                    aria-label={t("provider_card.star_aria", { n: i + 1 })}
                     style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}
                   >
                     <Star size={22} fill={i < rating ? "var(--star)" : "var(--gray-tint)"} stroke="none" />
@@ -158,7 +164,7 @@ export default function ProviderCard({ provider, onReviewed }) {
                 rows={2}
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                placeholder="Как всё прошло? (необязательно)"
+                placeholder={t("provider_card.review_placeholder")}
                 style={{
                   width: "100%", border: "1px solid var(--border)", borderRadius: 12,
                   padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
@@ -166,10 +172,10 @@ export default function ProviderCard({ provider, onReviewed }) {
               />
               <div style={{ display: "flex", gap: 8 }}>
                 <button className="btn btn-primary" disabled={submitting}>
-                  {submitting ? "Отправляем…" : "Отправить"}
+                  {submitting ? t("provider_card.sending") : t("provider_card.send")}
                 </button>
                 <button type="button" className="btn btn-ghost" onClick={() => setShowForm(false)}>
-                  Отмена
+                  {t("settings.cancel")}
                 </button>
               </div>
             </form>

@@ -2,14 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, ArrowLeft, Search, Home, MessageCircle, PawPrint } from "lucide-react";
 import { api } from "../api/client";
+import { useTranslation } from "react-i18next";
 
 const FEATURES = [
-  { icon: Search, text: "Искать потерявшихся и найденных животных" },
-  { icon: Home, text: "Пристраивать питомцев в добрые руки" },
-  { icon: MessageCircle, text: "Общаться с другими владельцами и находить услуги" },
+  { icon: Search, key: "onboarding.feature_search" },
+  { icon: Home, key: "onboarding.feature_adopt" },
+  { icon: MessageCircle, key: "onboarding.feature_connect" },
 ];
 
 export default function OnboardingModal({ onDone }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const totalSteps = 3;
@@ -35,7 +37,7 @@ export default function OnboardingModal({ onDone }) {
     >
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
         {step > 0 ? (
-          <button className="icon-btn" onClick={() => setStep((s) => s - 1)} aria-label="Назад">
+          <button className="icon-btn" onClick={() => setStep((s) => s - 1)} aria-label={t("settings.back")}>
             <ArrowLeft size={17} strokeWidth={2.2} />
           </button>
         ) : (
@@ -53,7 +55,7 @@ export default function OnboardingModal({ onDone }) {
             />
           ))}
         </div>
-        <button className="icon-btn" onClick={() => finish(false)} aria-label="Закрыть онбординг">
+        <button className="icon-btn" onClick={() => finish(false)} aria-label={t("onboarding.close_aria")}>
           <X size={17} strokeWidth={2.2} />
         </button>
       </div>
@@ -67,18 +69,18 @@ export default function OnboardingModal({ onDone }) {
             }}>
               <PawPrint size={44} strokeWidth={1.8} style={{ color: "var(--primary-strong)" }} />
             </div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 10px" }}>Добро пожаловать в Lapki</h2>
+            <h2 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 10px" }}>{t("onboarding.welcome_title")}</h2>
             <p style={{ fontSize: 15, color: "var(--text-muted)", lineHeight: 1.5, margin: 0 }}>
-              Соцсеть для тех, кто любит животных в Белграде
+              {t("onboarding.welcome_subtitle")}
             </p>
           </>
         )}
 
         {step === 1 && (
           <>
-            <h2 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 24px" }}>Что можно делать</h2>
+            <h2 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 24px" }}>{t("onboarding.features_title")}</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
-              {FEATURES.map(({ icon: Icon, text }, i) => (
+              {FEATURES.map(({ icon: Icon, key }, i) => (
                 <div key={i} className="card" style={{
                   borderRadius: 18, padding: 16, display: "flex", alignItems: "center", gap: 14, textAlign: "left",
                 }}>
@@ -88,7 +90,7 @@ export default function OnboardingModal({ onDone }) {
                   }}>
                     <Icon size={20} strokeWidth={2} />
                   </div>
-                  <span style={{ fontSize: 14, fontWeight: 600 }}>{text}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>{t(key)}</span>
                 </div>
               ))}
             </div>
@@ -103,9 +105,9 @@ export default function OnboardingModal({ onDone }) {
             }}>
               <PawPrint size={44} strokeWidth={1.8} style={{ color: "var(--primary-strong)" }} />
             </div>
-            <h2 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 10px" }}>Добавь своего питомца</h2>
+            <h2 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 10px" }}>{t("onboarding.add_pet_title")}</h2>
             <p style={{ fontSize: 14, color: "var(--text-muted)", lineHeight: 1.5, margin: 0 }}>
-              Это займёт меньше минуты. После этого тебе будет проще создавать объявления и общаться.
+              {t("onboarding.add_pet_text")}
             </p>
           </>
         )}
@@ -114,15 +116,15 @@ export default function OnboardingModal({ onDone }) {
       <div style={{ maxWidth: 380, margin: "0 auto", width: "100%" }}>
         {step < totalSteps - 1 ? (
           <button className="btn btn-primary btn-block" onClick={() => setStep((s) => s + 1)}>
-            Далее
+            {t("onboarding.next")}
           </button>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <button className="btn btn-primary btn-block" onClick={() => finish(true)}>
-              Добавить питомца
+              {t("onboarding.add_pet_button")}
             </button>
             <button className="btn btn-ghost btn-block" onClick={() => finish(false)}>
-              Пропустить
+              {t("onboarding.skip")}
             </button>
           </div>
         )}
