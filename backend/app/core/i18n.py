@@ -199,6 +199,34 @@ ERRORS: dict[str, dict[str, str]] = {
         "ru": "Ты уже оставлял отзыв этому исполнителю",
         "sr": "Već si ostavio(la) recenziju ovom pružaocu usluga",
     },
+    "cannot_message_self": {
+        "ru": "Нельзя написать самому себе",
+        "sr": "Ne možeš pisati samom sebi",
+    },
+    "cannot_message_this_user": {
+        "ru": "Нельзя написать этому пользователю",
+        "sr": "Ne možeš pisati ovom korisniku",
+    },
+    "message_body_required": {
+        "ru": "Сообщение не может быть пустым",
+        "sr": "Poruka ne može biti prazna",
+    },
+    "unknown_event_type": {
+        "ru": "Неизвестный тип: должно быть walk или event",
+        "sr": "Nepoznat tip: mora biti walk ili event",
+    },
+    "can_only_link_own_pet": {
+        "ru": "Можно указать только своего питомца",
+        "sr": "Možeš navesti samo svog ljubimca",
+    },
+    "event_not_found": {
+        "ru": "Событие не найдено",
+        "sr": "Događaj nije pronađen",
+    },
+    "event_full": {
+        "ru": "Мест больше нет",
+        "sr": "Nema više mesta",
+    },
 }
 
 

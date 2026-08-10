@@ -176,3 +176,24 @@ def test_get_thread_query_count_does_not_scale_with_message_count(client, regist
     # 1 запрос собеседника + 1 запрос сообщений (с joinedload sender) + 1 UPDATE
     # прочитанности + сама авторизация — небольшая константа, не растёт с числом сообщений
     assert query_count <= 5
+
+
+def test_message_self_error_translated_to_serbian(client, register_user_with_id):
+    headers, user_id = register_user_with_id()
+    r = client.post(
+        f"/api/messages/{user_id}", json={"body": "Привет себе"},
+        headers={**headers, "X-Lang": "sr"},
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Ne možeš pisati samom sebi"
+
+
+def test_empty_message_error_translated_to_serbian(client, register_user, register_user_with_id):
+    headers = register_user("Отправитель")
+    _, recipient_id = register_user_with_id("Получатель")
+    r = client.post(
+        f"/api/messages/{recipient_id}", json={"body": "   "},
+        headers={**headers, "X-Lang": "sr"},
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Poruka ne može biti prazna"

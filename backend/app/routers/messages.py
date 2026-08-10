@@ -3,6 +3,7 @@ from sqlalchemy import and_, desc, func, or_
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.rate_limit import RateLimiter
 from app.core.security import get_current_user
 from app.core.ws_manager import manager
@@ -79,10 +80,13 @@ def unread_count(db: Session = Depends(get_db), user: User = Depends(get_current
 
 
 @router.get("/{user_id}", response_model=list[MessageOut])
-def get_thread(user_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def get_thread(
+    user_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     partner = db.query(User).filter(User.id == user_id).first()
     if not partner:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
+        raise HTTPException(status_code=404, detail=t("user_not_found", lang))
 
     # открыли беседу — отмечаем входящие от собеседника прочитанными. Делаем это
     # ДО загрузки сообщений для ответа: db.commit() по умолчанию истекает все
@@ -112,26 +116,27 @@ def get_thread(user_id: str, db: Session = Depends(get_db), user: User = Depends
 
 @router.post("/{user_id}", response_model=MessageOut)
 def send_message(
-    user_id: str, data: MessageCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+    user_id: str, data: MessageCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
 ):
     if user_id == user.id:
-        raise HTTPException(status_code=400, detail="Нельзя написать самому себе")
+        raise HTTPException(status_code=400, detail=t("cannot_message_self", lang))
 
     message_limiter.check(user.id)
 
     recipient = db.query(User).filter(User.id == user_id).first()
     if not recipient:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
+        raise HTTPException(status_code=404, detail=t("user_not_found", lang))
 
     blocked = db.query(Block).filter(
         ((Block.blocker_id == user.id) & (Block.blocked_id == user_id))
         | ((Block.blocker_id == user_id) & (Block.blocked_id == user.id))
     ).first()
     if blocked:
-        raise HTTPException(status_code=403, detail="Нельзя написать этому пользователю")
+        raise HTTPException(status_code=403, detail=t("cannot_message_this_user", lang))
 
     if not data.body.strip():
-        raise HTTPException(status_code=400, detail="Сообщение не может быть пустым")
+        raise HTTPException(status_code=400, detail=t("message_body_required", lang))
 
     message = Message(sender_id=user.id, recipient_id=user_id, body=data.body)
     db.add(message)

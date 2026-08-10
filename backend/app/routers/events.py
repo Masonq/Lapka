@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.rate_limit import event_limiter
 from app.core.security import get_current_user, get_current_user_optional
 from app.models.models import Event, EventParticipant, Pet, User
@@ -81,16 +82,19 @@ def list_events(
 
 
 @router.post("", response_model=EventOut)
-def create_event(data: EventCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def create_event(
+    data: EventCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     event_limiter.check(user.id)
 
     if data.type not in ("walk", "event"):
-        raise HTTPException(status_code=400, detail="Неизвестный тип: должно быть walk или event")
+        raise HTTPException(status_code=400, detail=t("unknown_event_type", lang))
 
     if data.pet_id:
         pet = db.query(Pet).filter(Pet.id == data.pet_id, Pet.owner_id == user.id).first()
         if not pet:
-            raise HTTPException(status_code=403, detail="Можно указать только своего питомца")
+            raise HTTPException(status_code=403, detail=t("can_only_link_own_pet", lang))
 
     event = Event(
         organizer_id=user.id,
@@ -115,11 +119,12 @@ def create_event(data: EventCreate, db: Session = Depends(get_db), user: User = 
 
 @router.get("/{event_id}", response_model=EventOut)
 def get_event(
-    event_id: str, db: Session = Depends(get_db), user: Optional[User] = Depends(get_current_user_optional)
+    event_id: str, db: Session = Depends(get_db), user: Optional[User] = Depends(get_current_user_optional),
+    lang: str = Depends(get_lang),
 ):
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
-        raise HTTPException(status_code=404, detail="Событие не найдено")
+        raise HTTPException(status_code=404, detail=t("event_not_found", lang))
 
     going_ids = set()
     if user:
@@ -134,10 +139,13 @@ def get_event(
 
 
 @router.post("/{event_id}/join")
-def join_event(event_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def join_event(
+    event_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
-        raise HTTPException(status_code=404, detail="Событие не найдено")
+        raise HTTPException(status_code=404, detail=t("event_not_found", lang))
 
     existing = db.query(EventParticipant).filter(
         EventParticipant.event_id == event_id, EventParticipant.user_id == user.id
@@ -151,7 +159,7 @@ def join_event(event_id: str, db: Session = Depends(get_db), user: User = Depend
             EventParticipant.event_id == event_id, EventParticipant.status == "going"
         ).count()
         if going_count >= event.capacity:
-            raise HTTPException(status_code=400, detail="Мест больше нет")
+            raise HTTPException(status_code=400, detail=t("event_full", lang))
 
     if existing:
         existing.status = "going"

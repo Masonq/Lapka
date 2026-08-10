@@ -227,3 +227,25 @@ def test_list_participants_query_count_does_not_scale_with_result_size(client, r
 
     assert len(r.json()) == 4  # организатор + 3 участника
     assert query_count <= 2  # 1 запрос участников (с joinedload user) — без отдельных на каждого
+
+
+def test_event_not_found_error_translated_to_serbian(client):
+    r = client.get("/api/events/nonexistent-id", headers={"X-Lang": "sr"})
+    assert r.status_code == 404
+    assert r.json()["detail"] == "Događaj nije pronađen"
+
+
+def test_event_full_error_translated_to_serbian(client, register_user):
+    headers_organizer = register_user("Организатор")
+    event = client.post(
+        "/api/events",
+        json={"type": "walk", "title": "Тест", "starts_at": "2026-12-01T10:00:00Z", "capacity": 1},
+        headers=headers_organizer,
+    ).json()
+
+    headers_joiner = register_user("Второй")
+    r = client.post(
+        f"/api/events/{event['id']}/join", headers={**headers_joiner, "X-Lang": "sr"}
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Nema više mesta"
