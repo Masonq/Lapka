@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import EmptyStateImage from "../components/EmptyStateImage";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, PawPrint, Plus, Trash2 } from "lucide-react";
 import { api } from "../api/client";
@@ -160,7 +161,7 @@ export default function Pets() {
 
       {pets.length === 0 && !showForm && (
         <div className="empty-state">
-          <PawPrint size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <EmptyStateImage />
           <div className="empty-state-title">Питомцев пока нет</div>
           Добавь первого — это займёт минуту
         </div>

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Bookmark } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { api } from "../api/client";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import EmptyStateImage from "../components/EmptyStateImage";
 import { useDocumentTitle } from "../useDocumentTitle";
 
 export default function SavedPosts() {
@@ -34,7 +35,7 @@ export default function SavedPosts() {
 
       {posts?.length === 0 && (
         <div className="empty-state">
-          <Bookmark size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <EmptyStateImage />
           <div className="empty-state-title">Пока ничего не сохранено</div>
           Нажми на закладку у поста, чтобы вернуться к нему позже
         </div>

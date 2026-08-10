@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Users, Plus } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import EmptyStateImage from "../components/EmptyStateImage";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -114,7 +115,7 @@ export default function Communities() {
 
       {!loadError && communities?.length === 0 && (
         <div className="empty-state">
-          <Users size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <EmptyStateImage />
           <div className="empty-state-title">Пока никого нет</div>
           {isAuthed ? "Создай первое сообщество" : "Войди, чтобы создать своё"}
         </div>

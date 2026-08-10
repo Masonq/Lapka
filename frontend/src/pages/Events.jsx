@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, CalendarDays, MapPin, Users, Plus, PawPrint } from "lucide-react";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
@@ -173,7 +174,7 @@ export default function Events() {
 
       {!loadError && events?.length === 0 && (
         <div className="empty-state">
-          <CalendarDays size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <EmptyStateImage />
           <div className="empty-state-title">Пока ничего не запланировано</div>
           {isAuthed ? "Создай первую прогулку или событие" : "Войди, чтобы создать своё"}
         </div>

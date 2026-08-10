@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 
 function timeAgo(iso) {
@@ -53,7 +54,7 @@ export default function Messages() {
 
       {!loadError && conversations?.length === 0 && (
         <div className="empty-state">
-          <MessageCircle size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <EmptyStateImage />
           <div className="empty-state-title">Пока пусто</div>
           Напиши кому-нибудь с его профиля — переписка появится здесь
         </div>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Heart, PlusCircle } from "lucide-react";
+import { ArrowLeft, PlusCircle } from "lucide-react";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
@@ -62,7 +63,7 @@ export default function Adoption() {
 
       {!loadError && posts?.length === 0 && (
         <div className="empty-state">
-          <Heart size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <EmptyStateImage />
           <div className="empty-state-title">
             {tab === "active" ? "Пока никого не пристраивают" : "Пока никого не пристроили"}
           </div>

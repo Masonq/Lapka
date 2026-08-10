@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, ShoppingBag, Plus, MapPin } from "lucide-react";
+import { ArrowLeft, Plus, MapPin } from "lucide-react";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
@@ -61,7 +62,7 @@ export default function Marketplace() {
 
       {!loadError && listings?.length === 0 && (
         <div className="empty-state">
-          <ShoppingBag size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <EmptyStateImage />
           <div className="empty-state-title">Пока пусто</div>
           {isAuthed ? "Разместите первое объявление" : "Войди, чтобы разместить объявление"}
         </div>

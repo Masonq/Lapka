@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Bell, UserPlus, MessageCircle, Eye, Heart } from "lucide-react";
+import { ArrowLeft, UserPlus, MessageCircle, Eye, Heart } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -81,7 +82,7 @@ export default function Notifications() {
 
       {!loadError && items?.length === 0 && (
         <div className="empty-state">
-          <Bell size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <EmptyStateImage />
           <div className="empty-state-title">Пока тихо</div>
           Здесь появятся подписки и комментарии к твоим постам
         </div>

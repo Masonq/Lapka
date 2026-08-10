@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, PawPrint, MapPin } from "lucide-react";
+import { ArrowLeft, PawPrint } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -51,7 +52,7 @@ export default function Nearby() {
 
       {!loadError && pets?.length === 0 && (
         <div className="empty-state">
-          <MapPin size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
+          <EmptyStateImage />
           <div className="empty-state-title">Никого не нашлось</div>
           Пока ни один питомец не указал этот город
         </div>

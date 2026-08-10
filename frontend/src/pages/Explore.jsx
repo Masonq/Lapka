@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import EmptyStateImage from "../components/EmptyStateImage";
 import ProviderCard from "../components/ProviderCard";
 import PostCard from "../components/PostCard";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -117,6 +118,7 @@ export default function Explore() {
 
           {!searching && searchResults?.length === 0 && (
             <div className="empty-state">
+              <EmptyStateImage />
               <div className="empty-state-title">Ничего не нашлось</div>
               Попробуй другой запрос или вкладку
             </div>
