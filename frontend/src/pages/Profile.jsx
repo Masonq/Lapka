@@ -6,10 +6,11 @@ import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { pluralize } from "../pluralize";
 import { useTranslation } from "react-i18next";
+import TelegramLoginButton from "../components/TelegramLoginButton";
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { isAuthed, userId, login, requestRegisterCode, verifyRegisterCode, forgotPassword, resetPassword, logout } = useAuth();
+  const { isAuthed, userId, login, requestRegisterCode, verifyRegisterCode, forgotPassword, resetPassword, loginWithTelegram, logout } = useAuth();
   useDocumentTitle(isAuthed ? t("profile.title") : t("profile.login_title"));
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
@@ -203,6 +204,17 @@ export default function Profile() {
     }
   }
 
+  const telegramBotConfigured = !!import.meta.env.VITE_TELEGRAM_BOT_USERNAME;
+
+  async function handleTelegramAuth(tgData) {
+    setError("");
+    try {
+      await loginWithTelegram(tgData);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   return (
     <div>
       <div className="page-header">
@@ -326,9 +338,16 @@ export default function Profile() {
         </p>
       )}
 
-      <p style={{ textAlign: "center", fontSize: 12, color: "var(--text-faint)", marginTop: 20 }}>
-        {t("profile.telegram_soon")}
-      </p>
+      {(mode === "login" || mode === "register") && telegramBotConfigured && (
+        <div style={{ marginTop: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+            <span style={{ fontSize: 12, color: "var(--text-faint)" }}>{t("profile.or_divider")}</span>
+            <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+          </div>
+          <TelegramLoginButton onAuth={handleTelegramAuth} />
+        </div>
+      )}
     </div>
   );
 }

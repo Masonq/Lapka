@@ -224,7 +224,8 @@
     "reset_code_hint": "— unesi ga ispod zajedno sa novom lozinkom",
     "new_password_label": "Nova lozinka",
     "reset_password_button": "Resetuj lozinku",
-    "back_to_login": "Nazad na prijavu"
+    "back_to_login": "Nazad na prijavu",
+    "or_divider": "ili"
   },
   "post_detail": {
     "title": "Objava",

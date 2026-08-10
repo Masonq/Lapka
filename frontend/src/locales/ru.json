@@ -224,7 +224,8 @@
     "reset_code_hint": "— введи его ниже вместе с новым паролем",
     "new_password_label": "Новый пароль",
     "reset_password_button": "Сбросить пароль",
-    "back_to_login": "Назад ко входу"
+    "back_to_login": "Назад ко входу",
+    "or_divider": "или"
   },
   "post_detail": {
     "title": "Пост",
