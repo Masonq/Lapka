@@ -23,7 +23,7 @@ export default function Events() {
 
   function formatDate(iso) {
     const d = new Date(iso);
-    const locale = i18n.language === "sr" ? "sr-RS" : "ru-RU";
+    const locale = i18n.language === "sr" ? "sr-Latn-RS" : "ru-RU";
     return d.toLocaleDateString(locale, { day: "numeric", month: "long" }) + ", " +
       d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
   }

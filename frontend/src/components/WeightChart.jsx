@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 
 export default function WeightChart({ records }) {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.language === "sr" ? "sr-RS" : "ru-RU";
+  const dateLocale = i18n.language === "sr" ? "sr-Latn-RS" : "ru-RU";
   // records — записи категории "weight", отсортированные по дате по возрастанию
   const points = records
     .filter((r) => r.value != null)

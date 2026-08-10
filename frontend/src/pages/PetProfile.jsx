@@ -24,7 +24,7 @@ export default function PetProfile() {
   const { t, i18n } = useTranslation();
 
   function formatDate(iso) {
-    const locale = i18n.language === "sr" ? "sr-RS" : "ru-RU";
+    const locale = i18n.language === "sr" ? "sr-Latn-RS" : "ru-RU";
     return new Date(iso).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
   }
 
