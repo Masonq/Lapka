@@ -7,6 +7,7 @@ import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useTranslation } from "react-i18next";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 
 function formatDate(iso) {
   const d = new Date(iso);
@@ -21,6 +22,7 @@ export default function EventDetail() {
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const [event, setEvent] = useState(null);
+  const showSkeleton = useDelayedLoading(!event);
   const [participants, setParticipants] = useState([]);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -56,6 +58,7 @@ export default function EventDetail() {
   }
 
   if (!event) {
+    if (!showSkeleton) return null;
     return (
       <div>
         <div className="page-header">

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, PawPrint } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
@@ -18,6 +19,7 @@ export default function Nearby() {
   const navigate = useNavigate();
   const [city, setCity] = useState("Белград");
   const [pets, setPets] = useState(null);
+  const showSkeleton = useDelayedLoading(pets === null);
   const [loadError, setLoadError] = useState(false);
 
   function load() {
@@ -50,7 +52,7 @@ export default function Nearby() {
         ))}
       </div>
 
-      {pets === null && !loadError && <ListItemSkeleton />}
+      {showSkeleton && !loadError && <ListItemSkeleton />}
 
       {loadError && <ErrorState onRetry={load} />}
 

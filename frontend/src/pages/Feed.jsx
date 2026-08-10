@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/client";
+import { useDelayedLoading } from "../useDelayedLoading";
 import { useAuth } from "../AuthContext";
 import { useSearchContext } from "../SearchContext";
 import PostCard from "../components/PostCard";
@@ -33,6 +34,7 @@ export default function Feed() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const showSkeleton = useDelayedLoading(loading);
   const [loadError, setLoadError] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -116,7 +118,7 @@ export default function Feed() {
         ))}
       </div>
 
-      {loading && (
+      {showSkeleton && (
         <div className="card-grid">
           <PostCardSkeleton />
           <PostCardSkeleton />

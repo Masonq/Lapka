@@ -7,6 +7,7 @@ import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import WeightChart from "../components/WeightChart";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { translateSpecies, translateGender, translateActivity } from "../dataLabels";
 import { translateBreed } from "../breeds";
@@ -35,9 +36,11 @@ export default function PetProfile() {
   const { userId } = useAuth();
   const { showToast } = useToast();
   const [pet, setPet] = useState(null);
+  const showSkeleton = useDelayedLoading(!pet);
   const [owner, setOwner] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [health, setHealth] = useState(null);
+  const showHealthSkeleton = useDelayedLoading(health === null);
   const [showHealthForm, setShowHealthForm] = useState(false);
   const [healthForm, setHealthForm] = useState({ category: "vaccination", title: "", value: "", date: "", next_due_date: "" });
   const [healthError, setHealthError] = useState("");
@@ -98,6 +101,7 @@ export default function PetProfile() {
   }
 
   if (!pet) {
+    if (!showSkeleton) return null;
     return (
       <div>
         <div className="page-header">
@@ -253,7 +257,7 @@ export default function PetProfile() {
               </form>
             )}
 
-            {health === null && <ListItemSkeleton count={2} />}
+            {showHealthSkeleton && <ListItemSkeleton count={2} />}
             {health?.length === 0 && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>{t("pet_profile.no_records")}</p>}
             {health && <WeightChart records={health.filter((r) => r.category === "weight")} />}
             {health?.map((r) => (

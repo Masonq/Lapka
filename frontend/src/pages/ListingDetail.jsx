@@ -6,6 +6,7 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
 
 const TYPE_LABELS = { sell: "marketplace.type_sell", wanted: "marketplace.type_wanted", give_away: "marketplace.filter_give_away" };
@@ -17,6 +18,7 @@ export default function ListingDetail() {
   const { isAuthed, userId } = useAuth();
   const { showToast } = useToast();
   const [listing, setListing] = useState(null);
+  const showSkeleton = useDelayedLoading(!listing);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
@@ -86,6 +88,7 @@ export default function ListingDetail() {
   }
 
   if (!listing) {
+    if (!showSkeleton) return null;
     return (
       <div>
         <div className="page-header">

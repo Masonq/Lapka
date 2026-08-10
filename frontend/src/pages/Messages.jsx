@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { useTranslation } from "react-i18next";
@@ -24,6 +25,7 @@ export default function Messages() {
     return t("time.days_ago", { days: Math.floor(hrs / 24) });
   }
   const [conversations, setConversations] = useState(null);
+  const showSkeleton = useDelayedLoading(conversations === null);
   const [loadError, setLoadError] = useState(false);
 
   function load() {
@@ -50,7 +52,7 @@ export default function Messages() {
         <span className="page-title">{t("messages.title")}</span>
       </div>
 
-      {conversations === null && !loadError && <ListItemSkeleton />}
+      {showSkeleton && !loadError && <ListItemSkeleton />}
 
       {loadError && <ErrorState onRetry={load} />}
 

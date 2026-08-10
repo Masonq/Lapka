@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, X, Trash2, Loader2 } from "lucide-react";
 import { api } from "../api/client";
+import { useDelayedLoading } from "../useDelayedLoading";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useTranslation } from "react-i18next";
@@ -17,6 +18,7 @@ export default function StoriesRow() {
   const { isAuthed, userId } = useAuth();
   const { showToast } = useToast();
   const [stories, setStories] = useState(null);
+  const showSkeleton = useDelayedLoading(stories === null);
   const [viewerAuthorId, setViewerAuthorId] = useState(null);
   const [viewerIndex, setViewerIndex] = useState(0);
   const [uploading, setUploading] = useState(false);
@@ -87,6 +89,7 @@ export default function StoriesRow() {
   }
 
   if (stories === null) {
+    if (!showSkeleton) return null;
     return (
       <div style={{ display: "flex", gap: 12, padding: "2px 0 14px" }} aria-hidden="true">
         {Array.from({ length: 4 }).map((_, i) => (

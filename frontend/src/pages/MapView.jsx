@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 import ErrorState from "../components/ErrorState";
+import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
 
 // Белград — разумный центр по умолчанию, если у постов пока нет геоточек рядом
@@ -37,6 +38,7 @@ export default function MapView() {
   useDocumentTitle(t("map_view.title"));
   const navigate = useNavigate();
   const [posts, setPosts] = useState(null);
+  const showSkeleton = useDelayedLoading(posts === null);
   const [loadError, setLoadError] = useState(false);
 
   function load() {
@@ -72,7 +74,7 @@ export default function MapView() {
 
       {loadError && <ErrorState onRetry={load} />}
 
-      {!loadError && posts === null && (
+      {!loadError && showSkeleton && (
         <div style={{ height: "60vh", borderRadius: 20, overflow: "hidden" }} className="skeleton" />
       )}
 

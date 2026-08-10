@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ProviderCard from "../components/ProviderCard";
 import PostCard from "../components/PostCard";
@@ -47,9 +48,11 @@ export default function Explore() {
   const [providers, setProviders] = useState([]);
   const [serviceFilter, setServiceFilter] = useState("");
   const [loadingServices, setLoadingServices] = useState(true);
+  const showServicesSkeleton = useDelayedLoading(loadingServices);
   const [servicesError, setServicesError] = useState(false);
 
   const [communities, setCommunities] = useState(null);
+  const showCommunitiesSkeleton = useDelayedLoading(communities === null);
   const [communitiesError, setCommunitiesError] = useState(false);
 
   function loadCommunities() {
@@ -314,7 +317,7 @@ export default function Explore() {
             </Link>
           </div>
 
-          {communities === null && <ListItemSkeleton count={2} />}
+          {showCommunitiesSkeleton && <ListItemSkeleton count={2} />}
 
           {communities?.length > 0 && (
             <div className="card-grid" style={{ marginBottom: 24 }}>
@@ -351,7 +354,7 @@ export default function Explore() {
             ))}
           </div>
 
-          {loadingServices && (
+          {showServicesSkeleton && (
             <div className="card-grid" style={{ marginBottom: 24 }}>
               <ServiceCardSkeleton />
               <ServiceCardSkeleton />

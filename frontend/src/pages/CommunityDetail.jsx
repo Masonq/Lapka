@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 
 export default function CommunityDetail() {
   const { t } = useTranslation();
@@ -17,7 +18,9 @@ export default function CommunityDetail() {
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
   const [community, setCommunity] = useState(null);
+  const showSkeleton = useDelayedLoading(!community);
   const [posts, setPosts] = useState(null);
+  const showPostsSkeleton = useDelayedLoading(posts === null);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
   useDocumentTitle(community ? community.name : t("community_detail.title"));
@@ -52,6 +55,7 @@ export default function CommunityDetail() {
   }
 
   if (!community) {
+    if (!showSkeleton) return null;
     return (
       <div>
         <div className="page-header">
@@ -136,7 +140,7 @@ export default function CommunityDetail() {
 
         <h3 className="subhead" style={{ marginBottom: 10 }}>{t("community_detail.community_posts")}</h3>
 
-        {posts === null && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
+        {showPostsSkeleton && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
         {posts?.length === 0 && (
           <p style={{ fontSize: 13, color: "var(--text-faint)" }}>

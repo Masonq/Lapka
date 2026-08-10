@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useSearchParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -14,6 +15,7 @@ export default function FollowList() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [list, setList] = useState(null);
+  const showSkeleton = useDelayedLoading(list === null);
   const title = mode === "following" ? t("follow_list.following_title") : t("follow_list.followers_title");
   useDocumentTitle(title);
 
@@ -33,7 +35,7 @@ export default function FollowList() {
         <span style={{ width: 44 }} />
       </div>
 
-      {list === null && <ListItemSkeleton />}
+      {showSkeleton && <ListItemSkeleton />}
 
       {list?.length === 0 && (
         <div className="empty-state">

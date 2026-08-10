@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, CalendarDays, MapPin, Users, Plus, PawPrint } from "lucide-react";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
@@ -31,6 +32,7 @@ export default function Events() {
   const { showToast } = useToast();
   const [tab, setTab] = useState("");
   const [events, setEvents] = useState(null);
+  const showSkeleton = useDelayedLoading(events === null);
   const [loadError, setLoadError] = useState(false);
   const [myPets, setMyPets] = useState([]);
 
@@ -171,7 +173,7 @@ export default function Events() {
         ))}
       </div>
 
-      {events === null && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
+      {showSkeleton && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
       {loadError && <ErrorState onRetry={load} />}
 

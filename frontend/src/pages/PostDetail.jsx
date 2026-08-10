@@ -6,6 +6,7 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
 
 const TYPE_LABELS = {
@@ -34,6 +35,7 @@ export default function PostDetail() {
   const { isAuthed, userId } = useAuth();
   const { showToast } = useToast();
   const [post, setPost] = useState(null);
+  const showSkeleton = useDelayedLoading(!post);
   const [comments, setComments] = useState([]);
   const [text, setText] = useState("");
   const [notFound, setNotFound] = useState(false);
@@ -162,6 +164,7 @@ export default function PostDetail() {
   }
 
   if (!post) {
+    if (!showSkeleton) return null;
     return (
       <div>
         <div className="page-header">

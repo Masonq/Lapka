@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { api } from "../api/client";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,7 @@ export default function SavedPosts() {
   useDocumentTitle(t("saved_posts.title"));
   const navigate = useNavigate();
   const [posts, setPosts] = useState(null);
+  const showSkeleton = useDelayedLoading(posts === null);
 
   useEffect(() => {
     api.savedPosts().then(setPosts).catch(() => setPosts([]));
@@ -28,7 +30,7 @@ export default function SavedPosts() {
         <span style={{ width: 44 }} />
       </div>
 
-      {posts === null && (
+      {showSkeleton && (
         <div className="card-grid">
           <PostCardSkeleton />
           <PostCardSkeleton />

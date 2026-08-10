@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, PlusCircle } from "lucide-react";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
@@ -22,6 +23,7 @@ export default function Adoption() {
   const { isAuthed } = useAuth();
   const [tab, setTab] = useState("active");
   const [posts, setPosts] = useState(null);
+  const showSkeleton = useDelayedLoading(posts === null);
   const [loadError, setLoadError] = useState(false);
 
   function load() {
@@ -59,7 +61,7 @@ export default function Adoption() {
         ))}
       </div>
 
-      {posts === null && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
+      {showSkeleton && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
       {loadError && <ErrorState onRetry={load} />}
 

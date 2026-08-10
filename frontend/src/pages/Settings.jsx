@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, KeyRound, Trash2, UserX, ShieldCheck, Wrench, Sparkles, Sun, Moon, Languages } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { api } from "../api/client";
+import { useDelayedLoading } from "../useDelayedLoading";
 import { useAuth } from "../AuthContext";
 import { useTheme } from "../ThemeContext";
 import { useTranslation } from "react-i18next";
@@ -35,6 +36,7 @@ export default function Settings() {
   const [requestingPasswordCode, setRequestingPasswordCode] = useState(false);
 
   const [blockedUsers, setBlockedUsers] = useState(null);
+  const showBlockedSkeleton = useDelayedLoading(blockedUsers === null);
 
   const [isProvider, setIsProvider] = useState(null);
   const [showProviderForm, setShowProviderForm] = useState(false);
@@ -382,7 +384,7 @@ export default function Settings() {
             <h3 className="subhead" style={{ fontSize: 15 }}>{t("settings.blocked_title")}</h3>
           </div>
 
-          {blockedUsers === null && <ListItemSkeleton count={2} />}
+          {showBlockedSkeleton && <ListItemSkeleton count={2} />}
 
           {blockedUsers?.length === 0 && (
             <p style={{ fontSize: 13, color: "var(--text-faint)" }}>{t("settings.no_blocked")}</p>

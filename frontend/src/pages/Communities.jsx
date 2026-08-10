@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Plus } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
@@ -20,6 +21,7 @@ export default function Communities() {
   const { showToast } = useToast();
   const { setSearchConfig } = useSearchContext();
   const [communities, setCommunities] = useState(null);
+  const showSkeleton = useDelayedLoading(communities === null);
   const [loadError, setLoadError] = useState(false);
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -112,7 +114,7 @@ export default function Communities() {
         </form>
       )}
 
-      {communities === null && !loadError && <ListItemSkeleton />}
+      {showSkeleton && !loadError && <ListItemSkeleton />}
 
       {loadError && <ErrorState onRetry={load} />}
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Plus, MapPin } from "lucide-react";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
@@ -27,6 +28,7 @@ export default function Marketplace() {
   const { isAuthed } = useAuth();
   const [type, setType] = useState("");
   const [listings, setListings] = useState(null);
+  const showSkeleton = useDelayedLoading(listings === null);
   const [loadError, setLoadError] = useState(false);
 
   function load() {
@@ -60,7 +62,7 @@ export default function Marketplace() {
         ))}
       </div>
 
-      {listings === null && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
+      {showSkeleton && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
       {loadError && <ErrorState onRetry={load} />}
 

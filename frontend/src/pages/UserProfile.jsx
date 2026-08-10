@@ -8,6 +8,7 @@ import { useDocumentTitle } from "../useDocumentTitle";
 import { pluralize } from "../pluralize";
 import PostCard from "../components/PostCard";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
+import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
 import { translateSpecies } from "../dataLabels";
 
@@ -18,6 +19,7 @@ export default function UserProfile() {
   const { isAuthed, userId } = useAuth();
   const { showToast } = useToast();
   const [user, setUser] = useState(null);
+  const showSkeleton = useDelayedLoading(!user);
   const [posts, setPosts] = useState([]);
   const [pets, setPets] = useState([]);
   const [followers, setFollowers] = useState([]);
@@ -96,6 +98,7 @@ export default function UserProfile() {
   }
 
   if (!user) {
+    if (!showSkeleton) return null;
     return (
       <div>
         <div className="page-header">

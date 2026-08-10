@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { LogOut, PawPrint, Bookmark, Settings as SettingsIcon, ShieldAlert, ChevronRight } from "lucide-react";
 import { api } from "../api/client";
+import { useDelayedLoading } from "../useDelayedLoading";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { pluralize } from "../pluralize";
@@ -23,6 +24,7 @@ export default function Profile() {
   const [resent, setResent] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [me, setMe] = useState(null);
+  const showSkeleton = useDelayedLoading(me === null);
   const [followersCount, setFollowersCount] = useState(null);
   const [followingCount, setFollowingCount] = useState(null);
 
@@ -47,6 +49,7 @@ export default function Profile() {
         <div className="card" style={{ borderRadius: 20, padding: 18, display: "flex", flexDirection: "column", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {me === null ? (
+              showSkeleton && (
               <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1 }}>
                 <span className="skeleton" style={{ width: 52, height: 52, borderRadius: "50%", flexShrink: 0 }} />
                 <div style={{ flex: 1 }}>
@@ -54,6 +57,7 @@ export default function Profile() {
                   <span className="skeleton skeleton-line" style={{ width: "30%", marginBottom: 0 }} />
                 </div>
               </div>
+              )
             ) : (
               <Link to={`/users/${userId}`} style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0, textDecoration: "none", color: "inherit" }}>
                 <div style={{
