@@ -83,11 +83,13 @@ async function uploadImage(file) {
 }
 
 export const api = {
-  register: (data) => request("/auth/register", { method: "POST", body: data }),
+  requestRegisterCode: (data) => request("/auth/register/request-code", { method: "POST", body: data }),
+  verifyRegisterCode: (data) => request("/auth/register/verify-code", { method: "POST", body: data }),
   login: (data) => request("/auth/login", { method: "POST", body: data }),
   telegramAuth: (data) => request("/auth/telegram", { method: "POST", body: data }),
   me: () => request("/auth/me", { auth: true }),
   completeOnboarding: () => request("/auth/onboarding-complete", { method: "PATCH", auth: true }),
+  requestPasswordChangeCode: (data) => request("/auth/password/request-code", { method: "POST", body: data, auth: true }),
   changePassword: (data) => request("/auth/password", { method: "PATCH", body: data, auth: true }),
   deleteAccount: (password) => request("/auth/me", { method: "DELETE", body: { password }, auth: true }),
 

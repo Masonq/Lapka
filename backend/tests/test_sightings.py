@@ -81,8 +81,8 @@ def test_sighting_creates_notification_for_post_author(client, register_user):
 
     r = client.get("/api/notifications", headers=headers_author)
     notifications = r.json()
-    assert len(notifications) == 1
-    assert notifications[0]["type"] == "sighting"
+    assert len(notifications) == 2  # welcome + sighting
+    assert notifications[0]["type"] == "sighting"  # самое свежее — первое
     assert notifications[0]["actor"]["display_name"] == "Свидетель"
 
 
@@ -94,7 +94,9 @@ def test_reporting_own_lost_post_sighting_does_not_notify_self(client, register_
     client.post(f"/api/posts/{post['id']}/sightings", json={"location": "Где-то"}, headers=headers)
 
     r = client.get("/api/notifications", headers=headers)
-    assert r.json() == []
+    notifications = r.json()
+    assert len(notifications) == 1  # только welcome
+    assert notifications[0]["type"] == "welcome"
 
 
 def test_sighting_rate_limit(client, register_user):

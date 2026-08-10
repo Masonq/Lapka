@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.db import get_db
 from app.core.security import get_current_admin, get_current_editor, get_current_moderator
 from app.models.models import AuditLog, Comment, Community, Listing, Pet, Post, Report, ServiceProvider, Story, User
+from app.routers.auth import SYSTEM_ACCOUNT_EMAIL
 from app.schemas.schemas import (
     AdminActionResult, AdminOverview, AdminUserOut, AuditLogOut, ReportQueueItem, RoleUpdate, ServiceProviderOut
 )
@@ -21,7 +22,7 @@ def _log(db: Session, admin: User, action: str, target_type: str, target_id: Opt
 @router.get("/overview", response_model=AdminOverview)
 def overview(db: Session = Depends(get_db), admin: User = Depends(get_current_moderator)):
     return AdminOverview(
-        users_count=db.query(User).count(),
+        users_count=db.query(User).filter(User.email != SYSTEM_ACCOUNT_EMAIL).count(),
         posts_count=db.query(Post).count(),
         pets_count=db.query(Pet).count(),
         unresolved_reports_count=db.query(Report).filter(Report.is_resolved.is_(False)).count(),
@@ -161,7 +162,7 @@ def list_users(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin),
 ):
-    query = db.query(User)
+    query = db.query(User).filter(User.email != SYSTEM_ACCOUNT_EMAIL)
     if q:
         pattern = f"%{q.strip()}%"
         query = query.filter((User.display_name.ilike(pattern)) | (User.email.ilike(pattern)))

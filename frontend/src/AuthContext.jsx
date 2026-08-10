@@ -23,8 +23,12 @@ export function AuthProvider({ children }) {
     setTokenState(access_token);
   }, []);
 
-  const register = useCallback(async (display_name, email, password) => {
-    const { access_token } = await api.register({ display_name, email, password });
+  const requestRegisterCode = useCallback(async (display_name, email, password) => {
+    await api.requestRegisterCode({ display_name, email, password });
+  }, []);
+
+  const verifyRegisterCode = useCallback(async (email, code) => {
+    const { access_token } = await api.verifyRegisterCode({ email, code });
     setToken(access_token);
     setTokenState(access_token);
   }, []);
@@ -42,7 +46,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthed: !!token, userId, login, register, loginWithTelegram, logout }}
+      value={{ isAuthed: !!token, userId, login, requestRegisterCode, verifyRegisterCode, loginWithTelegram, logout }}
     >
       {children}
     </AuthContext.Provider>

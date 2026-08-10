@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.models.models import User
+from app.routers.auth import SYSTEM_ACCOUNT_EMAIL
 from app.schemas.schemas import UserOut
 
 router = APIRouter(prefix="/api/users", tags=["users"])
@@ -19,7 +20,7 @@ def search_users(
 ):
     """Поиск людей по имени — раньше можно было получить пользователя только зная его id,
     найти человека по имени было вообще нельзя."""
-    query = db.query(User)
+    query = db.query(User).filter(User.email != SYSTEM_ACCOUNT_EMAIL)
     if q:
         query = query.filter(User.display_name.ilike(f"%{q.strip()}%"))
     return query.order_by(User.display_name).offset(offset).limit(limit).all()

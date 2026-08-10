@@ -7,7 +7,7 @@ import { useDocumentTitle } from "../useDocumentTitle";
 import { pluralize } from "../pluralize";
 
 export default function Profile() {
-  const { isAuthed, userId, login, register, logout } = useAuth();
+  const { isAuthed, userId, login, requestRegisterCode, verifyRegisterCode, logout } = useAuth();
   useDocumentTitle(isAuthed ? "Профиль" : "Вход");
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
@@ -15,6 +15,9 @@ export default function Profile() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [code, setCode] = useState("");
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [resent, setResent] = useState(false);
   const [me, setMe] = useState(null);
   const [followersCount, setFollowersCount] = useState(null);
   const [followingCount, setFollowingCount] = useState(null);
@@ -131,8 +134,13 @@ export default function Profile() {
     setError("");
     setBusy(true);
     try {
-      if (mode === "login") await login(email, password);
-      else await register(name, email, password);
+      if (mode === "login") {
+        await login(email, password);
+      } else {
+        await requestRegisterCode(name, email, password);
+        setPendingEmail(email);
+        setMode("verify-code");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -140,12 +148,59 @@ export default function Profile() {
     }
   }
 
+  async function submitCode(e) {
+    e.preventDefault();
+    setError("");
+    setBusy(true);
+    try {
+      await verifyRegisterCode(pendingEmail, code);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function resendCode() {
+    setError("");
+    setResent(false);
+    try {
+      await requestRegisterCode(name, pendingEmail, password);
+      setResent(true);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   return (
     <div>
       <div className="page-header">
-        <span className="page-title">{mode === "login" ? "Вход" : "Регистрация"}</span>
+        <span className="page-title">{mode === "login" ? "Вход" : mode === "register" ? "Регистрация" : "Подтверждение"}</span>
       </div>
 
+      {mode === "verify-code" ? (
+        <form onSubmit={submitCode} className="card" style={{ borderRadius: 20, padding: 18 }}>
+          <p style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 0, marginBottom: 14 }}>
+            Отправили код на <b>{pendingEmail}</b> — введи его ниже, чтобы завершить регистрацию
+          </p>
+          <div className="field">
+            <label htmlFor="auth-code">Код из письма</label>
+            <input
+              id="auth-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              required inputMode="numeric" pattern="\d{6}" maxLength={6} placeholder="123456"
+              style={{ fontSize: 20, letterSpacing: 4, textAlign: "center" }}
+            />
+          </div>
+          {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
+          {resent && <p style={{ color: "var(--green-strong)", fontSize: 13 }}>Код отправлен заново</p>}
+          <button className="btn btn-primary btn-block" disabled={busy || code.length !== 6}>
+            {busy ? "Проверяем…" : "Подтвердить"}
+          </button>
+          <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 8 }} onClick={resendCode}>
+            Отправить код ещё раз
+          </button>
+        </form>
+      ) : (
       <form onSubmit={submit} className="card" style={{ borderRadius: 20, padding: 18 }}>
         {mode === "register" && (
           <div className="field">
@@ -163,20 +218,23 @@ export default function Profile() {
         </div>
         {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
         <button className="btn btn-primary btn-block" disabled={busy}>
-          {busy ? "Секунду…" : mode === "login" ? "Войти" : "Создать аккаунт"}
+          {busy ? "Секунду…" : mode === "login" ? "Войти" : "Получить код"}
         </button>
       </form>
+      )}
 
-      <p style={{ textAlign: "center", fontSize: 13, marginTop: 14, color: "var(--text-muted)" }}>
-        {mode === "login" ? "Нет аккаунта? " : "Уже есть аккаунт? "}
-        <a
-          href="#"
-          style={{ color: "var(--black)", fontWeight: 700 }}
-          onClick={(e) => { e.preventDefault(); setMode(mode === "login" ? "register" : "login"); }}
-        >
-          {mode === "login" ? "Зарегистрироваться" : "Войти"}
-        </a>
-      </p>
+      {mode !== "verify-code" && (
+        <p style={{ textAlign: "center", fontSize: 13, marginTop: 14, color: "var(--text-muted)" }}>
+          {mode === "login" ? "Нет аккаунта? " : "Уже есть аккаунт? "}
+          <a
+            href="#"
+            style={{ color: "var(--black)", fontWeight: 700 }}
+            onClick={(e) => { e.preventDefault(); setMode(mode === "login" ? "register" : "login"); }}
+          >
+            {mode === "login" ? "Зарегистрироваться" : "Войти"}
+          </a>
+        </p>
+      )}
 
       <p style={{ textAlign: "center", fontSize: 12, color: "var(--text-faint)", marginTop: 20 }}>
         Вход через Telegram появится здесь позже

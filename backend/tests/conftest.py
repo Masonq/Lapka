@@ -47,14 +47,35 @@ def client(tmp_path, monkeypatch):
 
 @pytest.fixture
 def register_user(client):
-    """Регистрирует нового пользователя со случайным email и возвращает (user, headers)."""
+    """Регистрирует нового пользователя со случайным email и возвращает headers.
+
+    Использует новый двухшаговый флоу (request-code -> verify-code) — код
+    в тестах не приходит по настоящей почте, читается напрямую из БД."""
 
     def _register(display_name="Тест", password="password123"):
         email = f"{uuid.uuid4().hex[:12]}@example.com"
         r = client.post(
-            "/api/auth/register",
+            "/api/auth/register/request-code",
             json={"display_name": display_name, "email": email, "password": password},
         )
+        assert r.status_code == 200, r.text
+
+        from app.core.db import SessionLocal
+        from app.models.models import EmailVerificationCode
+
+        db = SessionLocal()
+        try:
+            record = (
+                db.query(EmailVerificationCode)
+                .filter(EmailVerificationCode.email == email, EmailVerificationCode.purpose == "register")
+                .order_by(EmailVerificationCode.created_at.desc())
+                .first()
+            )
+            code = record.code
+        finally:
+            db.close()
+
+        r = client.post("/api/auth/register/verify-code", json={"email": email, "code": code})
         assert r.status_code == 200, r.text
         token = r.json()["access_token"]
         return {"Authorization": f"Bearer {token}"}
@@ -70,9 +91,27 @@ def register_user_with_id(client):
     def _register(display_name="Тест", password="password123"):
         email = f"{uuid.uuid4().hex[:12]}@example.com"
         r = client.post(
-            "/api/auth/register",
+            "/api/auth/register/request-code",
             json={"display_name": display_name, "email": email, "password": password},
         )
+        assert r.status_code == 200, r.text
+
+        from app.core.db import SessionLocal
+        from app.models.models import EmailVerificationCode
+
+        db = SessionLocal()
+        try:
+            record = (
+                db.query(EmailVerificationCode)
+                .filter(EmailVerificationCode.email == email, EmailVerificationCode.purpose == "register")
+                .order_by(EmailVerificationCode.created_at.desc())
+                .first()
+            )
+            code = record.code
+        finally:
+            db.close()
+
+        r = client.post("/api/auth/register/verify-code", json={"email": email, "code": code})
         assert r.status_code == 200, r.text
         token = r.json()["access_token"]
         return {"Authorization": f"Bearer {token}"}, decode_user_id(token)

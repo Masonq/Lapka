@@ -7,8 +7,8 @@ def test_follow_creates_notification(client, register_user, register_user_with_i
     r = client.get("/api/notifications", headers=headers_followed)
     assert r.status_code == 200
     notifications = r.json()
-    assert len(notifications) == 1
-    assert notifications[0]["type"] == "follow"
+    assert len(notifications) == 2  # welcome при регистрации + follow
+    assert notifications[0]["type"] == "follow"  # самое свежее — первое
     assert notifications[0]["actor"]["display_name"] == "Подписчик"
     assert notifications[0]["is_read"] is False
 
@@ -21,7 +21,7 @@ def test_repeated_follow_does_not_duplicate_notification(client, register_user, 
     client.post(f"/api/follows/{followed_id}", headers=headers_follower)  # повторно — идемпотентно
 
     r = client.get("/api/notifications", headers=headers_followed)
-    assert len(r.json()) == 1
+    assert len(r.json()) == 2  # welcome + follow (не задублировался повторной подпиской)
 
 
 def test_comment_creates_notification_for_post_author(client, register_user):
@@ -35,8 +35,8 @@ def test_comment_creates_notification_for_post_author(client, register_user):
 
     r = client.get("/api/notifications", headers=headers_author)
     notifications = r.json()
-    assert len(notifications) == 1
-    assert notifications[0]["type"] == "comment"
+    assert len(notifications) == 2  # welcome + comment
+    assert notifications[0]["type"] == "comment"  # самое свежее — первое
     assert notifications[0]["actor"]["display_name"] == "Комментатор"
     assert notifications[0]["post_title"] == "Вопрос"
 
@@ -49,7 +49,9 @@ def test_commenting_on_own_post_does_not_notify_self(client, register_user):
     client.post(f"/api/posts/{post['id']}/comments", json={"body": "Сам себе"}, headers=headers)
 
     r = client.get("/api/notifications", headers=headers)
-    assert r.json() == []
+    notifications = r.json()
+    assert len(notifications) == 1  # только welcome, комментарий к своему посту не добавил comment-уведомление
+    assert notifications[0]["type"] == "welcome"
 
 
 def test_notifications_require_auth(client):
@@ -132,7 +134,7 @@ def test_list_notifications_query_count_does_not_scale_with_result_size(client, 
     finally:
         sa_event.remove(engine, "before_cursor_execute", count_queries)
 
-    assert len(r.json()) == 4
+    assert len(r.json()) == 5  # welcome + 2 follow + 2 comment
     # 1 запрос уведомлений (с joinedload actor+post) + сама авторизация — небольшая
     # константа, не растёт с числом уведомлений
     assert query_count <= 3

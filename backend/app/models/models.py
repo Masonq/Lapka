@@ -412,3 +412,29 @@ class Story(Base):
     expires_at = Column(DateTime(timezone=True), nullable=False)
 
     author = relationship("User")
+
+
+class EmailVerificationCode(Base):
+    """Код подтверждения email — регистрация и смена пароля.
+
+    Для регистрации (purpose='register') реального User ещё не существует —
+    payload хранит display_name+password_hash, аккаунт создаётся только
+    после верного кода (verify-code), поэтому неподтверждённые "зомби"-
+    аккаунты никогда не появляются в базе.
+
+    Для смены пароля (purpose='change_password') user_id уже указывает на
+    существующего пользователя — код просто подтверждает, что у него есть
+    доступ к своей же почте, прежде чем применить уже введённый новый пароль."""
+
+    __tablename__ = "email_verification_codes"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    email = Column(String(255), nullable=False, index=True)
+    code = Column(String(6), nullable=False)
+    purpose = Column(String(20), nullable=False)  # "register" / "change_password"
+    payload = Column(Text, nullable=True)  # JSON: display_name+password_hash, только для register
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    attempts = Column(Integer, default=0)  # защита от перебора 6-значного кода
+    used = Column(Boolean, default=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

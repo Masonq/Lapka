@@ -12,14 +12,24 @@ class RegisterEmail(BaseModel):
     password: str = Field(..., min_length=6, max_length=72)
 
 
+class VerifyRegisterCode(BaseModel):
+    email: EmailStr
+    code: str = Field(..., min_length=6, max_length=6)
+
+
 class LoginEmail(BaseModel):
     email: EmailStr
     password: str
 
 
+class RequestPasswordChangeCode(BaseModel):
+    current_password: str
+
+
 class ChangePassword(BaseModel):
     current_password: str
     new_password: str = Field(..., min_length=6, max_length=72)
+    code: str = Field(..., min_length=6, max_length=6)
 
 
 class DeleteAccount(BaseModel):

@@ -25,6 +25,9 @@ export default function Settings() {
   const [newPassword, setNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordCodeSent, setPasswordCodeSent] = useState(false);
+  const [passwordCode, setPasswordCode] = useState("");
+  const [requestingPasswordCode, setRequestingPasswordCode] = useState(false);
 
   const [blockedUsers, setBlockedUsers] = useState(null);
 
@@ -79,14 +82,31 @@ export default function Settings() {
     }
   }
 
+  async function requestPasswordCode(e) {
+    e.preventDefault();
+    setPasswordError("");
+    setRequestingPasswordCode(true);
+    try {
+      await api.requestPasswordChangeCode({ current_password: currentPassword });
+      setPasswordCodeSent(true);
+      showToast("Код отправлен на почту");
+    } catch (err) {
+      setPasswordError(err.message);
+    } finally {
+      setRequestingPasswordCode(false);
+    }
+  }
+
   async function submitPasswordChange(e) {
     e.preventDefault();
     setPasswordError("");
     setChangingPassword(true);
     try {
-      await api.changePassword({ current_password: currentPassword, new_password: newPassword });
+      await api.changePassword({ current_password: currentPassword, new_password: newPassword, code: passwordCode });
       setCurrentPassword("");
       setNewPassword("");
+      setPasswordCode("");
+      setPasswordCodeSent(false);
       showToast("Пароль изменён");
     } catch (err) {
       setPasswordError(err.message);
@@ -219,7 +239,7 @@ export default function Settings() {
             <KeyRound size={17} />
             <h3 className="subhead" style={{ fontSize: 15 }}>Сменить пароль</h3>
           </div>
-          <form onSubmit={submitPasswordChange}>
+          <form onSubmit={passwordCodeSent ? submitPasswordChange : requestPasswordCode}>
             <div className="field">
               <label htmlFor="current-password">Текущий пароль</label>
               <input
@@ -228,6 +248,7 @@ export default function Settings() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required
+                disabled={passwordCodeSent}
                 autoComplete="current-password"
               />
             </div>
@@ -241,13 +262,45 @@ export default function Settings() {
                 required
                 minLength={6}
                 placeholder="Минимум 6 символов"
+                disabled={passwordCodeSent}
                 autoComplete="new-password"
               />
             </div>
+            {passwordCodeSent && (
+              <div className="field">
+                <label htmlFor="password-code">Код из письма</label>
+                <input
+                  id="password-code"
+                  value={passwordCode}
+                  onChange={(e) => setPasswordCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  required
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="123456"
+                  style={{ fontSize: 18, letterSpacing: 3, textAlign: "center" }}
+                />
+              </div>
+            )}
             {passwordError && <p style={{ color: "var(--red)", fontSize: 13 }}>{passwordError}</p>}
-            <button className="btn btn-primary btn-block" disabled={changingPassword}>
-              {changingPassword ? "Сохраняем…" : "Сохранить пароль"}
-            </button>
+            {passwordCodeSent ? (
+              <>
+                <button className="btn btn-primary btn-block" disabled={changingPassword || passwordCode.length !== 6}>
+                  {changingPassword ? "Сохраняем…" : "Подтвердить и сохранить"}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-block"
+                  style={{ marginTop: 8 }}
+                  onClick={() => { setPasswordCodeSent(false); setPasswordCode(""); }}
+                >
+                  Отмена
+                </button>
+              </>
+            ) : (
+              <button className="btn btn-primary btn-block" disabled={requestingPasswordCode}>
+                {requestingPasswordCode ? "Отправляем…" : "Отправить код на почту"}
+              </button>
+            )}
           </form>
           <p style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 10 }}>
             Если ты вошёл(-шла) через Telegram, пароля у аккаунта нет
