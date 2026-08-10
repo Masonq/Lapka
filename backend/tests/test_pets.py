@@ -115,3 +115,29 @@ def test_search_pets_by_breed(client, register_user):
 
     r = client.get("/api/pets", params={"q": "терьер"})
     assert [p["name"] for p in r.json()] == ["Бела"]
+
+
+def test_pet_not_found_error_translated_to_serbian(client):
+    r = client.get("/api/pets/nonexistent-id", headers={"X-Lang": "sr"})
+    assert r.status_code == 404
+    assert r.json()["detail"] == "Ljubimac nije pronađen"
+
+
+def test_empty_pet_name_error_translated_to_serbian(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/pets", json={"name": "   ", "species": "Собака"},
+        headers={**headers, "X-Lang": "sr"},
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Ime ne može biti prazno"
+
+
+def test_delete_other_users_pet_error_translated_to_serbian(client, register_user):
+    headers_owner = register_user("Владелец")
+    headers_other = register_user("Другой")
+    pet = client.post("/api/pets", json={"name": "Рекс", "species": "Собака"}, headers=headers_owner).json()
+
+    r = client.delete(f"/api/pets/{pet['id']}", headers={**headers_other, "X-Lang": "sr"})
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Možeš obrisati samo svog ljubimca"

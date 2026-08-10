@@ -117,3 +117,13 @@ def test_health_records_sorted_newest_first(client, register_user):
     r = client.get(f"/api/pets/{pet['id']}/health", headers=headers)
     titles = [rec["title"] for rec in r.json()]
     assert titles == ["Март", "Январь"]
+
+
+def test_health_owner_only_error_translated_to_serbian(client, register_user):
+    headers_owner = register_user("Владелец")
+    headers_other = register_user("Другой")
+    pet = client.post("/api/pets", json={"name": "Рекс", "species": "Собака"}, headers=headers_owner).json()
+
+    r = client.get(f"/api/pets/{pet['id']}/health", headers={**headers_other, "X-Lang": "sr"})
+    assert r.status_code == 403
+    assert r.json()["detail"] == "Zdravlje ljubimca vidi samo vlasnik"

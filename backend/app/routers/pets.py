@@ -5,6 +5,7 @@ from sqlalchemy import desc, or_
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.core.rate_limit import RateLimiter, pet_limiter
 from app.core.security import get_current_user
 from app.models.models import HealthRecord, Pet, User
@@ -47,10 +48,13 @@ def pets_of_user(user_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=PetOut)
-def create_pet(data: PetCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def create_pet(
+    data: PetCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     pet_limiter.check(user.id)
     if not data.name.strip():
-        raise HTTPException(status_code=400, detail="Кличка не может быть пустой")
+        raise HTTPException(status_code=400, detail=t("pet_name_required", lang))
 
     pet = Pet(owner_id=user.id, **data.model_dump())
     db.add(pet)
@@ -60,40 +64,46 @@ def create_pet(data: PetCreate, db: Session = Depends(get_db), user: User = Depe
 
 
 @router.get("/{pet_id}", response_model=PetOut)
-def get_pet(pet_id: str, db: Session = Depends(get_db)):
+def get_pet(pet_id: str, db: Session = Depends(get_db), lang: str = Depends(get_lang)):
     pet = db.query(Pet).filter(Pet.id == pet_id).first()
     if not pet:
-        raise HTTPException(status_code=404, detail="Питомец не найден")
+        raise HTTPException(status_code=404, detail=t("pet_not_found", lang))
     return pet
 
 
 @router.delete("/{pet_id}")
-def delete_pet(pet_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def delete_pet(
+    pet_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
     pet = db.query(Pet).filter(Pet.id == pet_id).first()
     if not pet:
-        raise HTTPException(status_code=404, detail="Питомец не найден")
+        raise HTTPException(status_code=404, detail=t("pet_not_found", lang))
     if pet.owner_id != user.id:
-        raise HTTPException(status_code=403, detail="Можно удалить только своего питомца")
+        raise HTTPException(status_code=403, detail=t("can_only_delete_own_pet", lang))
     db.delete(pet)
     db.commit()
     return {"ok": True}
 
 
-def _owned_pet_or_403(pet_id: str, db: Session, user: User) -> Pet:
+def _owned_pet_or_403(pet_id: str, db: Session, user: User, lang: str) -> Pet:
     """Здоровье питомца приватно по умолчанию — доступ только владельцу (раздел 19
     блюпринта). 404 для несуществующего питомца, 403 для чужого — не путаем чужой
     питомец с несуществующим, чтобы не давать функционально спутать эти два случая."""
     pet = db.query(Pet).filter(Pet.id == pet_id).first()
     if not pet:
-        raise HTTPException(status_code=404, detail="Питомец не найден")
+        raise HTTPException(status_code=404, detail=t("pet_not_found", lang))
     if pet.owner_id != user.id:
-        raise HTTPException(status_code=403, detail="Здоровье питомца видит только владелец")
+        raise HTTPException(status_code=403, detail=t("pet_health_owner_only", lang))
     return pet
 
 
 @router.get("/{pet_id}/health", response_model=list[HealthRecordOut])
-def list_health_records(pet_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    _owned_pet_or_403(pet_id, db, user)
+def list_health_records(
+    pet_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
+    _owned_pet_or_403(pet_id, db, user, lang)
     return (
         db.query(HealthRecord)
         .filter(HealthRecord.pet_id == pet_id)
@@ -104,13 +114,14 @@ def list_health_records(pet_id: str, db: Session = Depends(get_db), user: User =
 
 @router.post("/{pet_id}/health", response_model=HealthRecordOut)
 def add_health_record(
-    pet_id: str, data: HealthRecordCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+    pet_id: str, data: HealthRecordCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
 ):
-    _owned_pet_or_403(pet_id, db, user)
+    _owned_pet_or_403(pet_id, db, user, lang)
     health_limiter.check(user.id)
 
     if data.category not in HEALTH_CATEGORIES:
-        raise HTTPException(status_code=400, detail=f"Неизвестная категория: должна быть одной из {sorted(HEALTH_CATEGORIES)}")
+        raise HTTPException(status_code=400, detail=f"{t('unknown_health_category', lang)} {sorted(HEALTH_CATEGORIES)}")
 
     record = HealthRecord(pet_id=pet_id, **data.model_dump())
     db.add(record)
@@ -121,12 +132,13 @@ def add_health_record(
 
 @router.delete("/{pet_id}/health/{record_id}")
 def delete_health_record(
-    pet_id: str, record_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+    pet_id: str, record_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
 ):
-    _owned_pet_or_403(pet_id, db, user)
+    _owned_pet_or_403(pet_id, db, user, lang)
     record = db.query(HealthRecord).filter(HealthRecord.id == record_id, HealthRecord.pet_id == pet_id).first()
     if not record:
-        raise HTTPException(status_code=404, detail="Запись не найдена")
+        raise HTTPException(status_code=404, detail=t("health_record_not_found", lang))
     db.delete(record)
     db.commit()
     return {"ok": True}

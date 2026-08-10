@@ -131,6 +131,30 @@ ERRORS: dict[str, dict[str, str]] = {
         "ru": "Можно удалить только своё объявление",
         "sr": "Možeš obrisati samo svoj oglas",
     },
+    "pet_name_required": {
+        "ru": "Кличка не может быть пустой",
+        "sr": "Ime ne može biti prazno",
+    },
+    "pet_not_found": {
+        "ru": "Питомец не найден",
+        "sr": "Ljubimac nije pronađen",
+    },
+    "can_only_delete_own_pet": {
+        "ru": "Можно удалить только своего питомца",
+        "sr": "Možeš obrisati samo svog ljubimca",
+    },
+    "pet_health_owner_only": {
+        "ru": "Здоровье питомца видит только владелец",
+        "sr": "Zdravlje ljubimca vidi samo vlasnik",
+    },
+    "unknown_health_category": {
+        "ru": "Неизвестная категория: должна быть одной из",
+        "sr": "Nepoznata kategorija: mora biti jedna od",
+    },
+    "health_record_not_found": {
+        "ru": "Запись не найдена",
+        "sr": "Zapis nije pronađen",
+    },
 }
 
 
