@@ -3,15 +3,17 @@ import { Plus, X, Trash2, Loader2 } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
+import { useTranslation } from "react-i18next";
 
-function timeAgo(iso) {
+function timeAgo(iso, t) {
   const diffMs = Date.now() - new Date(iso).getTime();
   const hours = Math.floor(diffMs / 3600000);
-  if (hours < 1) return "только что";
-  return `${hours} ч назад`;
+  if (hours < 1) return t("stories.just_now");
+  return t("stories.hours_ago", { hours });
 }
 
 export default function StoriesRow() {
+  const { t } = useTranslation();
   const { isAuthed, userId } = useAuth();
   const { showToast } = useToast();
   const [stories, setStories] = useState(null);
@@ -50,7 +52,7 @@ export default function StoriesRow() {
     try {
       const { url } = await api.uploadImage(file);
       await api.createStory(url);
-      showToast("История опубликована");
+      showToast(t("stories.published"));
       load();
     } catch (err) {
       showToast(err.message, "error");
@@ -108,7 +110,7 @@ export default function StoriesRow() {
               border: myStories.length ? "2px solid var(--primary-strong)" : "2px dashed var(--border)",
               background: "var(--surface)", display: "flex", alignItems: "center", justifyContent: "center",
             }}
-            aria-label={myStories.length ? "Моя история" : "Добавить историю"}
+            aria-label={myStories.length ? t("stories.my_story_aria") : t("stories.add_story_aria")}
           >
             {uploading ? (
               <Loader2 size={20} className="spin" style={{ color: "var(--text-faint)" }} />
@@ -129,7 +131,7 @@ export default function StoriesRow() {
               </span>
             )}
           </button>
-          <span style={{ fontSize: 11, color: "var(--text-faint)" }}>{myStories.length ? "Вы" : "Добавить"}</span>
+          <span style={{ fontSize: 11, color: "var(--text-faint)" }}>{myStories.length ? t("stories.you") : t("stories.add")}</span>
           <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={handleFile} />
         </div>
 
@@ -141,7 +143,7 @@ export default function StoriesRow() {
                 width: 56, height: 56, borderRadius: "50%", flexShrink: 0,
                 border: "2px solid var(--primary-strong)", padding: 2, background: "var(--surface)",
               }}
-              aria-label={`История: ${author.display_name}`}
+              aria-label={t("stories.story_of_aria", { name: author.display_name })}
             >
               <div style={{
                 width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden",
@@ -188,13 +190,13 @@ export default function StoriesRow() {
             <div style={{ color: "#fff", fontSize: 13, fontWeight: 700, flex: 1 }}>
               {activeStories[viewerIndex].author.display_name}
               <span style={{ color: "rgba(255,255,255,0.6)", fontWeight: 400, marginLeft: 6 }}>
-                {timeAgo(activeStories[viewerIndex].created_at)}
+                {timeAgo(activeStories[viewerIndex].created_at, t)}
               </span>
             </div>
             {activeStories[viewerIndex].author.id === userId && (
               <button
                 onClick={() => removeStory(activeStories[viewerIndex].id)}
-                aria-label="Удалить историю"
+                aria-label={t("stories.delete_story_aria")}
                 style={{ color: "#fff", background: "none", border: "none", padding: 6, cursor: "pointer", display: "flex" }}
               >
                 <Trash2 size={18} />
@@ -202,7 +204,7 @@ export default function StoriesRow() {
             )}
             <button
               onClick={() => setViewerAuthorId(null)}
-              aria-label="Закрыть"
+              aria-label={t("stories.close_aria")}
               style={{ color: "#fff", background: "none", border: "none", padding: 6, cursor: "pointer", display: "flex" }}
             >
               <X size={22} />
@@ -210,12 +212,12 @@ export default function StoriesRow() {
           </div>
 
           <div style={{ flex: 1, position: "relative" }} onClick={nextStory}>
-            <img src={activeStories[viewerIndex].photo_url} alt={`История: ${activeStories[viewerIndex].author.display_name}`} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            <img src={activeStories[viewerIndex].photo_url} alt={t("stories.story_of_aria", { name: activeStories[viewerIndex].author.display_name })} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             {viewerIndex > 0 && (
               <button
                 onClick={(e) => { e.stopPropagation(); setViewerIndex((i) => i - 1); }}
                 style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "35%" }}
-                aria-label="Предыдущая история"
+                aria-label={t("stories.previous_aria")}
               />
             )}
           </div>

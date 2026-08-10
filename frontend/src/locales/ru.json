@@ -86,5 +86,18 @@
     "empty_default_hint": "Будь первым, кто расскажет о своём питомце соседям",
     "loading_more": "Загружаем…",
     "show_more": "Показать ещё"
+  },
+  "stories": {
+    "just_now": "только что",
+    "hours_ago": "{{hours}} ч назад",
+    "published": "История опубликована",
+    "my_story_aria": "Моя история",
+    "add_story_aria": "Добавить историю",
+    "you": "Вы",
+    "add": "Добавить",
+    "story_of_aria": "История: {{name}}",
+    "delete_story_aria": "Удалить историю",
+    "close_aria": "Закрыть",
+    "previous_aria": "Предыдущая история"
   }
 }

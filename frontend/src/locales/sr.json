@@ -86,5 +86,18 @@
     "empty_default_hint": "Budi prvi koji će ispričati o svom ljubimcu komšijama",
     "loading_more": "Učitavamo…",
     "show_more": "Prikaži još"
+  },
+  "stories": {
+    "just_now": "upravo sada",
+    "hours_ago": "pre {{hours}} h",
+    "published": "Priča objavljena",
+    "my_story_aria": "Moja priča",
+    "add_story_aria": "Dodaj priču",
+    "you": "Ti",
+    "add": "Dodaj",
+    "story_of_aria": "Priča: {{name}}",
+    "delete_story_aria": "Obriši priču",
+    "close_aria": "Zatvori",
+    "previous_aria": "Prethodna priča"
   }
 }
