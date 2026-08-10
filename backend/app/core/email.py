@@ -1,10 +1,16 @@
 """Отправка email через обычный SMTP — работает с любым провайдером
-(Gmail, Яндекс, Mail.ru и т.д. с паролем приложения), без привязки к
-конкретному стороннему API-сервису и без отдельной регистрации там.
+(Gmail, Яндекс, Mail.ru с паролем приложения, Resend и т.д.), без жёсткой
+привязки к конкретному стороннему API SDK.
 
 Настройка через переменные окружения:
   SMTP_HOST, SMTP_PORT (по умолчанию 587), SMTP_USER, SMTP_PASSWORD,
   SMTP_FROM (по умолчанию — то же, что SMTP_USER)
+
+Для Resend: SMTP_HOST=smtp.resend.com, SMTP_USER=resend (буквально это
+слово, не email), SMTP_PASSWORD=<API-ключ Resend, начинается с re_>,
+SMTP_PORT=587 (STARTTLS) или 465 (сразу SSL, оба варианта поддерживаются
+ниже — см. send_email). SMTP_FROM обязательно должен быть адресом на
+домене, подтверждённом в Resend, иначе они отклонят отправку.
 
 Если SMTP_HOST не задан (например, в тестах или локальной разработке без
 настроенной почты) — письмо не отправляется по-настоящему, а просто
@@ -43,10 +49,19 @@ def send_email(to: str, subject: str, body: str) -> None:
     msg["From"] = SMTP_FROM
     msg["To"] = to
 
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-        server.starttls()
-        server.login(SMTP_USER, SMTP_PASSWORD)
-        server.sendmail(SMTP_FROM, [to], msg.as_string())
+    # Порт 465 (например, Resend по умолчанию) — соединение сразу зашифровано (implicit
+    # SSL/SMTPS), starttls() там не нужен и не сработает. Порт 587 (Gmail/Яндекс/Resend
+    # тоже поддерживает) — соединение начинается открытым текстом, потом апгрейдится
+    # через STARTTLS. Оба варианта — легитимный стандарт, выбираем по порту автоматически.
+    if SMTP_PORT == 465:
+        with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as server:
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            server.sendmail(SMTP_FROM, [to], msg.as_string())
+    else:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            server.sendmail(SMTP_FROM, [to], msg.as_string())
 
 
 def send_verification_code(to: str, code: str, purpose: str) -> None:
