@@ -881,6 +881,97 @@ a {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- BreedPicker: поиск породы --- */
+
+.breed-picker-input-wrap {
+  position: relative;
+}
+
+.breed-picker-input-wrap .breed-picker-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.breed-picker-input-wrap input {
+  padding-left: 40px !important;
+}
+
+.breed-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 264px;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-float);
+  animation: toast-in 0.15s ease;
+}
+
+.breed-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.breed-picker-item:hover,
+.breed-picker-item:focus-visible {
+  background: var(--gray-tint);
+}
+
+.breed-picker-item.selected {
+  background: var(--primary-tint);
+  color: var(--primary-strong);
+}
+
+.breed-picker-empty {
+  padding: 14px 12px;
+  font-size: 13px;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.breed-picker-custom {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 11px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-strong);
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 14px;
+  cursor: pointer;
+}
+
+.breed-picker-custom:hover,
+.breed-picker-custom:focus-visible {
+  background: var(--primary-tint);
+}
+
 /* --- Кнопки --- */
 
 .btn {

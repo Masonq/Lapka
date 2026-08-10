@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Search, Check } from "lucide-react";
 import { BREED_LISTS, translateBreed } from "../breeds";
 
 /**
@@ -71,50 +72,38 @@ export default function BreedPicker({ species, value, onChange }) {
 
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%" }}>
-      <input
-        value={displayValue}
-        onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
-        onFocus={handleFocus}
-        placeholder={t("pets.breed_search_placeholder")}
-        autoComplete="off"
-        style={{ width: "100%" }}
-      />
+      <div className="breed-picker-input-wrap">
+        <Search className="breed-picker-icon" size={16} strokeWidth={2.2} />
+        <input
+          value={displayValue}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={handleFocus}
+          placeholder={t("pets.breed_search_placeholder")}
+          autoComplete="off"
+          style={{ width: "100%" }}
+        />
+      </div>
       {open && (
-        <div
-          className="card"
-          style={{
-            position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 20,
-            maxHeight: 260, overflowY: "auto", padding: 4,
-          }}
-        >
-          {filtered.map((b) => (
-            <button
-              key={b.value}
-              type="button"
-              onClick={() => selectBreed(b.value)}
-              style={{
-                display: "block", width: "100%", textAlign: "left", padding: "10px 12px",
-                borderRadius: 10, fontSize: 14, background: "none", border: "none", cursor: "pointer",
-              }}
-            >
-              {t(b.labelKey)}
-            </button>
-          ))}
+        <div className="breed-picker-dropdown">
+          {filtered.map((b) => {
+            const isSelected = b.value === value;
+            return (
+              <button
+                key={b.value}
+                type="button"
+                onClick={() => selectBreed(b.value)}
+                className={`breed-picker-item${isSelected ? " selected" : ""}`}
+              >
+                {t(b.labelKey)}
+                {isSelected && <Check size={15} strokeWidth={2.5} />}
+              </button>
+            );
+          })}
           {filtered.length === 0 && (
-            <div style={{ padding: "10px 12px", fontSize: 13, color: "var(--text-faint)" }}>
-              {t("pets.breed_not_found_hint")}
-            </div>
+            <div className="breed-picker-empty">{t("pets.breed_not_found_hint")}</div>
           )}
           {query.trim() && (
-            <button
-              type="button"
-              onClick={selectFreeText}
-              style={{
-                display: "block", width: "100%", textAlign: "left", padding: "10px 12px",
-                borderRadius: 10, fontSize: 14, color: "var(--primary-strong)", fontWeight: 700,
-                background: "none", border: "none", cursor: "pointer", borderTop: "1px solid var(--border)",
-              }}
-            >
+            <button type="button" onClick={selectFreeText} className="breed-picker-custom">
               {t("pets.breed_use_custom", { text: query.trim() })}
             </button>
           )}
