@@ -179,6 +179,26 @@ ERRORS: dict[str, dict[str, str]] = {
         "ru": "Анкета исполнителя не найдена",
         "sr": "Profil pružaoca usluga nije pronađen",
     },
+    "unknown_service_type": {
+        "ru": "Неизвестный тип услуги",
+        "sr": "Nepoznat tip usluge",
+    },
+    "provider_profile_already_exists": {
+        "ru": "Профиль исполнителя уже создан",
+        "sr": "Profil pružaoca usluga je već kreiran",
+    },
+    "provider_not_found": {
+        "ru": "Исполнитель не найден",
+        "sr": "Pružalac usluga nije pronađen",
+    },
+    "cannot_review_self": {
+        "ru": "Нельзя оставить отзыв самому себе",
+        "sr": "Ne možeš ostaviti recenziju samom sebi",
+    },
+    "already_reviewed_provider": {
+        "ru": "Ты уже оставлял отзыв этому исполнителю",
+        "sr": "Već si ostavio(la) recenziju ovom pružaocu usluga",
+    },
 }
 
 

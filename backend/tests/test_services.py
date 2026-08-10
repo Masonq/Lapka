@@ -150,3 +150,42 @@ def test_list_reviews_query_count_does_not_scale_with_result_size(client, regist
 
     assert len(r.json()) == 3
     assert query_count <= 2  # 1 запрос отзывов (с joinedload author) — без отдельных на каждый
+
+
+def test_provider_not_found_error_translated_to_serbian(client, register_user):
+    headers = register_user()
+    r = client.post(
+        "/api/services/nonexistent-id/reviews", json={"rating": 5},
+        headers={**headers, "X-Lang": "sr"},
+    )
+    assert r.status_code == 404
+    assert r.json()["detail"] == "Pružalac usluga nije pronađen"
+
+
+def test_cannot_review_self_error_translated_to_serbian(client, register_user):
+    headers = register_user()
+    provider = client.post(
+        "/api/services", json={"service_type": "sitter", "description": "Тест", "contact": "@test"},
+        headers=headers,
+    ).json()
+
+    r = client.post(
+        f"/api/services/{provider['id']}/reviews", json={"rating": 5},
+        headers={**headers, "X-Lang": "sr"},
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Ne možeš ostaviti recenziju samom sebi"
+
+
+def test_duplicate_provider_profile_error_translated_to_serbian(client, register_user):
+    headers = register_user()
+    client.post(
+        "/api/services", json={"service_type": "sitter", "description": "Тест", "contact": "@test"},
+        headers=headers,
+    )
+    r = client.post(
+        "/api/services", json={"service_type": "vet", "description": "Тест2", "contact": "@test2"},
+        headers={**headers, "X-Lang": "sr"},
+    )
+    assert r.status_code == 400
+    assert r.json()["detail"] == "Profil pružaoca usluga je već kreiran"
