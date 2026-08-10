@@ -173,3 +173,32 @@ def test_delete_account_removes_user_and_cascades(client, register_user):
 def test_delete_account_requires_auth(client):
     r = client.request("DELETE", "/api/auth/me", json={})
     assert r.status_code == 401
+
+
+def test_onboarding_defaults_to_false(client, register_user):
+    headers = register_user()
+    r = client.get("/api/auth/me", headers=headers)
+    assert r.json()["has_completed_onboarding"] is False
+
+
+def test_complete_onboarding(client, register_user):
+    headers = register_user()
+    r = client.patch("/api/auth/onboarding-complete", headers=headers)
+    assert r.status_code == 200
+    assert r.json()["has_completed_onboarding"] is True
+
+    r = client.get("/api/auth/me", headers=headers)
+    assert r.json()["has_completed_onboarding"] is True
+
+
+def test_complete_onboarding_idempotent(client, register_user):
+    headers = register_user()
+    client.patch("/api/auth/onboarding-complete", headers=headers)
+    r = client.patch("/api/auth/onboarding-complete", headers=headers)
+    assert r.status_code == 200
+    assert r.json()["has_completed_onboarding"] is True
+
+
+def test_complete_onboarding_requires_auth(client):
+    r = client.patch("/api/auth/onboarding-complete")
+    assert r.status_code == 401

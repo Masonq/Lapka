@@ -23,6 +23,15 @@ def me(user: User = Depends(get_current_user)):
     return user
 
 
+@router.patch("/onboarding-complete", response_model=MeOut)
+def complete_onboarding(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """Отмечает онбординг пройденным — идемпотентно, повторный вызов ничего не ломает."""
+    user.has_completed_onboarding = True
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 @router.post("/register", response_model=Token)
 def register(data: RegisterEmail, request: Request, db: Session = Depends(get_db)):
     register_limiter.check(client_ip(request))

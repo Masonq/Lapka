@@ -86,11 +86,12 @@ a {
   background: var(--surface);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .card:hover {
   box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
 }
 
 .card-strong {
@@ -483,11 +484,12 @@ a {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   padding: 20px;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .block:hover {
   box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
 }
 
 .block-header {

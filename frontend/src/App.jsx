@@ -3,6 +3,7 @@ import { Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
 import { User, PlusCircle, Bell, Search, X } from "lucide-react";
 import ScrollToTop from "./ScrollToTop";
 import { useSearchContext } from "./SearchContext";
+import OnboardingModal from "./components/OnboardingModal";
 import TabBar from "./components/TabBar";
 import Feed from "./pages/Feed";
 import Explore from "./pages/Explore";
@@ -38,6 +39,7 @@ export default function App() {
   const { isAuthed } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const { config: searchConfig } = useSearchContext();
   const location = useLocation();
@@ -62,9 +64,18 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isAuthed]);
 
+  useEffect(() => {
+    if (!isAuthed) return;
+    if (localStorage.getItem("onboarding_completed") === "true") return;
+    api.me().then((me) => {
+      if (!me.has_completed_onboarding) setShowOnboarding(true);
+    }).catch(() => {});
+  }, [isAuthed]);
+
   return (
     <div className="app-shell">
       <ScrollToTop />
+      {showOnboarding && <OnboardingModal onDone={() => setShowOnboarding(false)} />}
       <div className="top-header card">
         {searchOpen && searchConfig ? (
           <div className="header-search-active">

@@ -59,6 +59,7 @@ class MeOut(UserOut):
     светиться в общей UserOut, которая отдаётся везде (автор поста/комментария и т.д.)."""
 
     is_admin: bool
+    has_completed_onboarding: bool
 
 
 # ---------- Pet ----------

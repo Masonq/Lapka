@@ -54,6 +54,7 @@ class User(Base):
     city = Column(String(80), default="Beograd")
     is_service_provider = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
+    has_completed_onboarding = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     pets = relationship("Pet", back_populates="owner", cascade="all, delete-orphan")
