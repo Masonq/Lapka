@@ -11,26 +11,28 @@ import PostCard from "../components/PostCard";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useSearchContext } from "../SearchContext";
 import { pluralize } from "../pluralize";
+import { useTranslation } from "react-i18next";
 
 const SERVICE_TYPES = [
-  { value: "", label: "Все" },
-  { value: "sitter", label: "Ситтеры" },
-  { value: "boarding", label: "Передержка" },
-  { value: "trainer", label: "Кинологи" },
-  { value: "vet", label: "Ветеринары" },
-  { value: "groomer", label: "Грумеры" },
+  { value: "", labelKey: "explore.service_all" },
+  { value: "sitter", labelKey: "explore.service_sitter" },
+  { value: "boarding", labelKey: "explore.service_boarding" },
+  { value: "trainer", labelKey: "explore.service_trainer" },
+  { value: "vet", labelKey: "explore.service_vet" },
+  { value: "groomer", labelKey: "explore.service_groomer" },
 ];
 
 const SEARCH_TABS = [
-  { value: "posts", label: "Посты" },
-  { value: "people", label: "Люди" },
-  { value: "pets", label: "Питомцы" },
-  { value: "communities", label: "Сообщества" },
-  { value: "events", label: "События" },
+  { value: "posts", labelKey: "explore.search_tab_posts" },
+  { value: "people", labelKey: "explore.search_tab_people" },
+  { value: "pets", labelKey: "explore.search_tab_pets" },
+  { value: "communities", labelKey: "explore.search_tab_communities" },
+  { value: "events", labelKey: "explore.search_tab_events" },
 ];
 
 export default function Explore() {
-  useDocumentTitle("Поиск");
+  const { t } = useTranslation();
+  useDocumentTitle(t("explore.title"));
   const { isAuthed } = useAuth();
   const { setSearchConfig } = useSearchContext();
 
@@ -56,12 +58,12 @@ export default function Explore() {
   useEffect(loadCommunities, []);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedQuery(query.trim()), 350);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setDebouncedQuery(query.trim()), 350);
+    return () => clearTimeout(timer);
   }, [query]);
 
   useEffect(() => {
-    setSearchConfig({ value: query, onChange: setQuery, placeholder: "Искать людей, питомцев, посты, сообщества…" });
+    setSearchConfig({ value: query, onChange: setQuery, placeholder: t("explore.search_placeholder") });
     return () => setSearchConfig(null);
   }, [query, setSearchConfig]);
 
@@ -99,14 +101,14 @@ export default function Explore() {
   return (
     <div>
       <div className="page-header">
-        <span className="page-title">Поиск</span>
+        <span className="page-title">{t("explore.title")}</span>
       </div>
 
       {isSearching && (
         <div className="chip-row" style={{ marginBottom: 16 }}>
-          {SEARCH_TABS.map((t) => (
-            <button key={t.value} className={`chip${searchTab === t.value ? " active" : ""}`} onClick={() => setSearchTab(t.value)}>
-              {t.label}
+          {SEARCH_TABS.map((tb) => (
+            <button key={tb.value} className={`chip${searchTab === tb.value ? " active" : ""}`} onClick={() => setSearchTab(tb.value)}>
+              {t(tb.labelKey)}
             </button>
           ))}
         </div>
@@ -114,13 +116,13 @@ export default function Explore() {
 
       {isSearching ? (
         <>
-          {searching && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Ищем…</p>}
+          {searching && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>{t("explore.searching")}</p>}
 
           {!searching && searchResults?.length === 0 && (
             <div className="empty-state">
               <EmptyStateImage />
-              <div className="empty-state-title">Ничего не нашлось</div>
-              Попробуй другой запрос или вкладку
+              <div className="empty-state-title">{t("explore.empty_title")}</div>
+              {t("explore.empty_hint")}
             </div>
           )}
 
@@ -166,7 +168,7 @@ export default function Explore() {
                     display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden",
                   }}>
                     {pet.avatar_url ? (
-                      <img src={pet.avatar_url} alt={`Фото ${pet.name}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={pet.avatar_url} alt={t("pets.photo_alt", { name: pet.name })} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     ) : (
                       <PawPrint size={18} strokeWidth={2.2} />
                     )}
@@ -198,7 +200,7 @@ export default function Explore() {
                   </div>
                   <div>
                     <div className="subhead" style={{ fontSize: 14 }}>{c.name}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.members_count} {pluralize(c.members_count, ["участник", "участника", "участников"])}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.members_count} {pluralize(c.members_count, [t("plural.member_one"), t("plural.member_few"), t("plural.member_many")])}</div>
                   </div>
                 </Link>
               ))}
@@ -210,7 +212,7 @@ export default function Explore() {
               {searchResults.map((ev) => (
                 <Link key={ev.id} to={`/events/${ev.id}`} className="card" style={{ borderRadius: 20, padding: 16, display: "flex", flexDirection: "column", height: "100%" }}>
                   <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
-                    {ev.type === "walk" ? "Прогулка" : "Событие"}
+                    {ev.type === "walk" ? t("events.walk_chip") : t("events.event_chip")}
                   </span>
                   <h3 className="post-title" style={{ marginTop: 8, fontSize: 15 }}>{ev.title}</h3>
                   {ev.location && (
@@ -233,8 +235,8 @@ export default function Explore() {
               <MapPin size={17} strokeWidth={2.2} />
             </div>
             <div style={{ flex: 1 }}>
-              <div className="subhead" style={{ fontSize: 14 }}>Рядом</div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Питомцы в твоём городе</div>
+              <div className="subhead" style={{ fontSize: 14 }}>{t("explore.nearby_title")}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{t("explore.nearby_hint")}</div>
             </div>
             <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
           </Link>
@@ -249,8 +251,8 @@ export default function Explore() {
               <Map size={17} strokeWidth={2.2} />
             </div>
             <div style={{ flex: 1 }}>
-              <div className="subhead" style={{ fontSize: 14 }}>Карта потеряшек</div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Где видели пропавших и найденных</div>
+              <div className="subhead" style={{ fontSize: 14 }}>{t("explore.map_title")}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{t("explore.map_hint")}</div>
             </div>
             <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
           </Link>
@@ -265,8 +267,8 @@ export default function Explore() {
               <CalendarDays size={17} strokeWidth={2.2} />
             </div>
             <div style={{ flex: 1 }}>
-              <div className="subhead" style={{ fontSize: 14 }}>Прогулки и события</div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Совместные выгулы и встречи</div>
+              <div className="subhead" style={{ fontSize: 14 }}>{t("explore.events_title")}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{t("explore.events_hint")}</div>
             </div>
             <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
           </Link>
@@ -281,8 +283,8 @@ export default function Explore() {
               <ShoppingBag size={17} strokeWidth={2.2} />
             </div>
             <div style={{ flex: 1 }}>
-              <div className="subhead" style={{ fontSize: 14 }}>Барахолка</div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Купить, продать, отдать даром</div>
+              <div className="subhead" style={{ fontSize: 14 }}>{t("explore.marketplace_title")}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{t("explore.marketplace_hint")}</div>
             </div>
             <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
           </Link>
@@ -297,16 +299,16 @@ export default function Explore() {
               <Heart size={17} strokeWidth={2.2} />
             </div>
             <div style={{ flex: 1 }}>
-              <div className="subhead" style={{ fontSize: 14 }}>Приюты и пристройство</div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Питомцы, которым ищут дом</div>
+              <div className="subhead" style={{ fontSize: 14 }}>{t("explore.adoption_title")}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{t("explore.adoption_hint")}</div>
             </div>
             <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
           </Link>
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <h3 className="subhead" style={{ margin: 0 }}>Сообщества</h3>
+            <h3 className="subhead" style={{ margin: 0 }}>{t("explore.communities_title")}</h3>
             <Link to="/communities" style={{ display: "flex", alignItems: "center", fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>
-              Все <ChevronRight size={14} />
+              {t("explore.see_all")} <ChevronRight size={14} />
             </Link>
           </div>
 
@@ -326,23 +328,23 @@ export default function Explore() {
                     </div>
                     <div style={{ minWidth: 0 }}>
                       <div className="subhead" style={{ fontSize: 13 }}>{c.name}</div>
-                      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.members_count} {pluralize(c.members_count, ["участник", "участника", "участников"])}</div>
+                      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.members_count} {pluralize(c.members_count, [t("plural.member_one"), t("plural.member_few"), t("plural.member_many")])}</div>
                     </div>
                   </Link>
                 ))}
               </div>
           )}
 
-          <h3 className="subhead" style={{ marginBottom: 10 }}>Услуги для питомцев</h3>
+          <h3 className="subhead" style={{ marginBottom: 10 }}>{t("explore.services_title")}</h3>
 
           <div className="chip-row" style={{ padding: 0, marginBottom: 10 }}>
-            {SERVICE_TYPES.map((t) => (
+            {SERVICE_TYPES.map((sv) => (
               <button
-                key={t.value}
-                className={`chip${serviceFilter === t.value ? " active" : ""}`}
-                onClick={() => setServiceFilter(t.value)}
+                key={sv.value}
+                className={`chip${serviceFilter === sv.value ? " active" : ""}`}
+                onClick={() => setServiceFilter(sv.value)}
               >
-                {t.label}
+                {t(sv.labelKey)}
               </button>
             ))}
           </div>
@@ -356,7 +358,7 @@ export default function Explore() {
 
           {!loadingServices && providers.length === 0 && (
             <div className="empty-state" style={{ padding: "24px 20px" }}>
-              Пока никого нет в этой категории
+              {t("explore.no_providers")}
             </div>
           )}
 
