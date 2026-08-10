@@ -36,6 +36,7 @@ import { NAV_ITEMS } from "./navConfig";
 import { useAuth } from "./AuthContext";
 import { api } from "./api/client";
 import { useRealtimeEvent } from "./RealtimeContext";
+import { initAnalytics, trackPageview } from "./analytics";
 
 export default function App() {
   const { isAuthed } = useAuth();
@@ -46,6 +47,9 @@ export default function App() {
   const { config: searchConfig } = useSearchContext();
   const location = useLocation();
   const isThreadPage = /^\/messages\/[^/]+$/.test(location.pathname);
+
+  useEffect(() => { initAnalytics(); }, []);
+  useEffect(() => { trackPageview(location.pathname); }, [location.pathname]);
 
   useEffect(() => setSearchOpen(false), [location.pathname]);
   useEffect(() => {
