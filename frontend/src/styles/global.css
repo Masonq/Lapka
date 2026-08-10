@@ -96,18 +96,29 @@ a, button, [role="button"] {
   -webkit-tap-highlight-color: transparent;
 }
 
-.card:active,
+.post-card,
+.chip,
+.header-icon-btn,
+.badge,
+.post-badge {
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
 .post-card:active,
 a.card:active {
   opacity: 0.92;
+  transform: scale(0.985);
 }
 
 .chip:active,
-.btn:active,
-.icon-btn:active,
 .header-icon-btn:active,
 .badge:active,
 .post-badge:active {
+  opacity: 0.8;
+  transform: scale(0.94);
+}
+
+.icon-btn:active {
   opacity: 0.8;
 }
 
@@ -163,12 +174,17 @@ a {
   background: var(--surface);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, opacity 0.12s ease;
 }
 
 .card:hover {
   box-shadow: var(--shadow-card-hover);
   transform: translateY(-2px);
+}
+
+.card:active {
+  opacity: 0.92;
+  transform: scale(0.985);
 }
 
 .card-strong {
@@ -347,6 +363,7 @@ a {
   background: var(--surface);
   color: var(--black);
   cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.12s ease;
 }
 
 .icon-btn:active {
@@ -495,6 +512,25 @@ a {
      любой карточки (пост, питомец, сообщество, объявление, событие) раздувает
      всю колонку шире контейнера вместо того, чтобы обрезаться/переноситься внутри */
   min-width: 0;
+  animation: card-in 0.22s ease backwards;
+}
+
+/* backwards — элемент держит стиль from-кейфрейма (opacity:0) всё время
+   задержки, не мелькает полностью видимым за секунду ДО начала своей
+   анимации. Задержка только на первых нескольких карточках — то, что
+   видно на первом экране без скролла; дальше без неё, чтобы длинные
+   списки (лента после подгрузки, результаты поиска) не тормозили появление
+   двадцатого элемента искусственной секундной очередью */
+.card-grid > *:nth-child(1) { animation-delay: 0.02s; }
+.card-grid > *:nth-child(2) { animation-delay: 0.06s; }
+.card-grid > *:nth-child(3) { animation-delay: 0.10s; }
+.card-grid > *:nth-child(4) { animation-delay: 0.14s; }
+.card-grid > *:nth-child(5) { animation-delay: 0.18s; }
+.card-grid > *:nth-child(6) { animation-delay: 0.22s; }
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .post-badge {
@@ -881,6 +917,17 @@ a {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- Переход между страницами --- */
+
+.page-transition {
+  animation: page-fade-in 0.18s ease;
+}
+
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* --- BreedPicker: поиск породы --- */
 
 .breed-picker-input-wrap {
@@ -1107,9 +1154,7 @@ a {
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
-  }
-  .spin {
-    animation: none;
+    animation: none !important;
   }
 }
 

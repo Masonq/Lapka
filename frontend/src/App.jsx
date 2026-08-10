@@ -177,6 +177,7 @@ export default function App() {
           </div>
         }
       >
+        <div key={location.pathname} className="page-transition">
         <Routes>
           <Route path="/" element={<Feed />} />
           <Route path="/explore" element={<Explore />} />
@@ -206,6 +207,7 @@ export default function App() {
           <Route path="/users/:id/connections" element={<FollowList />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </div>
       </Suspense>
 
       {!searchOpen && !isThreadPage && (
