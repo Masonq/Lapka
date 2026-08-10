@@ -99,11 +99,11 @@ export const api = {
 
   posts: (params = {}) => {
     const qs = new URLSearchParams(params).toString();
-    return request(`/posts${qs ? `?${qs}` : ""}`);
+    return request(`/posts${qs ? `?${qs}` : ""}`, { auth: true });
   },
   localPulse: () => request("/posts/local-pulse"),
   createPost: (data) => request("/posts", { method: "POST", body: data, auth: true }),
-  post: (id) => request(`/posts/${id}`),
+  post: (id) => request(`/posts/${id}`, { auth: true }),
   resolvePost: (id) => request(`/posts/${id}/resolve`, { method: "PATCH", auth: true }),
   updatePost: (id, data) => request(`/posts/${id}`, { method: "PATCH", body: data, auth: true }),
   deletePost: (id) => request(`/posts/${id}`, { method: "DELETE", auth: true }),
