@@ -85,6 +85,7 @@ body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 button {
@@ -129,6 +130,7 @@ a {
   margin: 0 auto;
   padding: 0 16px calc(140px + env(safe-area-inset-bottom, 0px));
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* --- Верхний хедер --- */
