@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Users, Plus } from "lucide-react";
+import ListItemSkeleton from "../components/ListItemSkeleton";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -105,7 +106,7 @@ export default function Communities() {
         </form>
       )}
 
-      {communities === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+      {communities === null && <ListItemSkeleton />}
 
       {communities?.length === 0 && (
         <div className="empty-state">

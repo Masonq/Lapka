@@ -7,6 +7,7 @@ import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { pluralize } from "../pluralize";
 import PostCard from "../components/PostCard";
+import DetailCardSkeleton from "../components/DetailCardSkeleton";
 
 export default function UserProfile() {
   const { id } = useParams();
@@ -91,7 +92,22 @@ export default function UserProfile() {
     );
   }
 
-  if (!user) return <div className="empty-state">Загружаем профиль…</div>;
+  if (!user) {
+    return (
+      <div>
+        <div className="page-header">
+          <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+            <ArrowLeft size={17} strokeWidth={2.2} />
+          </button>
+          <span className="page-title">Профиль</span>
+          <span style={{ width: 44 }} />
+        </div>
+        <div className="detail-shell">
+          <DetailCardSkeleton />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

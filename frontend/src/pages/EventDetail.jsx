@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import DetailCardSkeleton from "../components/DetailCardSkeleton";
 
 function formatDate(iso) {
   const d = new Date(iso);
@@ -52,7 +53,22 @@ export default function EventDetail() {
     );
   }
 
-  if (!event) return <div className="empty-state">Загружаем…</div>;
+  if (!event) {
+    return (
+      <div>
+        <div className="page-header">
+          <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+            <ArrowLeft size={17} strokeWidth={2.2} />
+          </button>
+          <span className="page-title">Событие</span>
+          <span style={{ width: 44 }} />
+        </div>
+        <div className="detail-shell">
+          <DetailCardSkeleton />
+        </div>
+      </div>
+    );
+  }
 
   const full = event.capacity != null && event.participants_count >= event.capacity && !event.is_going;
 

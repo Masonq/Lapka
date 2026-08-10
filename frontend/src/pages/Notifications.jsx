@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Bell, UserPlus, MessageCircle, Eye } from "lucide-react";
+import ListItemSkeleton from "../components/ListItemSkeleton";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 
@@ -71,7 +72,7 @@ export default function Notifications() {
         </Link>
       </div>
 
-      {items === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+      {items === null && <ListItemSkeleton />}
 
       {items?.length === 0 && (
         <div className="empty-state">

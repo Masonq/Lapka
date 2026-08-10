@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Users } from "lucide-react";
+import ListItemSkeleton from "../components/ListItemSkeleton";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 
@@ -29,7 +30,7 @@ export default function FollowList() {
         <span style={{ width: 44 }} />
       </div>
 
-      {list === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+      {list === null && <ListItemSkeleton />}
 
       {list?.length === 0 && (
         <div className="empty-state">

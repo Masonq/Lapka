@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, KeyRound, Trash2, UserX, ShieldCheck, Wrench, Sparkles } from "lucide-react";
+import ListItemSkeleton from "../components/ListItemSkeleton";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -259,7 +260,7 @@ export default function Settings() {
             <h3 className="subhead" style={{ fontSize: 15 }}>Заблокированные</h3>
           </div>
 
-          {blockedUsers === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+          {blockedUsers === null && <ListItemSkeleton count={2} />}
 
           {blockedUsers?.length === 0 && (
             <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Никого не заблокировано</p>

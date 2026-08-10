@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import DetailCardSkeleton from "../components/DetailCardSkeleton";
 
 const TYPE_LABELS = {
   lost: "Потерялся",
@@ -129,7 +130,22 @@ export default function PostDetail() {
     );
   }
 
-  if (!post) return <div className="empty-state">Загружаем пост…</div>;
+  if (!post) {
+    return (
+      <div>
+        <div className="page-header">
+          <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+            <ArrowLeft size={17} strokeWidth={2.2} />
+          </button>
+          <span className="page-title">Пост</span>
+          <span style={{ width: 44 }} />
+        </div>
+        <div className="detail-shell">
+          <DetailCardSkeleton />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

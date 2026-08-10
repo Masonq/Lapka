@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Heart, PlusCircle } from "lucide-react";
+import PostCardSkeleton from "../components/PostCardSkeleton";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -50,7 +51,7 @@ export default function Adoption() {
         ))}
       </div>
 
-      {posts === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+      {posts === null && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
       {posts?.length === 0 && (
         <div className="empty-state">

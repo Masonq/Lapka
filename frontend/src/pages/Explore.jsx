@@ -4,6 +4,7 @@ import { MapPin, CalendarDays, ShoppingBag, Heart, ChevronRight, PawPrint } from
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
+import ListItemSkeleton from "../components/ListItemSkeleton";
 import ProviderCard from "../components/ProviderCard";
 import PostCard from "../components/PostCard";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -42,7 +43,7 @@ export default function Explore() {
   const [serviceFilter, setServiceFilter] = useState("");
   const [loadingServices, setLoadingServices] = useState(true);
 
-  const [communities, setCommunities] = useState([]);
+  const [communities, setCommunities] = useState(null);
 
   useEffect(() => {
     api.communities().then((list) => setCommunities(list.slice(0, 3))).catch(() => setCommunities([]));
@@ -279,15 +280,17 @@ export default function Explore() {
             <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
           </Link>
 
-          {communities.length > 0 && (
-            <>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <h3 className="subhead" style={{ margin: 0 }}>Сообщества</h3>
-                <Link to="/communities" style={{ display: "flex", alignItems: "center", fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>
-                  Все <ChevronRight size={14} />
-                </Link>
-              </div>
-              <div className="card-grid" style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <h3 className="subhead" style={{ margin: 0 }}>Сообщества</h3>
+            <Link to="/communities" style={{ display: "flex", alignItems: "center", fontSize: 13, color: "var(--text-muted)", textDecoration: "none" }}>
+              Все <ChevronRight size={14} />
+            </Link>
+          </div>
+
+          {communities === null && <ListItemSkeleton count={2} />}
+
+          {communities?.length > 0 && (
+            <div className="card-grid" style={{ marginBottom: 24 }}>
                 {communities.map((c) => (
                   <Link key={c.id} to={`/communities/${c.id}`} className="card" style={{
                     borderRadius: 20, padding: 14, display: "flex", alignItems: "center", gap: 10,
@@ -305,7 +308,6 @@ export default function Explore() {
                   </Link>
                 ))}
               </div>
-            </>
           )}
 
           <h3 className="subhead" style={{ marginBottom: 10 }}>Услуги для питомцев</h3>

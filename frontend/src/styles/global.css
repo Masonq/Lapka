@@ -635,7 +635,7 @@ a {
 .skeleton {
   display: block;
   border-radius: var(--radius-pill);
-  background: linear-gradient(90deg, var(--gray-tint) 25%, #F7F7F8 37%, var(--gray-tint) 63%);
+  background: linear-gradient(90deg, #E3E3E5 25%, #F5F5F6 37%, #E3E3E5 63%);
   background-size: 400% 100%;
   animation: skeleton-shimmer 1.4s ease infinite;
 }
@@ -653,6 +653,38 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .skeleton {
     animation: none;
+  }
+}
+
+/* --- Переливающаяся лапка (анимация загрузки) --- */
+
+.paw-loader {
+  -webkit-mask-image: url('/logo.png');
+  mask-image: url('/logo.png');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  background: linear-gradient(
+    90deg,
+    var(--primary-tint) 0%, var(--primary) 25%, var(--primary-strong) 50%, var(--primary) 75%, var(--primary-tint) 100%
+  );
+  background-size: 200% 100%;
+  animation: paw-shimmer 1.6s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes paw-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paw-loader {
+    animation: none;
+    background: var(--primary);
   }
 }
 

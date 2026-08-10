@@ -6,6 +6,8 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PostCard from "../components/PostCard";
+import PostCardSkeleton from "../components/PostCardSkeleton";
+import DetailCardSkeleton from "../components/DetailCardSkeleton";
 
 export default function CommunityDetail() {
   const { id } = useParams();
@@ -47,7 +49,22 @@ export default function CommunityDetail() {
     );
   }
 
-  if (!community) return <div className="empty-state">Загружаем…</div>;
+  if (!community) {
+    return (
+      <div>
+        <div className="page-header">
+          <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+            <ArrowLeft size={17} strokeWidth={2.2} />
+          </button>
+          <span className="page-title">Сообщество</span>
+          <span style={{ width: 44 }} />
+        </div>
+        <div className="detail-shell">
+          <DetailCardSkeleton />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -117,7 +134,7 @@ export default function CommunityDetail() {
 
         <h3 className="subhead" style={{ marginBottom: 10 }}>Посты сообщества</h3>
 
-        {posts === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+        {posts === null && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
         {posts?.length === 0 && (
           <p style={{ fontSize: 13, color: "var(--text-faint)" }}>

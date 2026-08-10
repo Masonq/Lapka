@@ -4,6 +4,7 @@ import { MessageCircle } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import ListItemSkeleton from "../components/ListItemSkeleton";
 
 function timeAgo(iso) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -41,7 +42,7 @@ export default function Messages() {
         <span className="page-title">Сообщения</span>
       </div>
 
-      {conversations === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+      {conversations === null && <ListItemSkeleton />}
 
       {conversations?.length === 0 && (
         <div className="empty-state">

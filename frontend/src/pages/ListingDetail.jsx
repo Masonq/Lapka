@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import DetailCardSkeleton from "../components/DetailCardSkeleton";
 
 const TYPE_LABELS = { sell: "Продажа", wanted: "Ищут", give_away: "Отдам даром" };
 
@@ -82,7 +83,22 @@ export default function ListingDetail() {
     );
   }
 
-  if (!listing) return <div className="empty-state">Загружаем…</div>;
+  if (!listing) {
+    return (
+      <div>
+        <div className="page-header">
+          <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+            <ArrowLeft size={17} strokeWidth={2.2} />
+          </button>
+          <span className="page-title">Объявление</span>
+          <span style={{ width: 44 }} />
+        </div>
+        <div className="detail-shell">
+          <DetailCardSkeleton withPhoto />
+        </div>
+      </div>
+    );
+  }
 
   const isOwner = listing.seller.id === userId;
 

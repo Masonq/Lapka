@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, CalendarDays, MapPin, Users, Plus, PawPrint } from "lucide-react";
+import PostCardSkeleton from "../components/PostCardSkeleton";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -163,7 +164,7 @@ export default function Events() {
         ))}
       </div>
 
-      {events === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+      {events === null && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
       {events?.length === 0 && (
         <div className="empty-state">

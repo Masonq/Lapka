@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, PawPrint, MapPin } from "lucide-react";
+import ListItemSkeleton from "../components/ListItemSkeleton";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 
@@ -39,7 +40,7 @@ export default function Nearby() {
         ))}
       </div>
 
-      {pets === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+      {pets === null && <ListItemSkeleton />}
 
       {pets?.length === 0 && (
         <div className="empty-state">

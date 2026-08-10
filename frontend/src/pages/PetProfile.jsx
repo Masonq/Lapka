@@ -6,6 +6,8 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import WeightChart from "../components/WeightChart";
+import DetailCardSkeleton from "../components/DetailCardSkeleton";
+import ListItemSkeleton from "../components/ListItemSkeleton";
 
 const HEALTH_CATEGORIES = [
   { value: "vaccination", label: "Вакцинация" },
@@ -89,7 +91,22 @@ export default function PetProfile() {
     );
   }
 
-  if (!pet) return <div className="empty-state">Загружаем профиль…</div>;
+  if (!pet) {
+    return (
+      <div>
+        <div className="page-header">
+          <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+            <ArrowLeft size={17} strokeWidth={2.2} />
+          </button>
+          <span className="page-title">Питомец</span>
+          <span style={{ width: 44 }} />
+        </div>
+        <div className="detail-shell">
+          <DetailCardSkeleton />
+        </div>
+      </div>
+    );
+  }
 
   const avatarTint = pet.species === "Собака" ? "var(--blue-tint)" : pet.species === "Кошка" ? "var(--primary-tint)" : "var(--gray-tint)";
   const avatarColor = pet.species === "Собака" ? "var(--blue)" : pet.species === "Кошка" ? "#95491B" : "var(--text-muted)";
@@ -230,7 +247,7 @@ export default function PetProfile() {
               </form>
             )}
 
-            {health === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+            {health === null && <ListItemSkeleton count={2} />}
             {health?.length === 0 && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Записей пока нет</p>}
             {health && <WeightChart records={health.filter((r) => r.category === "weight")} />}
             {health?.map((r) => (

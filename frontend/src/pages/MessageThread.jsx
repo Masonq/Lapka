@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import PawLoader from "../components/PawLoader";
 
 export default function MessageThread() {
   const { userId } = useParams();
@@ -63,7 +64,11 @@ export default function MessageThread() {
         display: "flex", flexDirection: "column", gap: 8,
         paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))",
       }}>
-        {messages === null && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Загружаем…</p>}
+        {messages === null && (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
+            <PawLoader size={48} />
+          </div>
+        )}
 
         {messages?.length === 0 && (
           <p style={{ fontSize: 13, color: "var(--text-faint)", textAlign: "center", marginTop: 20 }}>

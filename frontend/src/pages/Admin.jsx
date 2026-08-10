@@ -6,6 +6,7 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useSearchContext } from "../SearchContext";
+import PawLoader from "../components/PawLoader";
 
 export default function Admin() {
   useDocumentTitle("Админка");
@@ -74,7 +75,11 @@ export default function Admin() {
   }
 
   if (!isAuthed || me === null) {
-    return <div className="empty-state">Загружаем…</div>;
+    return (
+      <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
+        <PawLoader size={40} />
+      </div>
+    );
   }
 
   if (!me.is_admin) {
