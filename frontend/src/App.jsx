@@ -1,37 +1,44 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
 import { User, PlusCircle, Bell, Search, X } from "lucide-react";
 import ScrollToTop from "./ScrollToTop";
 import { useSearchContext } from "./SearchContext";
 import OnboardingModal from "./components/OnboardingModal";
 import TabBar from "./components/TabBar";
+import PawLoader from "./components/PawLoader";
+// Feed — единственная страница с обычным (не ленивым) импортом: это то, что
+// видит почти каждый пользователь на самом первом экране, лениво грузить её
+// означало бы добавить мигание загрузки на самый частый сценарий из всех.
+// Остальные 27 страниц — lazy(), чтобы не тащить их код (включая тяжёлые
+// библиотеки вроде leaflet для карты) в главный бандл, если пользователь
+// туда вообще не заходит в этой сессии.
 import Feed from "./pages/Feed";
-import Explore from "./pages/Explore";
-import Create from "./pages/Create";
-import Messages from "./pages/Messages";
-import NewPost from "./pages/NewPost";
-import PostDetail from "./pages/PostDetail";
-import Pets from "./pages/Pets";
-import PetProfile from "./pages/PetProfile";
-import SavedPosts from "./pages/SavedPosts";
-import Notifications from "./pages/Notifications";
-import Settings from "./pages/Settings";
-import Admin from "./pages/Admin";
-import Communities from "./pages/Communities";
-import CommunityDetail from "./pages/CommunityDetail";
-import Nearby from "./pages/Nearby";
-import MapView from "./pages/MapView";
-import MessageThread from "./pages/MessageThread";
-import Events from "./pages/Events";
-import EventDetail from "./pages/EventDetail";
-import Marketplace from "./pages/Marketplace";
-import NewListing from "./pages/NewListing";
-import ListingDetail from "./pages/ListingDetail";
-import Adoption from "./pages/Adoption";
-import FollowList from "./pages/FollowList";
-import Profile from "./pages/Profile";
-import UserProfile from "./pages/UserProfile";
-import NotFound from "./pages/NotFound";
+const Explore = lazy(() => import("./pages/Explore"));
+const Create = lazy(() => import("./pages/Create"));
+const Messages = lazy(() => import("./pages/Messages"));
+const NewPost = lazy(() => import("./pages/NewPost"));
+const PostDetail = lazy(() => import("./pages/PostDetail"));
+const Pets = lazy(() => import("./pages/Pets"));
+const PetProfile = lazy(() => import("./pages/PetProfile"));
+const SavedPosts = lazy(() => import("./pages/SavedPosts"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Communities = lazy(() => import("./pages/Communities"));
+const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
+const Nearby = lazy(() => import("./pages/Nearby"));
+const MapView = lazy(() => import("./pages/MapView"));
+const MessageThread = lazy(() => import("./pages/MessageThread"));
+const Events = lazy(() => import("./pages/Events"));
+const EventDetail = lazy(() => import("./pages/EventDetail"));
+const Marketplace = lazy(() => import("./pages/Marketplace"));
+const NewListing = lazy(() => import("./pages/NewListing"));
+const ListingDetail = lazy(() => import("./pages/ListingDetail"));
+const Adoption = lazy(() => import("./pages/Adoption"));
+const FollowList = lazy(() => import("./pages/FollowList"));
+const Profile = lazy(() => import("./pages/Profile"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 import { NAV_ITEMS } from "./navConfig";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "./AuthContext";
@@ -163,35 +170,43 @@ export default function App() {
         </div>
       )}
 
-      <Routes>
-        <Route path="/" element={<Feed />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/create" element={<Create />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/new-post" element={<NewPost />} />
-        <Route path="/posts/:id" element={<PostDetail />} />
-        <Route path="/pets" element={<Pets />} />
-        <Route path="/pets/:id" element={<PetProfile />} />
-        <Route path="/saved" element={<SavedPosts />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/communities" element={<Communities />} />
-        <Route path="/communities/:id" element={<CommunityDetail />} />
-        <Route path="/nearby" element={<Nearby />} />
-        <Route path="/map" element={<MapView />} />
-        <Route path="/messages/:userId" element={<MessageThread />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/events/:id" element={<EventDetail />} />
-        <Route path="/marketplace" element={<Marketplace />} />
-        <Route path="/marketplace/new" element={<NewListing />} />
-        <Route path="/marketplace/:id" element={<ListingDetail />} />
-        <Route path="/adoption" element={<Adoption />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/users/:id" element={<UserProfile />} />
-        <Route path="/users/:id/connections" element={<FollowList />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Suspense
+        fallback={
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
+            <PawLoader size={40} />
+          </div>
+        }
+      >
+        <Routes>
+          <Route path="/" element={<Feed />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/create" element={<Create />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/new-post" element={<NewPost />} />
+          <Route path="/posts/:id" element={<PostDetail />} />
+          <Route path="/pets" element={<Pets />} />
+          <Route path="/pets/:id" element={<PetProfile />} />
+          <Route path="/saved" element={<SavedPosts />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/communities" element={<Communities />} />
+          <Route path="/communities/:id" element={<CommunityDetail />} />
+          <Route path="/nearby" element={<Nearby />} />
+          <Route path="/map" element={<MapView />} />
+          <Route path="/messages/:userId" element={<MessageThread />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/events/:id" element={<EventDetail />} />
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/marketplace/new" element={<NewListing />} />
+          <Route path="/marketplace/:id" element={<ListingDetail />} />
+          <Route path="/adoption" element={<Adoption />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/users/:id" element={<UserProfile />} />
+          <Route path="/users/:id/connections" element={<FollowList />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
 
       {!searchOpen && !isThreadPage && (
         <>
