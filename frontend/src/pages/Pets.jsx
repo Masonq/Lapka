@@ -7,6 +7,7 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PhotoPicker from "../components/PhotoPicker";
+import { useTranslation } from "react-i18next";
 
 const SPECIES = ["Собака", "Кошка", "Другое"];
 const GENDERS = ["Мальчик", "Девочка"];
@@ -18,7 +19,8 @@ const EMPTY_FORM = {
 };
 
 export default function Pets() {
-  useDocumentTitle("Мои питомцы");
+  const { t } = useTranslation();
+  useDocumentTitle(t("pets.title"));
   const navigate = useNavigate();
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
@@ -47,7 +49,7 @@ export default function Pets() {
       });
       setForm(EMPTY_FORM);
       setShowForm(false);
-      showToast(`${form.name} добавлен`);
+      showToast(t("pets.added_toast", { name: form.name }));
       load();
     } catch (err) {
       setError(err.message);
@@ -57,15 +59,15 @@ export default function Pets() {
 
   async function remove(id, name) {
     await api.deletePet(id);
-    showToast(`${name} удалён`);
+    showToast(t("pets.deleted_toast", { name }));
     load();
   }
 
   if (!isAuthed) {
     return (
       <div className="empty-state">
-        <div className="empty-state-title">Профили питомцев</div>
-        Войди, чтобы добавить своего питомца
+        <div className="empty-state-title">{t("pets.login_required_title")}</div>
+        {t("pets.login_required_hint")}
       </div>
     );
   }
@@ -73,12 +75,12 @@ export default function Pets() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("pets.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Мои питомцы</span>
+        <span className="page-title">{t("pets.title")}</span>
         <button className="btn btn-ghost" onClick={() => setShowForm((v) => !v)}>
-          <Plus size={16} /> Добавить
+          <Plus size={16} /> {t("pets.add")}
         </button>
       </div>
 
@@ -87,14 +89,14 @@ export default function Pets() {
           <PhotoPicker
             value={form.avatar_url}
             onChange={(url) => setForm({ ...form, avatar_url: url })}
-            label="Фото (необязательно)"
+            label={t("pets.photo_label")}
           />
           <div className="field">
-            <label htmlFor="pet-name">Кличка</label>
-            <input id="pet-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="Например: Бела" />
+            <label htmlFor="pet-name">{t("pets.name_label")}</label>
+            <input id="pet-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder={t("pets.name_placeholder")} />
           </div>
           <div className="field">
-            <label id="pet-species-label">Вид</label>
+            <label id="pet-species-label">{t("pets.species_label")}</label>
             <div className="chip-row" role="group" aria-labelledby="pet-species-label" style={{ paddingBottom: 2 }}>
               {SPECIES.map((s) => (
                 <button
@@ -109,11 +111,11 @@ export default function Pets() {
             </div>
           </div>
           <div className="field">
-            <label htmlFor="pet-breed">Порода</label>
-            <input id="pet-breed" value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} placeholder="Необязательно" />
+            <label htmlFor="pet-breed">{t("pets.breed_label")}</label>
+            <input id="pet-breed" value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} placeholder={t("pets.breed_placeholder")} />
           </div>
           <div className="field">
-            <label id="pet-gender-label">Пол</label>
+            <label id="pet-gender-label">{t("pets.gender_label")}</label>
             <div className="chip-row" role="group" aria-labelledby="pet-gender-label" style={{ paddingBottom: 2 }}>
               {GENDERS.map((g) => (
                 <button
@@ -128,15 +130,15 @@ export default function Pets() {
             </div>
           </div>
           <div className="field">
-            <label htmlFor="pet-age">Возраст (лет)</label>
-            <input id="pet-age" type="number" min="0" value={form.age_years} onChange={(e) => setForm({ ...form, age_years: e.target.value })} placeholder="Необязательно" />
+            <label htmlFor="pet-age">{t("pets.age_label")}</label>
+            <input id="pet-age" type="number" min="0" value={form.age_years} onChange={(e) => setForm({ ...form, age_years: e.target.value })} placeholder={t("pets.optional_placeholder")} />
           </div>
           <div className="field">
-            <label htmlFor="pet-city">Город</label>
-            <input id="pet-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Необязательно" />
+            <label htmlFor="pet-city">{t("pets.city_label")}</label>
+            <input id="pet-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder={t("pets.optional_placeholder")} />
           </div>
           <div className="field">
-            <label id="pet-activity-label">Уровень активности</label>
+            <label id="pet-activity-label">{t("pets.activity_label")}</label>
             <div className="chip-row" role="group" aria-labelledby="pet-activity-label" style={{ paddingBottom: 2 }}>
               {ACTIVITY_LEVELS.map((a) => (
                 <button
@@ -151,19 +153,19 @@ export default function Pets() {
             </div>
           </div>
           <div className="field">
-            <label htmlFor="pet-about">Характер и интересы</label>
-            <textarea id="pet-about" rows={2} value={form.about} onChange={(e) => setForm({ ...form, about: e.target.value })} placeholder="Например: дружелюбный, любит гонять мяч" />
+            <label htmlFor="pet-about">{t("pets.about_label")}</label>
+            <textarea id="pet-about" rows={2} value={form.about} onChange={(e) => setForm({ ...form, about: e.target.value })} placeholder={t("pets.about_placeholder")} />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
-          <button className="btn btn-primary btn-block">Сохранить</button>
+          <button className="btn btn-primary btn-block">{t("pets.save")}</button>
         </form>
       )}
 
       {pets.length === 0 && !showForm && (
         <div className="empty-state">
           <EmptyStateImage />
-          <div className="empty-state-title">Питомцев пока нет</div>
-          Добавь первого — это займёт минуту
+          <div className="empty-state-title">{t("pets.empty_title")}</div>
+          {t("pets.empty_hint")}
         </div>
       )}
 
@@ -183,7 +185,7 @@ export default function Pets() {
                     display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden",
                   }}>
                     {pet.avatar_url ? (
-                      <img src={pet.avatar_url} alt={`Фото ${pet.name}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={pet.avatar_url} alt={t("pets.photo_alt", { name: pet.name })} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     ) : (
                       <PawPrint size={20} strokeWidth={2.2} />
                     )}
@@ -191,11 +193,11 @@ export default function Pets() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="subhead">{pet.name}</div>
                     <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                      {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} г.` : ""}
+                      {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} ${t("pets.years_short")}` : ""}
                     </div>
                   </div>
                 </Link>
-                <button className="btn btn-ghost" onClick={() => remove(pet.id, pet.name)} style={{ padding: 9 }} aria-label={`Удалить ${pet.name}`}>
+                <button className="btn btn-ghost" onClick={() => remove(pet.id, pet.name)} style={{ padding: 9 }} aria-label={t("pets.delete_aria", { name: pet.name })}>
                   <Trash2 size={16} />
                 </button>
               </div>

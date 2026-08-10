@@ -8,22 +8,26 @@ import { useDocumentTitle } from "../useDocumentTitle";
 import WeightChart from "../components/WeightChart";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import { useTranslation } from "react-i18next";
 
 const HEALTH_CATEGORIES = [
-  { value: "vaccination", label: "Вакцинация" },
-  { value: "parasite", label: "От паразитов" },
-  { value: "medication", label: "Лекарство" },
-  { value: "weight", label: "Вес" },
-  { value: "vet_visit", label: "Визит к ветеринару" },
+  { value: "vaccination", labelKey: "pet_profile.cat_vaccination" },
+  { value: "parasite", labelKey: "pet_profile.cat_parasite" },
+  { value: "medication", labelKey: "pet_profile.cat_medication" },
+  { value: "weight", labelKey: "pet_profile.cat_weight" },
+  { value: "vet_visit", labelKey: "pet_profile.cat_vet_visit" },
 ];
 
-const CATEGORY_LABELS = Object.fromEntries(HEALTH_CATEGORIES.map((c) => [c.value, c.label]));
-
-function formatDate(iso) {
-  return new Date(iso).toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric" });
-}
+const CATEGORY_LABEL_KEYS = Object.fromEntries(HEALTH_CATEGORIES.map((c) => [c.value, c.labelKey]));
 
 export default function PetProfile() {
+  const { t, i18n } = useTranslation();
+
+  function formatDate(iso) {
+    const locale = i18n.language === "sr" ? "sr-RS" : "ru-RU";
+    return new Date(iso).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
+  }
+
   const { id } = useParams();
   const navigate = useNavigate();
   const { userId } = useAuth();
@@ -35,7 +39,7 @@ export default function PetProfile() {
   const [showHealthForm, setShowHealthForm] = useState(false);
   const [healthForm, setHealthForm] = useState({ category: "vaccination", title: "", value: "", date: "", next_due_date: "" });
   const [healthError, setHealthError] = useState("");
-  useDocumentTitle(pet ? pet.name : "Питомец");
+  useDocumentTitle(pet ? pet.name : t("pet_profile.title"));
 
   useEffect(() => {
     api.pet(id).then(setPet).catch(() => setNotFound(true));
@@ -71,7 +75,7 @@ export default function PetProfile() {
       setHealthForm({ category: "vaccination", title: "", value: "", date: "", next_due_date: "" });
       setShowHealthForm(false);
       loadHealth();
-      showToast("Запись добавлена");
+      showToast(t("pet_profile.record_added_toast"));
     } catch (err) {
       setHealthError(err.message);
     }
@@ -85,8 +89,8 @@ export default function PetProfile() {
   if (notFound) {
     return (
       <div className="empty-state">
-        <div className="empty-state-title">Питомец не найден</div>
-        Возможно, профиль удалили
+        <div className="empty-state-title">{t("pet_profile.not_found_title")}</div>
+        {t("pet_profile.not_found_hint")}
       </div>
     );
   }
@@ -95,10 +99,10 @@ export default function PetProfile() {
     return (
       <div>
         <div className="page-header">
-          <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+          <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("pet_profile.back_aria")}>
             <ArrowLeft size={17} strokeWidth={2.2} />
           </button>
-          <span className="page-title">Питомец</span>
+          <span className="page-title">{t("pet_profile.title")}</span>
           <span style={{ width: 44 }} />
         </div>
         <div className="detail-shell">
@@ -115,16 +119,16 @@ export default function PetProfile() {
     pet.species,
     pet.breed,
     pet.gender,
-    pet.age_years ? `${pet.age_years} г.` : null,
+    pet.age_years ? `${pet.age_years} ${t("pets.years_short")}` : null,
   ].filter(Boolean).join(" · ");
 
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("pet_profile.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Питомец</span>
+        <span className="page-title">{t("pet_profile.title")}</span>
         <span style={{ width: 44 }} />
       </div>
 
@@ -135,7 +139,7 @@ export default function PetProfile() {
             display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", overflow: "hidden",
           }}>
             {pet.avatar_url ? (
-              <img src={pet.avatar_url} alt={`Фото ${pet.name}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src={pet.avatar_url} alt={t("pets.photo_alt", { name: pet.name })} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
               <PawPrint size={40} strokeWidth={2} />
             )}
@@ -162,7 +166,7 @@ export default function PetProfile() {
 
         {pet.about && (
           <div className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
-            <h3 className="subhead" style={{ fontSize: 14, marginBottom: 6 }}>О питомце</h3>
+            <h3 className="subhead" style={{ fontSize: 14, marginBottom: 6 }}>{t("pet_profile.about_title")}</h3>
             <p style={{ fontSize: 14, color: "var(--text-muted)", margin: 0, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{pet.about}</p>
           </div>
         )}
@@ -171,20 +175,20 @@ export default function PetProfile() {
           <div className="card" style={{ borderRadius: 20, padding: 16, marginBottom: 16 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <h3 className="subhead" style={{ fontSize: 14, display: "flex", alignItems: "center", gap: 6, margin: 0 }}>
-                <HeartPulse size={16} /> Здоровье
+                <HeartPulse size={16} /> {t("pet_profile.health_title")}
               </h3>
               <button className="btn btn-ghost" onClick={() => setShowHealthForm((v) => !v)} style={{ padding: "6px 10px" }}>
                 <Plus size={14} />
               </button>
             </div>
             <p style={{ fontSize: 11, color: "var(--text-faint)", marginTop: -4, marginBottom: 10 }}>
-              Видно только тебе — сюда не попадает никто, кроме владельца
+              {t("pet_profile.health_private_hint")}
             </p>
 
             {showHealthForm && (
               <form onSubmit={submitHealth} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid var(--border)" }}>
                 <div className="field">
-                  <label id="health-category-label">Категория</label>
+                  <label id="health-category-label">{t("pet_profile.category_label")}</label>
                   <div className="chip-row" role="group" aria-labelledby="health-category-label" style={{ paddingBottom: 2 }}>
                     {HEALTH_CATEGORIES.map((c) => (
                       <button
@@ -193,24 +197,24 @@ export default function PetProfile() {
                         className={`chip${healthForm.category === c.value ? " active" : ""}`}
                         onClick={() => setHealthForm({ ...healthForm, category: c.value })}
                       >
-                        {c.label}
+                        {t(c.labelKey)}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div className="field">
-                  <label htmlFor="health-title">Название</label>
+                  <label htmlFor="health-title">{t("pet_profile.record_name_label")}</label>
                   <input
                     id="health-title"
                     value={healthForm.title}
                     onChange={(e) => setHealthForm({ ...healthForm, title: e.target.value })}
                     required
-                    placeholder={healthForm.category === "weight" ? "Например: плановое взвешивание" : "Например: Rabies, Bravecto"}
+                    placeholder={healthForm.category === "weight" ? t("pet_profile.record_name_placeholder_weight") : t("pet_profile.record_name_placeholder_default")}
                   />
                 </div>
                 {healthForm.category === "weight" && (
                   <div className="field">
-                    <label htmlFor="health-value">Вес (кг)</label>
+                    <label htmlFor="health-value">{t("pet_profile.weight_label")}</label>
                     <input
                       id="health-value"
                       type="number"
@@ -222,7 +226,7 @@ export default function PetProfile() {
                   </div>
                 )}
                 <div className="field">
-                  <label htmlFor="health-date">Дата</label>
+                  <label htmlFor="health-date">{t("pet_profile.date_label")}</label>
                   <input
                     id="health-date"
                     type="date"
@@ -233,7 +237,7 @@ export default function PetProfile() {
                 </div>
                 {(healthForm.category === "vaccination" || healthForm.category === "parasite") && (
                   <div className="field">
-                    <label htmlFor="health-next-due">Следующий раз (для напоминания)</label>
+                    <label htmlFor="health-next-due">{t("pet_profile.next_due_label")}</label>
                     <input
                       id="health-next-due"
                       type="date"
@@ -243,12 +247,12 @@ export default function PetProfile() {
                   </div>
                 )}
                 {healthError && <p style={{ color: "var(--red)", fontSize: 13 }}>{healthError}</p>}
-                <button className="btn btn-primary btn-block">Сохранить</button>
+                <button className="btn btn-primary btn-block">{t("pet_profile.save")}</button>
               </form>
             )}
 
             {health === null && <ListItemSkeleton count={2} />}
-            {health?.length === 0 && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>Записей пока нет</p>}
+            {health?.length === 0 && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>{t("pet_profile.no_records")}</p>}
             {health && <WeightChart records={health.filter((r) => r.category === "weight")} />}
             {health?.map((r) => (
               <div key={r.id} style={{
@@ -257,14 +261,14 @@ export default function PetProfile() {
               }}>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700 }}>
-                    {r.title}{r.value != null ? ` — ${r.value} кг` : ""}
+                    {r.title}{r.value != null ? ` — ${r.value} ${t("pet_profile.kg")}` : ""}
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-faint)" }}>
-                    {CATEGORY_LABELS[r.category]} · {formatDate(r.date)}
-                    {r.next_due_date ? ` · следующая: ${formatDate(r.next_due_date)}` : ""}
+                    {t(CATEGORY_LABEL_KEYS[r.category])} · {formatDate(r.date)}
+                    {r.next_due_date ? ` · ${t("pet_profile.next_due_prefix")} ${formatDate(r.next_due_date)}` : ""}
                   </div>
                 </div>
-                <button className="icon-btn" onClick={() => removeHealthRecord(r.id)} aria-label="Удалить запись">
+                <button className="icon-btn" onClick={() => removeHealthRecord(r.id)} aria-label={t("pet_profile.delete_record_aria")}>
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -287,7 +291,7 @@ export default function PetProfile() {
               )}
             </div>
             <div>
-              <div style={{ fontSize: 12, color: "var(--text-faint)" }}>Владелец</div>
+              <div style={{ fontSize: 12, color: "var(--text-faint)" }}>{t("pet_profile.owner")}</div>
               <div className="subhead" style={{ fontSize: 14 }}>{owner.display_name}</div>
             </div>
           </Link>
