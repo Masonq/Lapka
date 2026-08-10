@@ -84,7 +84,18 @@ export default function StoriesRow() {
     }
   }
 
-  if (stories === null) return null;
+  if (stories === null) {
+    return (
+      <div style={{ display: "flex", gap: 12, padding: "2px 0 14px" }} aria-hidden="true">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0 }}>
+            <span className="skeleton" style={{ width: 56, height: 56, borderRadius: "50%" }} />
+            <span className="skeleton" style={{ width: 36, height: 13, borderRadius: 4 }} />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <>
