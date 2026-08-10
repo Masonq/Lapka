@@ -103,3 +103,47 @@ def test_generate_code_is_six_digits():
         code = email_module.generate_code()
         assert len(code) == 6
         assert code.isdigit()
+
+
+def test_verification_email_has_html_and_friendly_from_name(monkeypatch):
+    """Голый email в From и чистый текст без HTML — реальные факторы, из-за
+    которых письма чаще попадают в спам (подтверждено пользователем на живом
+    Resend-письме). Проверяю, что многослойное письмо реально формируется, не
+    просто что send_email вызывается."""
+    import email as email_stdlib
+
+    _set_common(monkeypatch, [2587])
+    monkeypatch.setattr(email_module, "SMTP_FROM_NAME", "Lapki")
+
+    mock_plain = MagicMock()
+    mock_plain.__enter__ = MagicMock(return_value=mock_plain)
+    mock_plain.__exit__ = MagicMock(return_value=False)
+    captured = {}
+
+    def capture_sendmail(from_addr, to_addrs, msg_string):
+        captured["msg_string"] = msg_string
+
+    mock_plain.sendmail = capture_sendmail
+
+    with patch.object(email_module.smtplib, "SMTP", return_value=mock_plain):
+        code = email_module.generate_code()
+        email_module.send_verification_code("to@example.com", code, "register")
+
+    # Кириллица в теле письма заставляет email-библиотеку кодировать части в
+    # base64 — наивный поиск подстроки в сыром msg_string не находит код,
+    # хотя он реально там есть. Разбираю письмо по-настоящему, как это
+    # сделал бы любой почтовый клиент
+    parsed = email_stdlib.message_from_string(captured["msg_string"])
+    assert parsed["From"] == "Lapki <noreply@example.com>"
+    assert parsed.is_multipart()
+
+    content_types = [part.get_content_type() for part in parsed.walk()]
+    assert "multipart/alternative" in content_types
+    assert "text/plain" in content_types
+    assert "text/html" in content_types
+
+    for part in parsed.walk():
+        if part.get_content_type() == "text/plain":
+            assert code in part.get_payload(decode=True).decode("utf-8")
+        if part.get_content_type() == "text/html":
+            assert code in part.get_payload(decode=True).decode("utf-8")

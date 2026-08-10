@@ -29,7 +29,9 @@ import logging
 import os
 import random
 import smtplib
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import formataddr
 
 logger = logging.getLogger("email")
 
@@ -38,6 +40,7 @@ SMTP_PORTS = [int(p.strip()) for p in os.getenv("SMTP_PORT", "587").split(",") i
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 SMTP_FROM = os.getenv("SMTP_FROM", SMTP_USER)
+SMTP_FROM_NAME = os.getenv("SMTP_FROM_NAME", "Lapki")
 
 
 def generate_code() -> str:
@@ -47,7 +50,7 @@ def generate_code() -> str:
     return f"{random.randint(0, 999999):06d}"
 
 
-def _send_via_port(port: int, msg: MIMEText, to: str) -> None:
+def _send_via_port(port: int, msg: MIMEMultipart, to: str) -> None:
     """Один порт, одна попытка — поднято отдельно, чтобы send_email мог
     перебирать несколько портов, не дублируя ветвление SSL/STARTTLS."""
     # Порт 465/2465 (implicit SSL/SMTPS) — соединение сразу зашифровано, starttls() там
@@ -65,15 +68,22 @@ def _send_via_port(port: int, msg: MIMEText, to: str) -> None:
             server.sendmail(SMTP_FROM, [to], msg.as_string())
 
 
-def send_email(to: str, subject: str, body: str) -> None:
+def send_email(to: str, subject: str, text_body: str, html_body: str | None = None) -> None:
     if not SMTP_HOST:
-        logger.warning("SMTP не настроен — письмо НЕ отправлено по-настоящему. To: %s, Subject: %s, Body: %s", to, subject, body)
+        logger.warning("SMTP не настроен — письмо НЕ отправлено по-настоящему. To: %s, Subject: %s, Body: %s", to, subject, text_body)
         return
 
-    msg = MIMEText(body, "plain", "utf-8")
+    # multipart/alternative с текстовой И HTML-версией — письма без HTML-альтернативы
+    # и без человеческого имени отправителя (голый email в From) статистически чаще
+    # попадают в спам, это реальный фактор для автоматических классификаторов, не
+    # просто теоретическая рекомендация
+    msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
-    msg["From"] = SMTP_FROM
+    msg["From"] = formataddr((SMTP_FROM_NAME, SMTP_FROM))
     msg["To"] = to
+    msg.attach(MIMEText(text_body, "plain", "utf-8"))
+    if html_body:
+        msg.attach(MIMEText(html_body, "html", "utf-8"))
 
     errors = []
     for port in SMTP_PORTS:
@@ -96,8 +106,23 @@ def send_email(to: str, subject: str, body: str) -> None:
 def send_verification_code(to: str, code: str, purpose: str) -> None:
     if purpose == "register":
         subject = "Код подтверждения регистрации — Lapki"
-        body = f"Твой код подтверждения: {code}\n\nОн действителен 10 минут. Если это был не ты — просто игнорируй это письмо."
+        intro = "Спасибо, что регистрируешься в Lapki! Твой код подтверждения:"
+        footer = "Если это был не ты — просто игнорируй это письмо."
     else:
         subject = "Код подтверждения смены пароля — Lapki"
-        body = f"Твой код для смены пароля: {code}\n\nОн действителен 10 минут. Если ты не запрашивал(а) смену пароля — срочно проверь безопасность аккаунта."
-    send_email(to, subject, body)
+        intro = "Ты запросил(а) смену пароля в Lapki. Твой код подтверждения:"
+        footer = "Если ты не запрашивал(а) смену пароля — срочно проверь безопасность аккаунта."
+
+    text_body = f"{intro}\n\n{code}\n\nОн действителен 10 минут. {footer}"
+    html_body = f"""\
+<div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
+  <p style="font-size: 15px; color: #1A1A1A;">{intro}</p>
+  <div style="font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #B85A21;
+              background: #FBEBE1; border-radius: 16px; padding: 16px 24px; text-align: center; margin: 20px 0;">
+    {code}
+  </div>
+  <p style="font-size: 13px; color: #707074;">Код действителен 10 минут.</p>
+  <p style="font-size: 13px; color: #707074;">{footer}</p>
+  <p style="font-size: 12px; color: #9C9CA0; margin-top: 32px;">Lapki — соцсеть для питомцев Белграда</p>
+</div>"""
+    send_email(to, subject, text_body, html_body)
