@@ -98,9 +98,9 @@ export default function App() {
           </div>
         ) : (
           <>
-            <div className="brand-block">
+            <Link to="/" className="brand-block" aria-label="На главную">
               <img src="/logo.png" alt="Lapki.info" className="brand-logo" />
-            </div>
+            </Link>
 
             <nav className="desktop-nav">
               {NAV_ITEMS.filter((item) => !item.primary).map(({ to, label, end }) => (
