@@ -169,8 +169,6 @@ a {
   aspect-ratio: 656 / 662;
   object-fit: contain;
   display: block;
-  background: var(--gray-tint);
-  border-radius: 8px;
 }
 
 .brand-geo {
