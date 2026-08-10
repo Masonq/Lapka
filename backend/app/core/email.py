@@ -106,23 +106,87 @@ def send_email(to: str, subject: str, text_body: str, html_body: str | None = No
 def send_verification_code(to: str, code: str, purpose: str) -> None:
     if purpose == "register":
         subject = "Код подтверждения регистрации — Lapki"
-        intro = "Спасибо, что регистрируешься в Lapki! Твой код подтверждения:"
-        footer = "Если это был не ты — просто игнорируй это письмо."
+        heading = "Регистрация"
+        intro = "Ещё один шаг — введи код ниже, и аккаунт готов:"
+        intro_plain = "Ещё один шаг — введи код ниже, и аккаунт готов:"
+        footer = "Если это был не ты — просто игнорируй это письмо, аккаунт не будет создан."
     else:
         subject = "Код подтверждения смены пароля — Lapki"
-        intro = "Ты запросил(а) смену пароля в Lapki. Твой код подтверждения:"
+        heading = "Смена пароля"
+        intro = "Получен запрос на смену пароля.<br/>Вот код для подтверждения:"
+        intro_plain = "Получен запрос на смену пароля. Вот код для подтверждения:"
         footer = "Если ты не запрашивал(а) смену пароля — срочно проверь безопасность аккаунта."
 
-    text_body = f"{intro}\n\n{code}\n\nОн действителен 10 минут. {footer}"
+    text_body = f"{intro_plain}\n\n{code}\n\nКод действителен 10 минут. {footer}"
+
     html_body = f"""\
-<div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
-  <p style="font-size: 15px; color: #1A1A1A;">{intro}</p>
-  <div style="font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #B85A21;
-              background: #FBEBE1; border-radius: 16px; padding: 16px 24px; text-align: center; margin: 20px 0;">
-    {code}
-  </div>
-  <p style="font-size: 13px; color: #707074;">Код действителен 10 минут.</p>
-  <p style="font-size: 13px; color: #707074;">{footer}</p>
-  <p style="font-size: 12px; color: #9C9CA0; margin-top: 32px;">Lapki — соцсеть для питомцев Белграда</p>
-</div>"""
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0; padding:0; background: linear-gradient(180deg, #FBEBE1 0%, #FAFAFA 220px); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="500" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="center" style="padding-bottom: 20px;">
+              <img src="https://lapki.info/logo.png" width="88" height="92" alt="Lapki" style="display:block;" />
+            </td>
+          </tr>
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFFFFF; border-radius: 28px; overflow:hidden; box-shadow: 0 10px 40px rgba(184,90,33,0.12); border: 1px solid #F3E2D8;">
+                <tr>
+                  <td align="center" style="padding: 36px 36px 4px;">
+                    <p style="margin:0; font-size: 20px; font-weight: 800; color:#1A1A1A;">{heading}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding: 8px 36px 0;">
+                    <p style="margin:0; font-size: 15px; color:#6E6E73; line-height: 1.6;">
+                      {intro}
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding: 28px 36px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #FBEBE1, #F6D9C4); border-radius: 20px;">
+                      <tr>
+                        <td style="padding: 20px 40px;">
+                          <span style="font-size: 40px; font-weight: 800; letter-spacing: 10px; color:#B85A21; font-family: monospace;">{code}</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding: 0 36px 8px;">
+                    <p style="margin:0; font-size: 13px; color:#9C9CA0;">⏱ Действителен 10 минут</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 28px 36px 32px;">
+                    <div style="height:1px; background:#F0EAE5;"></div>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding: 0 36px 36px;">
+                    <p style="margin:0; font-size: 12px; color:#9C9CA0; line-height: 1.6;">
+                      {footer}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-top: 24px;">
+              <p style="margin:0; font-size: 12px; color:#9C9CA0;">Lapki — соцсеть для питомцев Белграда</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>"""
     send_email(to, subject, text_body, html_body)
