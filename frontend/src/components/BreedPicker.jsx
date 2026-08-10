@@ -70,13 +70,14 @@ export default function BreedPicker({ species, value, onChange }) {
   }
 
   return (
-    <div ref={containerRef} style={{ position: "relative" }}>
+    <div ref={containerRef} style={{ position: "relative", width: "100%" }}>
       <input
         value={displayValue}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
         onFocus={handleFocus}
         placeholder={t("pets.breed_search_placeholder")}
         autoComplete="off"
+        style={{ width: "100%" }}
       />
       {open && (
         <div
