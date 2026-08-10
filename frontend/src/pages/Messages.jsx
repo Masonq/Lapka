@@ -7,20 +7,22 @@ import { useDocumentTitle } from "../useDocumentTitle";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
-
-function timeAgo(iso) {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const min = Math.floor(diffMs / 60000);
-  if (min < 1) return "только что";
-  if (min < 60) return `${min} мин`;
-  const hrs = Math.floor(min / 60);
-  if (hrs < 24) return `${hrs} ч`;
-  return `${Math.floor(hrs / 24)} дн`;
-}
+import { useTranslation } from "react-i18next";
 
 export default function Messages() {
-  useDocumentTitle("Сообщения");
+  const { t } = useTranslation();
+  useDocumentTitle(t("messages.title"));
   const { isAuthed } = useAuth();
+
+  function timeAgo(iso) {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const min = Math.floor(diffMs / 60000);
+    if (min < 1) return t("time.just_now");
+    if (min < 60) return t("time.min_ago", { min });
+    const hrs = Math.floor(min / 60);
+    if (hrs < 24) return t("time.hours_ago", { hours: hrs });
+    return t("time.days_ago", { days: Math.floor(hrs / 24) });
+  }
   const [conversations, setConversations] = useState(null);
   const [loadError, setLoadError] = useState(false);
 
@@ -36,8 +38,8 @@ export default function Messages() {
     return (
       <div className="empty-state">
         <MessageCircle size={28} style={{ marginBottom: 8, color: "var(--text-faint)" }} />
-        <div className="empty-state-title">Нужно войти</div>
-        Чтобы писать другим людям, сначала войди в аккаунт
+        <div className="empty-state-title">{t("messages.login_required_title")}</div>
+        {t("messages.login_required_hint")}
       </div>
     );
   }
@@ -45,7 +47,7 @@ export default function Messages() {
   return (
     <div>
       <div className="page-header">
-        <span className="page-title">Сообщения</span>
+        <span className="page-title">{t("messages.title")}</span>
       </div>
 
       {conversations === null && !loadError && <ListItemSkeleton />}
@@ -55,8 +57,8 @@ export default function Messages() {
       {!loadError && conversations?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
-          <div className="empty-state-title">Пока пусто</div>
-          Напиши кому-нибудь с его профиля — переписка появится здесь
+          <div className="empty-state-title">{t("messages.empty_title")}</div>
+          {t("messages.empty_hint")}
         </div>
       )}
 

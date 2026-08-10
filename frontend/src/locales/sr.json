@@ -301,5 +301,62 @@
     "legend_found": "pronađen",
     "open_post": "Otvori objavu →",
     "empty": "Još niko nije označio tačku na mapi — budi prvi"
+  },
+  "messages": {
+    "title": "Poruke",
+    "login_required_title": "Potrebna prijava",
+    "login_required_hint": "Da bi pisao(la) drugima, prvo se prijavi na nalog",
+    "empty_title": "Još je prazno",
+    "empty_hint": "Napiši nekome preko njegovog profila — prepiska će se pojaviti ovde"
+  },
+  "marketplace": {
+    "filter_all": "Sve",
+    "filter_sell": "Prodaja",
+    "filter_wanted": "Traže",
+    "filter_give_away": "Poklanjam",
+    "type_sell": "Prodaja",
+    "type_wanted": "Traže",
+    "type_give_away": "Poklon",
+    "title": "Pijaca",
+    "back_aria": "Nazad",
+    "add_aria": "Postavi oglas",
+    "empty_title": "Još je prazno",
+    "empty_authed": "Postavi prvi oglas",
+    "empty_guest": "Prijavi se da postaviš oglas",
+    "price_din": "{{price}} din."
+  },
+  "nearby": {
+    "title": "U blizini",
+    "back_aria": "Nazad",
+    "hint": "Tačne koordinate se nikad ne prikazuju — samo grad koji je ljubimac naveo u profilu",
+    "empty_title": "Niko nije pronađen",
+    "empty_hint": "Još nijedan ljubimac nije naveo ovaj grad",
+    "photo_alt": "Fotografija {{name}}",
+    "years_short": "g."
+  },
+  "event_detail": {
+    "title": "Događaj",
+    "not_found_title": "Nije pronađeno",
+    "not_found_hint": "Možda je događaj otkazan",
+    "back_aria": "Nazad",
+    "walk_title": "Šetnja",
+    "going_of_capacity": "od",
+    "going_suffix": "ide",
+    "organizer": "Organizator:",
+    "not_going": "Ne idem",
+    "no_spots": "Nema mesta",
+    "join": "Pridruži se",
+    "participants": "Učesnici"
+  },
+  "community_detail": {
+    "title": "Zajednica",
+    "not_found_title": "Zajednica nije pronađena",
+    "not_found_hint": "Možda je obrisana",
+    "back_aria": "Nazad",
+    "leave": "Napusti zajednicu",
+    "join": "Pridruži se",
+    "write_to_community": "Piši u zajednicu",
+    "community_posts": "Objave zajednice",
+    "empty_posts": "Još niko nije pisao ovde — budi prvi"
   }
 }

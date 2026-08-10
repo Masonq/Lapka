@@ -5,11 +5,13 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useTranslation } from "react-i18next";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 
 export default function CommunityDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthed } = useAuth();
@@ -18,7 +20,7 @@ export default function CommunityDetail() {
   const [posts, setPosts] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
-  useDocumentTitle(community ? community.name : "Сообщество");
+  useDocumentTitle(community ? community.name : t("community_detail.title"));
 
   function load() {
     api.community(id).then(setCommunity).catch(() => setNotFound(true));
@@ -43,8 +45,8 @@ export default function CommunityDetail() {
   if (notFound) {
     return (
       <div className="empty-state">
-        <div className="empty-state-title">Сообщество не найдено</div>
-        Возможно, его удалили
+        <div className="empty-state-title">{t("community_detail.not_found_title")}</div>
+        {t("community_detail.not_found_hint")}
       </div>
     );
   }
@@ -53,10 +55,10 @@ export default function CommunityDetail() {
     return (
       <div>
         <div className="page-header">
-          <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+          <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("community_detail.back_aria")}>
             <ArrowLeft size={17} strokeWidth={2.2} />
           </button>
-          <span className="page-title">Сообщество</span>
+          <span className="page-title">{t("community_detail.title")}</span>
           <span style={{ width: 44 }} />
         </div>
         <div className="detail-shell">
@@ -69,10 +71,10 @@ export default function CommunityDetail() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("community_detail.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Сообщество</span>
+        <span className="page-title">{t("community_detail.title")}</span>
         <span style={{ width: 44 }} />
       </div>
 
@@ -117,7 +119,7 @@ export default function CommunityDetail() {
               disabled={busy}
             >
               {community.is_member ? <UserMinus size={16} /> : <UserPlus size={16} />}
-              {community.is_member ? "Покинуть сообщество" : "Вступить"}
+              {community.is_member ? t("community_detail.leave") : t("community_detail.join")}
             </button>
           )}
         </div>
@@ -128,17 +130,17 @@ export default function CommunityDetail() {
             style={{ marginBottom: 16 }}
             onClick={() => navigate(`/new-post?type=general&community_id=${id}`)}
           >
-            <PlusCircle size={16} /> Написать в сообщество
+            <PlusCircle size={16} /> {t("community_detail.write_to_community")}
           </button>
         )}
 
-        <h3 className="subhead" style={{ marginBottom: 10 }}>Посты сообщества</h3>
+        <h3 className="subhead" style={{ marginBottom: 10 }}>{t("community_detail.community_posts")}</h3>
 
         {posts === null && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
         {posts?.length === 0 && (
           <p style={{ fontSize: 13, color: "var(--text-faint)" }}>
-            Пока никто не писал сюда — будь первым
+            {t("community_detail.empty_posts")}
           </p>
         )}
 

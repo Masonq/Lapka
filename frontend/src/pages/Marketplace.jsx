@@ -7,18 +7,22 @@ import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useTranslation } from "react-i18next";
 
 const TYPES = [
-  { value: "", label: "Всё" },
-  { value: "sell", label: "Продажа" },
-  { value: "wanted", label: "Ищут" },
-  { value: "give_away", label: "Отдам даром" },
+  { value: "", label: "marketplace.filter_all" },
+  { value: "sell", label: "marketplace.filter_sell" },
+  { value: "wanted", label: "marketplace.filter_wanted" },
+  { value: "give_away", label: "marketplace.filter_give_away" },
 ];
 
-const TYPE_LABELS = { sell: "Продажа", wanted: "Ищут", give_away: "Даром" };
+const TYPE_LABELS = {
+  sell: "marketplace.type_sell", wanted: "marketplace.type_wanted", give_away: "marketplace.type_give_away",
+};
 
 export default function Marketplace() {
-  useDocumentTitle("Барахолка");
+  const { t } = useTranslation();
+  useDocumentTitle(t("marketplace.title"));
   const navigate = useNavigate();
   const { isAuthed } = useAuth();
   const [type, setType] = useState("");
@@ -35,12 +39,12 @@ export default function Marketplace() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("marketplace.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Барахолка</span>
+        <span className="page-title">{t("marketplace.title")}</span>
         {isAuthed ? (
-          <Link to="/marketplace/new" className="icon-btn" aria-label="Разместить объявление">
+          <Link to="/marketplace/new" className="icon-btn" aria-label={t("marketplace.add_aria")}>
             <Plus size={17} strokeWidth={2.2} />
           </Link>
         ) : (
@@ -49,9 +53,9 @@ export default function Marketplace() {
       </div>
 
       <div className="chip-row" style={{ marginBottom: 16 }}>
-        {TYPES.map((t) => (
-          <button key={t.value} className={`chip${type === t.value ? " active" : ""}`} onClick={() => setType(t.value)}>
-            {t.label}
+        {TYPES.map((tp) => (
+          <button key={tp.value} className={`chip${type === tp.value ? " active" : ""}`} onClick={() => setType(tp.value)}>
+            {t(tp.label)}
           </button>
         ))}
       </div>
@@ -63,8 +67,8 @@ export default function Marketplace() {
       {!loadError && listings?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
-          <div className="empty-state-title">Пока пусто</div>
-          {isAuthed ? "Разместите первое объявление" : "Войди, чтобы разместить объявление"}
+          <div className="empty-state-title">{t("marketplace.empty_title")}</div>
+          {isAuthed ? t("marketplace.empty_authed") : t("marketplace.empty_guest")}
         </div>
       )}
 
@@ -76,11 +80,11 @@ export default function Marketplace() {
                 <img src={l.photo_url} alt={l.title} className="post-card-photo" />
               )}
               <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
-                {TYPE_LABELS[l.type]}
+                {t(TYPE_LABELS[l.type])}
               </span>
               <h3 className="post-title" style={{ marginTop: 8 }}>{l.title}</h3>
               {l.price != null && (
-                <div style={{ fontWeight: 800, fontSize: 16, margin: "4px 0" }}>{l.price} дин.</div>
+                <div style={{ fontWeight: 800, fontSize: 16, margin: "4px 0" }}>{t("marketplace.price_din", { price: l.price })}</div>
               )}
               <div className="post-meta">
                 {l.city && <span className="post-meta-item" style={{ minWidth: 0 }}><MapPin size={13} /> <span className="post-meta-text" title={l.city}>{l.city}</span></span>}

@@ -301,5 +301,62 @@
     "legend_found": "найден",
     "open_post": "Открыть пост →",
     "empty": "Пока никто не указал точку на карте — будь первым"
+  },
+  "messages": {
+    "title": "Сообщения",
+    "login_required_title": "Нужно войти",
+    "login_required_hint": "Чтобы писать другим людям, сначала войди в аккаунт",
+    "empty_title": "Пока пусто",
+    "empty_hint": "Напиши кому-нибудь с его профиля — переписка появится здесь"
+  },
+  "marketplace": {
+    "filter_all": "Всё",
+    "filter_sell": "Продажа",
+    "filter_wanted": "Ищут",
+    "filter_give_away": "Отдам даром",
+    "type_sell": "Продажа",
+    "type_wanted": "Ищут",
+    "type_give_away": "Даром",
+    "title": "Барахолка",
+    "back_aria": "Назад",
+    "add_aria": "Разместить объявление",
+    "empty_title": "Пока пусто",
+    "empty_authed": "Разместите первое объявление",
+    "empty_guest": "Войди, чтобы разместить объявление",
+    "price_din": "{{price}} дин."
+  },
+  "nearby": {
+    "title": "Рядом",
+    "back_aria": "Назад",
+    "hint": "Точные координаты никогда не показываются — только город, который питомец указал в профиле",
+    "empty_title": "Никого не нашлось",
+    "empty_hint": "Пока ни один питомец не указал этот город",
+    "photo_alt": "Фото {{name}}",
+    "years_short": "г."
+  },
+  "event_detail": {
+    "title": "Событие",
+    "not_found_title": "Не найдено",
+    "not_found_hint": "Возможно, событие отменили",
+    "back_aria": "Назад",
+    "walk_title": "Прогулка",
+    "going_of_capacity": "из",
+    "going_suffix": "идут",
+    "organizer": "Организатор:",
+    "not_going": "Не пойду",
+    "no_spots": "Мест нет",
+    "join": "Присоединиться",
+    "participants": "Участники"
+  },
+  "community_detail": {
+    "title": "Сообщество",
+    "not_found_title": "Сообщество не найдено",
+    "not_found_hint": "Возможно, его удалили",
+    "back_aria": "Назад",
+    "leave": "Покинуть сообщество",
+    "join": "Вступить",
+    "write_to_community": "Написать в сообщество",
+    "community_posts": "Посты сообщества",
+    "empty_posts": "Пока никто не писал сюда — будь первым"
   }
 }

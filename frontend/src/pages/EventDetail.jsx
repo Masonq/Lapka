@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useTranslation } from "react-i18next";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 
 function formatDate(iso) {
@@ -14,6 +15,7 @@ function formatDate(iso) {
 }
 
 export default function EventDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthed } = useAuth();
@@ -22,7 +24,7 @@ export default function EventDetail() {
   const [participants, setParticipants] = useState([]);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
-  useDocumentTitle(event ? event.title : "Событие");
+  useDocumentTitle(event ? event.title : t("event_detail.title"));
 
   function load() {
     api.event(id).then(setEvent).catch(() => setNotFound(true));
@@ -47,8 +49,8 @@ export default function EventDetail() {
   if (notFound) {
     return (
       <div className="empty-state">
-        <div className="empty-state-title">Не найдено</div>
-        Возможно, событие отменили
+        <div className="empty-state-title">{t("event_detail.not_found_title")}</div>
+        {t("event_detail.not_found_hint")}
       </div>
     );
   }
@@ -57,10 +59,10 @@ export default function EventDetail() {
     return (
       <div>
         <div className="page-header">
-          <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+          <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("event_detail.back_aria")}>
             <ArrowLeft size={17} strokeWidth={2.2} />
           </button>
-          <span className="page-title">Событие</span>
+          <span className="page-title">{t("event_detail.title")}</span>
           <span style={{ width: 44 }} />
         </div>
         <div className="detail-shell">
@@ -75,10 +77,10 @@ export default function EventDetail() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("event_detail.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">{event.type === "walk" ? "Прогулка" : "Событие"}</span>
+        <span className="page-title">{event.type === "walk" ? t("event_detail.walk_title") : t("event_detail.title")}</span>
         <span style={{ width: 44 }} />
       </div>
 
@@ -101,7 +103,7 @@ export default function EventDetail() {
               </span>
             )}
             <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "var(--text-muted)" }}>
-              <Users size={15} /> {event.participants_count}{event.capacity ? ` из ${event.capacity}` : ""} идут
+              <Users size={15} /> {event.participants_count}{event.capacity ? ` ${t("event_detail.going_of_capacity")} ${event.capacity}` : ""} {t("event_detail.going_suffix")}
             </span>
           </div>
 
@@ -112,7 +114,7 @@ export default function EventDetail() {
           )}
 
           <Link to={`/users/${event.organizer.id}`} style={{ fontSize: 13, color: "var(--text-faint)", display: "block", marginBottom: 14, textDecoration: "none" }}>
-            Организатор: {event.organizer.display_name}
+            {t("event_detail.organizer")} {event.organizer.display_name}
           </Link>
 
           {isAuthed && (
@@ -122,12 +124,12 @@ export default function EventDetail() {
               disabled={busy || full}
             >
               {event.is_going ? <UserMinus size={16} /> : null}
-              {event.is_going ? "Не пойду" : full ? "Мест нет" : "Присоединиться"}
+              {event.is_going ? t("event_detail.not_going") : full ? t("event_detail.no_spots") : t("event_detail.join")}
             </button>
           )}
         </div>
 
-        <h3 className="subhead" style={{ marginBottom: 10 }}>Участники</h3>
+        <h3 className="subhead" style={{ marginBottom: 10 }}>{t("event_detail.participants")}</h3>
         <div className="card-grid">
           {participants.map((p) => (
             <Link key={p.user.id} to={`/users/${p.user.id}`} className="card" style={{

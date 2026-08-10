@@ -6,11 +6,13 @@ import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
+import { useTranslation } from "react-i18next";
 
 const CITIES = ["Белград", "Нови-Сад", "Ниш"];
 
 export default function Nearby() {
-  useDocumentTitle("Рядом");
+  const { t } = useTranslation();
+  useDocumentTitle(t("nearby.title"));
   const navigate = useNavigate();
   const [city, setCity] = useState("Белград");
   const [pets, setPets] = useState(null);
@@ -27,15 +29,15 @@ export default function Nearby() {
   return (
     <div>
       <div className="page-header">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t("nearby.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">Рядом</span>
+        <span className="page-title">{t("nearby.title")}</span>
         <span style={{ width: 44 }} />
       </div>
 
       <p style={{ fontSize: 12, color: "var(--text-faint)", marginBottom: 14 }}>
-        Точные координаты никогда не показываются — только город, который питомец указал в профиле
+        {t("nearby.hint")}
       </p>
 
       <div className="chip-row" style={{ marginBottom: 16 }}>
@@ -53,8 +55,8 @@ export default function Nearby() {
       {!loadError && pets?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
-          <div className="empty-state-title">Никого не нашлось</div>
-          Пока ни один питомец не указал этот город
+          <div className="empty-state-title">{t("nearby.empty_title")}</div>
+          {t("nearby.empty_hint")}
         </div>
       )}
 
@@ -72,7 +74,7 @@ export default function Nearby() {
                   display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden",
                 }}>
                   {pet.avatar_url ? (
-                    <img src={pet.avatar_url} alt={`Фото ${pet.name}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <img src={pet.avatar_url} alt={t("nearby.photo_alt", { name: pet.name })} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
                     <PawPrint size={20} strokeWidth={2.2} />
                   )}
@@ -80,7 +82,7 @@ export default function Nearby() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="subhead">{pet.name}</div>
                   <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                    {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} г.` : ""}
+                    {pet.species}{pet.breed ? `, ${pet.breed}` : ""}{pet.age_years ? ` · ${pet.age_years} ${t("nearby.years_short")}` : ""}
                   </div>
                 </div>
               </Link>
