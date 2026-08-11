@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, MapPin, LoaderCircle } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
+import { useAutoResizeTextarea } from "../useAutoResizeTextarea";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PhotoPicker from "../components/PhotoPicker";
@@ -28,6 +29,7 @@ export default function NewPost() {
   const [type, setType] = useState(initialType);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const bodyRef = useAutoResizeTextarea(body);
   const [location, setLocation] = useState("");
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
@@ -153,12 +155,14 @@ export default function NewPost() {
           <label htmlFor="post-body">{t("new_post.description_label")}</label>
           <textarea
             id="post-body"
+            ref={bodyRef}
             rows={5}
             value={body}
             onChange={(e) => setBody(e.target.value)}
             required
             placeholder={t("new_post.description_placeholder")}
             autoComplete="off"
+            style={{ overflow: "hidden", resize: "none" }}
           />
         </div>
 

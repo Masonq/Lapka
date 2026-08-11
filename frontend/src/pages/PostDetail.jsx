@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag, Eye, Plus, ShieldCheck, Pencil } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
+import { useAutoResizeTextarea } from "../useAutoResizeTextarea";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
@@ -50,15 +51,18 @@ export default function PostDetail() {
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editBody, setEditBody] = useState("");
+  const editBodyRef = useAutoResizeTextarea(editBody);
   const [editError, setEditError] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [reportReason, setReportReason] = useState("");
+  const reportReasonRef = useAutoResizeTextarea(reportReason);
   const [reported, setReported] = useState(false);
   const [sightings, setSightings] = useState([]);
   const [showSightingForm, setShowSightingForm] = useState(false);
   const [sightingLocation, setSightingLocation] = useState("");
   const [sightingNote, setSightingNote] = useState("");
+  const sightingNoteRef = useAutoResizeTextarea(sightingNote);
   const [submittingSighting, setSubmittingSighting] = useState(false);
   useDocumentTitle(post ? post.title : t("post_detail.title"));
 
@@ -240,7 +244,7 @@ export default function PostDetail() {
               </div>
               <div className="field">
                 <label htmlFor="edit-body">{t("post_detail.description_label")}</label>
-                <textarea id="edit-body" rows={5} value={editBody} onChange={(e) => setEditBody(e.target.value)} required autoComplete="off" />
+                <textarea id="edit-body" ref={editBodyRef} rows={5} value={editBody} onChange={(e) => setEditBody(e.target.value)} required autoComplete="off" style={{ overflow: "hidden", resize: "none" }} />
               </div>
               {editError && <p style={{ color: "var(--red)", fontSize: 13 }}>{editError}</p>}
               <div style={{ display: "flex", gap: 8 }}>
@@ -321,6 +325,7 @@ export default function PostDetail() {
           {showReportForm && (
             <form onSubmit={submitReport} style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
               <textarea
+                ref={reportReasonRef}
                 rows={2}
                 value={reportReason}
                 onChange={(e) => setReportReason(e.target.value)}
@@ -328,7 +333,7 @@ export default function PostDetail() {
                 autoComplete="off"
                 style={{
                   width: "100%", border: "1px solid var(--border)", borderRadius: 12,
-                  padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical", background: "var(--surface)", color: "var(--text)",
+                  padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, overflow: "hidden", resize: "none", background: "var(--surface)", color: "var(--text)",
                 }}
               />
               <div style={{ display: "flex", gap: 8 }}>
@@ -369,10 +374,12 @@ export default function PostDetail() {
                   <label htmlFor="sighting-note">{t("post_detail.details_label")}</label>
                   <textarea
                     id="sighting-note"
+                    ref={sightingNoteRef}
                     rows={2}
                     value={sightingNote}
                     onChange={(e) => setSightingNote(e.target.value)}
                     placeholder={t("post_detail.details_placeholder")}
+                    style={{ overflow: "hidden", resize: "none" }}
                     autoComplete="off"
                   />
                 </div>

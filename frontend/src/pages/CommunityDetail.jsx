@@ -11,6 +11,7 @@ import PostCardSkeleton from "../components/PostCardSkeleton";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { useDelayedLoading } from "../useDelayedLoading";
+import { useAutoResizeTextarea } from "../useAutoResizeTextarea";
 
 export default function CommunityDetail() {
   const { t } = useTranslation();
@@ -30,6 +31,7 @@ export default function CommunityDetail() {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const editDescriptionRef = useAutoResizeTextarea(editDescription);
   const [editCity, setEditCity] = useState("");
   const [editError, setEditError] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
@@ -129,7 +131,7 @@ export default function CommunityDetail() {
               </div>
               <div className="field">
                 <label htmlFor="community-edit-description">{t("communities.description_label")}</label>
-                <textarea id="community-edit-description" rows={3} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} autoComplete="off" />
+                <textarea id="community-edit-description" ref={editDescriptionRef} rows={3} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} autoComplete="off" style={{ overflow: "hidden", resize: "none" }} />
               </div>
               <div className="field">
                 <label htmlFor="community-edit-city">{t("communities.city_label")}</label>

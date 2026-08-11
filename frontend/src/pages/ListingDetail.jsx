@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, MapPin, Bookmark, CheckCircle2, Trash2, MessageCircle, Flag } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
+import { useAutoResizeTextarea } from "../useAutoResizeTextarea";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
@@ -23,6 +24,7 @@ export default function ListingDetail() {
   const [busy, setBusy] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [reportReason, setReportReason] = useState("");
+  const reportReasonRef = useAutoResizeTextarea(reportReason);
   const [reported, setReported] = useState(false);
 
   useDocumentTitle(listing ? listing.title : t("listing_detail.title"));
@@ -185,6 +187,7 @@ export default function ListingDetail() {
           {showReportForm && (
             <form onSubmit={submitReport} style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
               <textarea
+                ref={reportReasonRef}
                 rows={2}
                 value={reportReason}
                 onChange={(e) => setReportReason(e.target.value)}
@@ -192,7 +195,7 @@ export default function ListingDetail() {
                 autoComplete="off"
                 style={{
                   width: "100%", border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", color: "var(--text)",
-                  padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
+                  padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, overflow: "hidden", resize: "none",
                 }}
               />
               <div style={{ display: "flex", gap: 8 }}>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Plus } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
+import { useAutoResizeTextarea } from "../useAutoResizeTextarea";
 import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
@@ -26,6 +27,7 @@ export default function Communities() {
   const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", city: "" });
+  const descriptionRef = useAutoResizeTextarea(form.description);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -93,11 +95,13 @@ export default function Communities() {
             <label htmlFor="community-description">{t("communities.description_label")}</label>
             <textarea
               id="community-description"
+              ref={descriptionRef}
               rows={3}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder={t("communities.description_placeholder")}
               autoComplete="off"
+              style={{ overflow: "hidden", resize: "none" }}
             />
           </div>
           <div className="field">

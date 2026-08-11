@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Star, Phone, ChevronDown, ChevronUp, BadgeCheck } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
+import { useAutoResizeTextarea } from "../useAutoResizeTextarea";
 import { useToast } from "../ToastContext";
 import { useTranslation } from "react-i18next";
 
@@ -33,6 +34,7 @@ export default function ProviderCard({ provider, onReviewed }) {
   const [showForm, setShowForm] = useState(false);
   const [rating, setRating] = useState(5);
   const [body, setBody] = useState("");
+  const bodyRef = useAutoResizeTextarea(body);
   const [submitting, setSubmitting] = useState(false);
 
   function toggleExpanded() {
@@ -161,6 +163,7 @@ export default function ProviderCard({ provider, onReviewed }) {
                 ))}
               </div>
               <textarea
+                ref={bodyRef}
                 rows={2}
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
@@ -168,7 +171,7 @@ export default function ProviderCard({ provider, onReviewed }) {
                 autoComplete="off"
                 style={{
                   width: "100%", border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", color: "var(--text)",
-                  padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
+                  padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, overflow: "hidden", resize: "none",
                 }}
               />
               <div style={{ display: "flex", gap: 8 }}>
