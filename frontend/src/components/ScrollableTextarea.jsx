@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bold, Italic, Strikethrough, Link2, EyeOff } from "lucide-react";
+import { Bold, Italic, Underline, Strikethrough, Link2, EyeOff } from "lucide-react";
 
 /**
  * Замена textarea для случаев, когда обычное поле не даёт скроллить
@@ -52,19 +52,36 @@ export default function ScrollableTextarea({
 
     // insertLineBreak вставляет <br>, не текстовый символ \n — обычный
     // el.textContent полностью игнорирует <br> элементы (не превращает
-    // их в \n), поэтому собираем текст вручную, проходя по узлам
-    function readText() {
-      let text = "";
-      for (const node of el.childNodes) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          text += node.textContent;
-        } else if (node.nodeName === "BR") {
-          text += "\n";
-        } else {
-          text += node.textContent;
-        }
+    // их в \n). Кроме того, нативное системное меню iOS ("Форматирование"
+    // в меню Копировать/Вставить — встроенная функция WebKit именно для
+    // contenteditable, не обход какого-либо ограничения) вставляет
+    // настоящие теги <b>/<i>/<u> через execCommand, а не текстовые
+    // маркеры — рекурсивно обходим дерево узлов, конвертируя оба пути
+    // (свою панель и нативное меню) в один и тот же markdown-синтаксис
+    function nodeToText(node) {
+      if (node.nodeType === Node.TEXT_NODE) return node.textContent;
+      if (node.nodeName === "BR") return "\n";
+      const inner = Array.from(node.childNodes).map(nodeToText).join("");
+      switch (node.nodeName) {
+        case "B":
+        case "STRONG":
+          return `**${inner}**`;
+        case "I":
+        case "EM":
+          return `_${inner}_`;
+        case "U":
+          return `++${inner}++`;
+        case "S":
+        case "STRIKE":
+        case "DEL":
+          return `~~${inner}~~`;
+        default:
+          return inner;
       }
-      return text;
+    }
+
+    function readText() {
+      return Array.from(el.childNodes).map(nodeToText).join("");
     }
 
     function handleInput() {
@@ -223,6 +240,9 @@ export default function ScrollableTextarea({
   function handleItalic() {
     wrapSelectionRef.current?.("_", "_", "курсив");
   }
+  function handleUnderline() {
+    wrapSelectionRef.current?.("++", "++", "подчёркнутый");
+  }
   function handleStrike() {
     wrapSelectionRef.current?.("~~", "~~", "зачёркнутый");
   }
@@ -258,6 +278,9 @@ export default function ScrollableTextarea({
           </button>
           <button type="button" onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} className="icon-btn" style={{ width: 32, height: 32 }} onClick={handleItalic} aria-label="Курсив">
             <Italic size={15} />
+          </button>
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} className="icon-btn" style={{ width: 32, height: 32 }} onClick={handleUnderline} aria-label="Подчёркнутый">
+            <Underline size={15} />
           </button>
           <button type="button" onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} className="icon-btn" style={{ width: 32, height: 32 }} onClick={handleStrike} aria-label="Зачёркнутый">
             <Strikethrough size={15} />
