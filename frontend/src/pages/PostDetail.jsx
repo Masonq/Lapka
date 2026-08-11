@@ -8,6 +8,7 @@ import { useDocumentTitle } from "../useDocumentTitle";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import ConfirmDialog from "../components/ConfirmDialog";
 import PostReactions from "../components/PostReactions";
+import FormattedText from "../components/FormattedText";
 import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
 
@@ -253,7 +254,7 @@ export default function PostDetail() {
           ) : (
             <>
               <h2 className="post-title">{post.title}</h2>
-              <p className="post-body">{post.body}</p>
+              <FormattedText as="p" className="post-body" text={post.body} />
             </>
           )}
           {post.last_seen_location && (
