@@ -20,6 +20,7 @@ export default function TelegramLoginButton({ onAuth }) {
 
   useEffect(() => {
     if (!botUsername || !containerRef.current) return;
+    const container = containerRef.current;
 
     // Уникальное имя колбэка на инстанс — если бы виджет использовался в
     // нескольких местах одновременно (маловероятно, но не должно ронять
@@ -35,11 +36,11 @@ export default function TelegramLoginButton({ onAuth }) {
     script.setAttribute("data-radius", "12");
     script.setAttribute("data-onauth", `${callbackName}(user)`);
     script.setAttribute("data-request-access", "write");
-    containerRef.current.appendChild(script);
+    container.appendChild(script);
 
     return () => {
       delete window[callbackName];
-      if (containerRef.current) containerRef.current.innerHTML = "";
+      if (container) container.innerHTML = "";
     };
   }, [botUsername, onAuth]);
 

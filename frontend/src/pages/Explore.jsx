@@ -69,7 +69,7 @@ export default function Explore() {
   useEffect(() => {
     setSearchConfig({ value: query, onChange: setQuery, placeholder: t("explore.search_placeholder") });
     return () => setSearchConfig(null);
-  }, [query, setSearchConfig]);
+  }, [query, setSearchConfig, t]);
 
   useEffect(() => {
     if (!debouncedQuery) {

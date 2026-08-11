@@ -67,7 +67,7 @@ export default function Admin() {
     if (!me?.is_admin) return;
     setSearchConfig({ value: userQuery, onChange: setUserQuery, placeholder: t("admin.search_placeholder") });
     return () => setSearchConfig(null);
-  }, [me, userQuery, setSearchConfig]);
+  }, [me, userQuery, setSearchConfig, t]);
 
   useEffect(() => {
     if (!isAuthed) return;

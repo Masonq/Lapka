@@ -44,7 +44,7 @@ export default function Communities() {
   useEffect(() => {
     setSearchConfig({ value: query, onChange: setQuery, placeholder: t("communities.search_placeholder") });
     return () => setSearchConfig(null);
-  }, [query, setSearchConfig]);
+  }, [query, setSearchConfig, t]);
 
   async function submit(e) {
     e.preventDefault();

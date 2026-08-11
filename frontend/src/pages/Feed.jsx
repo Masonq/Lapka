@@ -47,7 +47,7 @@ export default function Feed() {
   useEffect(() => {
     setSearchConfig({ value: search, onChange: setSearch, placeholder: t("feed.search_placeholder") });
     return () => setSearchConfig(null);
-  }, [search, setSearchConfig]);
+  }, [search, setSearchConfig, t]);
 
   function buildParams(offset) {
     const params = { limit: PAGE_SIZE, offset };
