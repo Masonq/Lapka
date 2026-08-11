@@ -319,7 +319,7 @@ export default function Explore() {
 
           {showCommunitiesSkeleton && <ListItemSkeleton count={2} />}
 
-          {communities?.length > 0 && (
+          {!showCommunitiesSkeleton && communities?.length > 0 && (
             <div className="card-grid" style={{ marginBottom: 24 }}>
                 {communities.map((c) => (
                   <Link key={c.id} to={`/communities/${c.id}`} className="card" style={{
@@ -361,13 +361,13 @@ export default function Explore() {
             </div>
           )}
 
-          {!loadingServices && providers.length === 0 && (
+          {!showServicesSkeleton && providers.length === 0 && (
             <div className="empty-state" style={{ padding: "24px 20px" }}>
               {t("explore.no_providers")}
             </div>
           )}
 
-          {!loadingServices && providers.length > 0 && (
+          {!showServicesSkeleton && providers.length > 0 && (
             <div className="card-grid" style={{ marginBottom: 24 }}>
               {providers.map((p) => <ProviderCard key={p.id} provider={p} onReviewed={loadServices} />)}
             </div>

@@ -37,7 +37,7 @@ export default function SavedPosts() {
         </div>
       )}
 
-      {posts?.length === 0 && (
+      {!showSkeleton && posts?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">{t("saved_posts.empty_title")}</div>
@@ -45,7 +45,7 @@ export default function SavedPosts() {
         </div>
       )}
 
-      {posts?.length > 0 && (
+      {!showSkeleton && posts?.length > 0 && (
         <div className="card-grid">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />

@@ -1,11 +1,10 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 import { Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
-import { User, PlusCircle, Bell, Search, X } from "lucide-react";
+import { User, PlusCircle, Bell, Search, X, Loader2 } from "lucide-react";
 import ScrollToTop from "./ScrollToTop";
 import { useSearchContext } from "./SearchContext";
 import OnboardingModal from "./components/OnboardingModal";
 import TabBar from "./components/TabBar";
-import PawLoader from "./components/PawLoader";
 // Feed — единственная страница с обычным (не ленивым) импортом: это то, что
 // видит почти каждый пользователь на самом первом экране, лениво грузить её
 // означало бы добавить мигание загрузки на самый частый сценарий из всех.
@@ -173,7 +172,7 @@ export default function App() {
       <Suspense
         fallback={
           <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
-            <PawLoader size={40} />
+            <Loader2 size={28} className="spin" style={{ color: "var(--text-faint)" }} />
           </div>
         }
       >

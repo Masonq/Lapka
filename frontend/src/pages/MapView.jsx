@@ -78,7 +78,7 @@ export default function MapView() {
         <div style={{ height: "60vh", borderRadius: 20, overflow: "hidden" }} className="skeleton" />
       )}
 
-      {!loadError && posts !== null && (
+      {!loadError && !showSkeleton && posts !== null && (
         <div style={{ height: "60vh", borderRadius: 20, overflow: "hidden", border: "1px solid var(--border)" }}>
           <MapContainer center={BELGRADE_CENTER} zoom={12} style={{ height: "100%", width: "100%" }}>
             <TileLayer

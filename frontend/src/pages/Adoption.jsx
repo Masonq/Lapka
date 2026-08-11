@@ -63,9 +63,9 @@ export default function Adoption() {
 
       {showSkeleton && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
-      {loadError && <ErrorState onRetry={load} />}
+      {!showSkeleton && loadError && <ErrorState onRetry={load} />}
 
-      {!loadError && posts?.length === 0 && (
+      {!showSkeleton && !loadError && posts?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">
@@ -75,7 +75,7 @@ export default function Adoption() {
         </div>
       )}
 
-      {!loadError && posts?.length > 0 && (
+      {!showSkeleton && !loadError && posts?.length > 0 && (
         <div className="card-grid">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />

@@ -126,9 +126,9 @@ export default function Feed() {
         </div>
       )}
 
-      {!loading && loadError && <ErrorState onRetry={loadFeed} />}
+      {!showSkeleton && loadError && <ErrorState onRetry={loadFeed} />}
 
-      {!loading && !loadError && posts.length === 0 && (
+      {!showSkeleton && !loadError && posts.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">
@@ -142,7 +142,7 @@ export default function Feed() {
         </div>
       )}
 
-      {!loading && !loadError && posts.length > 0 && (
+      {!showSkeleton && !loadError && posts.length > 0 && (
         <div className="card-grid">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
@@ -150,7 +150,7 @@ export default function Feed() {
         </div>
       )}
 
-      {!loading && !loadError && hasMore && (
+      {!showSkeleton && !loadError && hasMore && (
         <button
           className="btn btn-ghost btn-block"
           style={{ marginTop: 14 }}

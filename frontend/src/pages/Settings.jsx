@@ -386,11 +386,11 @@ export default function Settings() {
 
           {showBlockedSkeleton && <ListItemSkeleton count={2} />}
 
-          {blockedUsers?.length === 0 && (
+          {!showBlockedSkeleton && blockedUsers?.length === 0 && (
             <p style={{ fontSize: 13, color: "var(--text-faint)" }}>{t("settings.no_blocked")}</p>
           )}
 
-          {blockedUsers?.map((b) => (
+          {!showBlockedSkeleton && blockedUsers?.map((b) => (
             <div key={b.user.id} style={{
               display: "flex", alignItems: "center", gap: 10, padding: "8px 0",
               borderTop: "1px solid var(--border)",

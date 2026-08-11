@@ -54,9 +54,9 @@ export default function Nearby() {
 
       {showSkeleton && !loadError && <ListItemSkeleton />}
 
-      {loadError && <ErrorState onRetry={load} />}
+      {!showSkeleton && loadError && <ErrorState onRetry={load} />}
 
-      {!loadError && pets?.length === 0 && (
+      {!showSkeleton && !loadError && pets?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">{t("nearby.empty_title")}</div>
@@ -64,7 +64,7 @@ export default function Nearby() {
         </div>
       )}
 
-      {!loadError && pets?.length > 0 && (
+      {!showSkeleton && !loadError && pets?.length > 0 && (
         <div className="card-grid">
           {pets.map((pet) => {
             const avatarTint = pet.species === "dog" ? "var(--blue-tint)" : pet.species === "cat" ? "var(--primary-tint)" : "var(--gray-tint)";

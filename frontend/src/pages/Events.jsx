@@ -175,9 +175,9 @@ export default function Events() {
 
       {showSkeleton && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
-      {loadError && <ErrorState onRetry={load} />}
+      {!showSkeleton && loadError && <ErrorState onRetry={load} />}
 
-      {!loadError && events?.length === 0 && (
+      {!showSkeleton && !loadError && events?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">{t("events.empty_title")}</div>
@@ -185,7 +185,7 @@ export default function Events() {
         </div>
       )}
 
-      {!loadError && events?.length > 0 && (
+      {!showSkeleton && !loadError && events?.length > 0 && (
         <div className="card-grid">
           {events.map((ev) => (
             <Link key={ev.id} to={`/events/${ev.id}`} className="card" style={{ borderRadius: 20, padding: 16, display: "flex", flexDirection: "column", height: "100%" }}>

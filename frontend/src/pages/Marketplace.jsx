@@ -64,9 +64,9 @@ export default function Marketplace() {
 
       {showSkeleton && !loadError && <div className="card-grid"><PostCardSkeleton /><PostCardSkeleton /></div>}
 
-      {loadError && <ErrorState onRetry={load} />}
+      {!showSkeleton && loadError && <ErrorState onRetry={load} />}
 
-      {!loadError && listings?.length === 0 && (
+      {!showSkeleton && !loadError && listings?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">{t("marketplace.empty_title")}</div>
@@ -74,7 +74,7 @@ export default function Marketplace() {
         </div>
       )}
 
-      {!loadError && listings?.length > 0 && (
+      {!showSkeleton && !loadError && listings?.length > 0 && (
         <div className="card-grid">
           {listings.map((l) => (
             <Link key={l.id} to={`/marketplace/${l.id}`} className="card" style={{ borderRadius: 20, padding: 16, display: "flex", flexDirection: "column", height: "100%" }}>

@@ -116,9 +116,9 @@ export default function Communities() {
 
       {showSkeleton && !loadError && <ListItemSkeleton />}
 
-      {loadError && <ErrorState onRetry={load} />}
+      {!showSkeleton && loadError && <ErrorState onRetry={load} />}
 
-      {!loadError && communities?.length === 0 && (
+      {!showSkeleton && !loadError && communities?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">{t("communities.empty_title")}</div>
@@ -126,7 +126,7 @@ export default function Communities() {
         </div>
       )}
 
-      {!loadError && communities?.length > 0 && (
+      {!showSkeleton && !loadError && communities?.length > 0 && (
         <div className="card-grid">
           {communities.map((c) => (
             <Link key={c.id} to={`/communities/${c.id}`} className="card" style={{

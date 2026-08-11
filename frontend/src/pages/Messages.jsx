@@ -54,9 +54,9 @@ export default function Messages() {
 
       {showSkeleton && !loadError && <ListItemSkeleton />}
 
-      {loadError && <ErrorState onRetry={load} />}
+      {!showSkeleton && loadError && <ErrorState onRetry={load} />}
 
-      {!loadError && conversations?.length === 0 && (
+      {!showSkeleton && !loadError && conversations?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">{t("messages.empty_title")}</div>
@@ -64,7 +64,7 @@ export default function Messages() {
         </div>
       )}
 
-      {!loadError && conversations?.map((c) => (
+      {!showSkeleton && !loadError && conversations?.map((c) => (
         <Link
           key={c.partner.id}
           to={`/messages/${c.partner.id}`}

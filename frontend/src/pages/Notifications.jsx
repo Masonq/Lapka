@@ -82,9 +82,9 @@ export default function Notifications() {
 
       {showSkeleton && !loadError && <ListItemSkeleton />}
 
-      {loadError && <ErrorState onRetry={load} />}
+      {!showSkeleton && loadError && <ErrorState onRetry={load} />}
 
-      {!loadError && items?.length === 0 && (
+      {!showSkeleton && !loadError && items?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">{t("notifications.empty_title")}</div>
@@ -92,7 +92,7 @@ export default function Notifications() {
         </div>
       )}
 
-      {!loadError && items?.map((n) => (
+      {!showSkeleton && !loadError && items?.map((n) => (
         <button
           key={n.id}
           onClick={() => openNotification(n)}

@@ -258,9 +258,9 @@ export default function PetProfile() {
             )}
 
             {showHealthSkeleton && <ListItemSkeleton count={2} />}
-            {health?.length === 0 && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>{t("pet_profile.no_records")}</p>}
-            {health && <WeightChart records={health.filter((r) => r.category === "weight")} />}
-            {health?.map((r) => (
+            {!showHealthSkeleton && health?.length === 0 && <p style={{ fontSize: 13, color: "var(--text-faint)" }}>{t("pet_profile.no_records")}</p>}
+            {!showHealthSkeleton && health && <WeightChart records={health.filter((r) => r.category === "weight")} />}
+            {!showHealthSkeleton && health?.map((r) => (
               <div key={r.id} style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 padding: "8px 0", borderBottom: "1px solid var(--border)",

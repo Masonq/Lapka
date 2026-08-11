@@ -37,7 +37,7 @@ export default function FollowList() {
 
       {showSkeleton && <ListItemSkeleton />}
 
-      {list?.length === 0 && (
+      {!showSkeleton && list?.length === 0 && (
         <div className="empty-state">
           <EmptyStateImage />
           <div className="empty-state-title">{t("follow_list.empty_title")}</div>
@@ -45,7 +45,7 @@ export default function FollowList() {
         </div>
       )}
 
-      {list?.map((u) => (
+      {!showSkeleton && list?.map((u) => (
         <Link key={u.id} to={`/users/${u.id}`} className="card" style={{
           display: "flex", alignItems: "center", gap: 12, borderRadius: 16, padding: "12px 14px", marginBottom: 8,
         }}>
