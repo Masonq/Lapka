@@ -10,19 +10,23 @@ from app.core.i18n import get_lang, t
 from app.core.rate_limit import RateLimiter
 from app.core.security import get_current_user, get_current_user_optional
 from app.models.models import Community, CommunityMember, User
-from app.schemas.schemas import CommunityCreate, CommunityMemberOut, CommunityOut
+from app.schemas.schemas import CommunityCreate, CommunityMemberOut, CommunityOut, CommunityUpdate
 
 router = APIRouter(prefix="/api/communities", tags=["communities"])
 
 community_limiter = RateLimiter(max_actions=3, window_seconds=3600)  # 3 сообщества в час на пользователя
 
 
-def _to_out(community: Community, member_ids: set[str], counts: dict[str, int] | None = None) -> CommunityOut:
+def _to_out(
+    community: Community, member_ids: set[str], counts: dict[str, int] | None = None,
+    admin_ids: set[str] | None = None,
+) -> CommunityOut:
     out = CommunityOut.model_validate(community)
     # counts передаётся батчем в list_communities (см. ниже) — без него (создание/detail
     # одного сообщества) len(community.members) — один лишний запрос, не проблема на единичном объекте
     out.members_count = counts[community.id] if counts is not None else len(community.members)
     out.is_member = community.id in member_ids
+    out.is_admin = community.id in admin_ids if admin_ids is not None else False
     return out
 
 
@@ -86,7 +90,7 @@ def create_community(
     db.add(CommunityMember(community_id=community.id, user_id=user.id, role="admin"))
     db.commit()
     db.refresh(community)
-    return _to_out(community, {community.id})
+    return _to_out(community, {community.id}, admin_ids={community.id})
 
 
 @router.get("/{community_id}", response_model=CommunityOut)
@@ -99,13 +103,48 @@ def get_community(
         raise HTTPException(status_code=404, detail=t("community_not_found", lang))
 
     member_ids = set()
+    admin_ids = set()
     if user:
-        exists = db.query(CommunityMember).filter(
+        membership = db.query(CommunityMember).filter(
             CommunityMember.community_id == community_id, CommunityMember.user_id == user.id
         ).first()
-        if exists:
+        if membership:
             member_ids = {community_id}
-    return _to_out(community, member_ids)
+            if membership.role == "admin":
+                admin_ids = {community_id}
+    return _to_out(community, member_ids, admin_ids=admin_ids)
+
+
+@router.patch("/{community_id}", response_model=CommunityOut)
+def update_community(
+    community_id: str, data: CommunityUpdate, db: Session = Depends(get_db),
+    user: User = Depends(get_current_user), lang: str = Depends(get_lang),
+):
+    community = db.query(Community).filter(Community.id == community_id).first()
+    if not community:
+        raise HTTPException(status_code=404, detail=t("community_not_found", lang))
+
+    is_admin = db.query(CommunityMember).filter(
+        CommunityMember.community_id == community_id,
+        CommunityMember.user_id == user.id,
+        CommunityMember.role == "admin",
+    ).first()
+    if not is_admin:
+        raise HTTPException(status_code=403, detail=t("only_community_admin_can_edit", lang))
+
+    if data.name is not None:
+        community.name = data.name
+    if data.description is not None:
+        community.description = data.description
+    if data.avatar_url is not None:
+        community.avatar_url = data.avatar_url
+    if data.city is not None:
+        community.city = data.city
+    db.commit()
+    db.refresh(community)
+
+    member_ids = {community_id}  # раз пользователь admin — он точно участник
+    return _to_out(community, member_ids, admin_ids={community_id})
 
 
 @router.post("/{community_id}/join")

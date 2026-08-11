@@ -171,6 +171,7 @@ export const api = {
   },
   community: (id) => request(`/communities/${id}`, { auth: true }),
   createCommunity: (data) => request("/communities", { method: "POST", body: data, auth: true }),
+  updateCommunity: (id, data) => request(`/communities/${id}`, { method: "PATCH", body: data, auth: true }),
   joinCommunity: (id) => request(`/communities/${id}/join`, { method: "POST", auth: true }),
   leaveCommunity: (id) => request(`/communities/${id}/leave`, { method: "DELETE", auth: true }),
   communityMembers: (id) => request(`/communities/${id}/members`),

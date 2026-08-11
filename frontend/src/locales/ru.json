@@ -372,7 +372,12 @@
     "community_posts": "Посты сообщества",
     "empty_posts": "Пока никто не писал сюда — будь первым",
     "members_title": "Участники",
-    "show_all_members": "Показать всех ({{count}})"
+    "show_all_members": "Показать всех ({{count}})",
+    "edit": "Редактировать",
+    "save": "Сохранить",
+    "saving": "Сохранение…",
+    "cancel": "Отмена",
+    "updated_toast": "Сообщество обновлено"
   },
   "create": {
     "title": "Создать",

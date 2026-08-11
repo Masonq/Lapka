@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Users, MapPin, UserPlus, UserMinus, PlusCircle, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Users, MapPin, UserPlus, UserMinus, PlusCircle, ShieldCheck, Pencil } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -27,6 +27,12 @@ export default function CommunityDetail() {
   const [showAllMembers, setShowAllMembers] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [editError, setEditError] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
   useDocumentTitle(community ? community.name : t("community_detail.title"));
 
   function load() {
@@ -47,6 +53,32 @@ export default function CommunityDetail() {
       showToast(err.message, "error");
     } finally {
       setBusy(false);
+    }
+  }
+
+  function openEdit() {
+    setEditName(community.name);
+    setEditDescription(community.description || "");
+    setEditCity(community.city || "");
+    setEditError("");
+    setEditing(true);
+  }
+
+  async function saveEdit(e) {
+    e.preventDefault();
+    setEditError("");
+    setSavingEdit(true);
+    try {
+      const updated = await api.updateCommunity(id, {
+        name: editName, description: editDescription, city: editCity,
+      });
+      setCommunity(updated);
+      setEditing(false);
+      showToast(t("community_detail.updated_toast"));
+    } catch (err) {
+      setEditError(err.message);
+    } finally {
+      setSavingEdit(false);
     }
   }
 
@@ -89,36 +121,67 @@ export default function CommunityDetail() {
 
       <div className="detail-shell">
         <div className="card" style={{ borderRadius: 20, padding: 20, marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 800, flexShrink: 0, overflow: "hidden",
-            }}>
-              {community.avatar_url ? (
-                <img src={community.avatar_url} alt={community.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              ) : (
-                community.name[0]?.toUpperCase()
-              )}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="subhead" style={{ fontSize: 18 }}>{community.name}</div>
-              <div style={{ display: "flex", gap: 12, fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <Users size={13} /> {community.members_count}
-                </span>
-                {community.city && (
-                  <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <MapPin size={13} /> {community.city}
-                  </span>
+          {editing ? (
+            <form onSubmit={saveEdit}>
+              <div className="field">
+                <label htmlFor="community-edit-name">{t("communities.name_label")}</label>
+                <input id="community-edit-name" value={editName} onChange={(e) => setEditName(e.target.value)} required autoComplete="off" />
+              </div>
+              <div className="field">
+                <label htmlFor="community-edit-description">{t("communities.description_label")}</label>
+                <textarea id="community-edit-description" rows={3} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} autoComplete="off" />
+              </div>
+              <div className="field">
+                <label htmlFor="community-edit-city">{t("communities.city_label")}</label>
+                <input id="community-edit-city" value={editCity} onChange={(e) => setEditCity(e.target.value)} autoComplete="off" />
+              </div>
+              {editError && <p style={{ color: "var(--red)", fontSize: 13, marginBottom: 10 }}>{editError}</p>}
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="btn btn-primary" disabled={savingEdit}>
+                  {savingEdit ? t("community_detail.saving") : t("community_detail.save")}
+                </button>
+                <button type="button" className="btn btn-ghost" onClick={() => setEditing(false)}>{t("community_detail.cancel")}</button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
+                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 800, flexShrink: 0, overflow: "hidden",
+                }}>
+                  {community.avatar_url ? (
+                    <img src={community.avatar_url} alt={community.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    community.name[0]?.toUpperCase()
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="subhead" style={{ fontSize: 18 }}>{community.name}</div>
+                  <div style={{ display: "flex", gap: 12, fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <Users size={13} /> {community.members_count}
+                    </span>
+                    {community.city && (
+                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <MapPin size={13} /> {community.city}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {community.is_admin && (
+                  <button className="icon-btn" onClick={openEdit} aria-label={t("community_detail.edit")} title={t("community_detail.edit")}>
+                    <Pencil size={16} />
+                  </button>
                 )}
               </div>
-            </div>
-          </div>
 
-          {community.description && (
-            <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "0 0 14px", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
-              {community.description}
-            </p>
+              {community.description && (
+                <p style={{ fontSize: 14, color: "var(--text-muted)", margin: "0 0 14px", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
+                  {community.description}
+                </p>
+              )}
+            </>
           )}
 
           {isAuthed && (

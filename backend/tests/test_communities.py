@@ -227,3 +227,98 @@ def test_last_admin_cannot_leave_error_translated_to_serbian(client, register_us
     )
     assert r.status_code == 400
     assert r.json()["detail"] == "Ti si poslednji admin zajednice — prvo postavi drugog ili obriši zajednicu"
+
+
+def test_admin_can_edit_community(client, register_user):
+    headers = register_user()
+    community = client.post(
+        "/api/communities", json={"name": "Исходное имя", "city": "Белград"}, headers=headers,
+    ).json()
+
+    r = client.patch(
+        f"/api/communities/{community['id']}",
+        json={"name": "Новое имя", "description": "Новое описание"},
+        headers=headers,
+    )
+    assert r.status_code == 200
+    updated = r.json()
+    assert updated["name"] == "Новое имя"
+    assert updated["description"] == "Новое описание"
+    assert updated["city"] == "Белград"  # не переданное поле не изменилось
+
+
+def test_non_admin_member_cannot_edit_community(client, register_user):
+    admin_headers = register_user()
+    member_headers = register_user()
+    community = client.post(
+        "/api/communities", json={"name": "Тест"}, headers=admin_headers,
+    ).json()
+    client.post(f"/api/communities/{community['id']}/join", headers=member_headers)
+
+    r = client.patch(
+        f"/api/communities/{community['id']}", json={"name": "Взлом"}, headers=member_headers,
+    )
+    assert r.status_code == 403
+
+
+def test_non_member_cannot_edit_community(client, register_user):
+    admin_headers = register_user()
+    stranger_headers = register_user()
+    community = client.post(
+        "/api/communities", json={"name": "Тест"}, headers=admin_headers,
+    ).json()
+
+    r = client.patch(
+        f"/api/communities/{community['id']}", json={"name": "Взлом"}, headers=stranger_headers,
+    )
+    assert r.status_code == 403
+
+
+def test_edit_community_requires_auth(client, register_user):
+    headers = register_user()
+    community = client.post("/api/communities", json={"name": "Тест"}, headers=headers).json()
+
+    r = client.patch(f"/api/communities/{community['id']}", json={"name": "Взлом"})
+    assert r.status_code == 401
+
+
+def test_edit_nonexistent_community_404(client, register_user):
+    headers = register_user()
+    r = client.patch("/api/communities/does-not-exist", json={"name": "Тест"}, headers=headers)
+    assert r.status_code == 404
+
+
+def test_edit_community_partial_update_keeps_other_fields(client, register_user):
+    headers = register_user()
+    community = client.post(
+        "/api/communities",
+        json={"name": "Имя", "description": "Описание", "city": "Белград"},
+        headers=headers,
+    ).json()
+
+    r = client.patch(f"/api/communities/{community['id']}", json={"city": "Нови-Сад"}, headers=headers)
+    assert r.status_code == 200
+    updated = r.json()
+    assert updated["name"] == "Имя"
+    assert updated["description"] == "Описание"
+    assert updated["city"] == "Нови-Сад"
+
+
+def test_community_out_reports_is_admin_correctly(client, register_user):
+    admin_headers = register_user()
+    member_headers = register_user()
+    community = client.post("/api/communities", json={"name": "Тест"}, headers=admin_headers).json()
+    assert community["is_admin"] is True  # создатель сразу admin
+
+    client.post(f"/api/communities/{community['id']}/join", headers=member_headers)
+
+    r_admin = client.get(f"/api/communities/{community['id']}", headers=admin_headers)
+    assert r_admin.json()["is_admin"] is True
+
+    r_member = client.get(f"/api/communities/{community['id']}", headers=member_headers)
+    assert r_member.json()["is_admin"] is False
+    assert r_member.json()["is_member"] is True  # но участник — да
+
+    r_anon = client.get(f"/api/communities/{community['id']}")
+    assert r_anon.json()["is_admin"] is False
+    assert r_anon.json()["is_member"] is False

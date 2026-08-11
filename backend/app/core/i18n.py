@@ -171,6 +171,10 @@ ERRORS: dict[str, dict[str, str]] = {
         "ru": "Сообщество не найдено",
         "sr": "Zajednica nije pronađena",
     },
+    "only_community_admin_can_edit": {
+        "ru": "Редактировать сообщество может только его администратор",
+        "sr": "Zajednicu može uređivati samo njen administrator",
+    },
     "invalid_role": {
         "ru": "Роль должна быть одной из: user, editor, moderator",
         "sr": "Uloga mora biti jedna od: user, editor, moderator",

@@ -278,6 +278,13 @@ class CommunityCreate(BaseModel):
     city: Optional[str] = Field(None, max_length=80)
 
 
+class CommunityUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=2, max_length=100)
+    description: Optional[str] = Field(None, max_length=1000)
+    avatar_url: Optional[str] = Field(None, max_length=500)
+    city: Optional[str] = Field(None, max_length=80)
+
+
 class CommunityOut(BaseModel):
     id: str
     name: str
@@ -287,6 +294,7 @@ class CommunityOut(BaseModel):
     creator: Optional[UserOut] = None
     members_count: int = 0
     is_member: bool = False
+    is_admin: bool = False
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

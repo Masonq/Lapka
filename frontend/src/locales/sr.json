@@ -372,7 +372,12 @@
     "community_posts": "Objave zajednice",
     "empty_posts": "Još niko nije pisao ovde — budi prvi",
     "members_title": "Članovi",
-    "show_all_members": "Prikaži sve ({{count}})"
+    "show_all_members": "Prikaži sve ({{count}})",
+    "edit": "Uredi",
+    "save": "Sačuvaj",
+    "saving": "Čuvanje…",
+    "cancel": "Otkaži",
+    "updated_toast": "Zajednica je ažurirana"
   },
   "create": {
     "title": "Kreiraj",
