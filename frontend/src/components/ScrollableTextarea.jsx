@@ -1,4 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { Bold, Italic, Strikethrough, Link2, EyeOff } from "lucide-react";
 
 /**
  * Замена textarea для случаев, когда обычное поле не даёт скроллить
@@ -26,6 +28,8 @@ export default function ScrollableTextarea({
   const ref = useRef(null);
   const touchState = useRef({ active: false, startY: 0, startTime: 0, lastY: 0, scrolling: false });
   const initialized = useRef(false);
+  const wrapSelectionRef = useRef(null);
+  const [toolbar, setToolbar] = useState(null); // { top, left } или null (скрыт)
 
   // Значение из React попадает в DOM РОВНО ОДИН РАЗ (при монтировании,
   // важно для режима редактирования — начальный текст приходит извне).
@@ -86,6 +90,52 @@ export default function ScrollableTextarea({
       }
     }
 
+    // Оборачивает выделенный текст маркерами форматирования (например,
+    // ** для жирного) — если выделения нет, вставляет маркеры с
+    // placeholder-текстом внутри, выделенным, чтобы пользователь мог
+    // сразу печатать вместо него. ОДИН range.insertNode() с готовым
+    // DocumentFragment, а не несколько последовательных вызовов —
+    // порядок вставки при нескольких insertNode() подряд не гарантирован
+    // спецификацией, та же категория проблем, что уже подвела с Enter.
+    // savedRange — для Link: window.prompt() сам по себе сбрасывает
+    // выделение (фокус уходит в системный диалог), поэтому Range нужно
+    // захватить ДО открытия prompt, не читать заново после
+    function wrapSelection(before, after, placeholderText, savedRange) {
+      let range = savedRange;
+      if (!range) {
+        el.focus();
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        range = sel.getRangeAt(0);
+      }
+      if (!el.contains(range.commonAncestorContainer)) return;
+
+      const selectedText = range.toString();
+      const textToWrap = selectedText || placeholderText;
+
+      range.deleteContents();
+      const fragment = document.createDocumentFragment();
+      const beforeNode = document.createTextNode(before);
+      const middleNode = document.createTextNode(textToWrap);
+      const afterNode = document.createTextNode(after);
+      fragment.appendChild(beforeNode);
+      fragment.appendChild(middleNode);
+      fragment.appendChild(afterNode);
+      range.insertNode(fragment);
+
+      const sel = window.getSelection();
+      const newRange = document.createRange();
+      newRange.setStart(middleNode, 0);
+      newRange.setEnd(middleNode, middleNode.length);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+
+      // Программная DOM-мутация через Range API не вызывает нативное
+      // input-событие сама по себе — нужно вручную сообщить React
+      onChange(readText());
+    }
+    wrapSelectionRef.current = wrapSelection;
+
     function handleTouchStart(e) {
       const t = e.touches[0];
       touchState.current = { active: true, startY: t.clientY, startTime: Date.now(), lastY: t.clientY, scrolling: false };
@@ -138,31 +188,114 @@ export default function ScrollableTextarea({
     };
   }, [onChange]);
 
+  // Показывает/скрывает всплывающий тулбар в зависимости от того, есть
+  // ли непустое выделение внутри НАШЕГО поля. selectionchange — событие
+  // уровня document (Selection API глобален, не привязан к элементу),
+  // поэтому слушаем на document и сами фильтруем по принадлежности el
+  useEffect(() => {
+    function handleSelectionChange() {
+      const el = ref.current;
+      if (!el) return;
+      const sel = window.getSelection();
+      if (!sel.rangeCount || sel.isCollapsed) {
+        setToolbar(null);
+        return;
+      }
+      const range = sel.getRangeAt(0);
+      if (!el.contains(range.commonAncestorContainer)) {
+        setToolbar(null);
+        return;
+      }
+      const rect = range.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) {
+        setToolbar(null);
+        return;
+      }
+      setToolbar({ top: rect.top, left: rect.left + rect.width / 2 });
+    }
+    document.addEventListener("selectionchange", handleSelectionChange);
+    return () => document.removeEventListener("selectionchange", handleSelectionChange);
+  }, []);
+
+  function handleBold() {
+    wrapSelectionRef.current?.("**", "**", "жирный текст");
+  }
+  function handleItalic() {
+    wrapSelectionRef.current?.("_", "_", "курсив");
+  }
+  function handleStrike() {
+    wrapSelectionRef.current?.("~~", "~~", "зачёркнутый");
+  }
+  function handleSpoiler() {
+    wrapSelectionRef.current?.("||", "||", "скрытый текст");
+  }
+  function handleLink() {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return;
+    // cloneRange() — независимая копия, не "живая" ссылка. window.prompt()
+    // переключает фокус на системный диалог, что может изменить/сбросить
+    // текущее выделение — без клонирования к моменту возврата из prompt
+    // исходный range мог бы уже не соответствовать тому, что видел
+    // пользователь при нажатии на кнопку
+    const savedRange = sel.getRangeAt(0).cloneRange();
+    const url = window.prompt("Ссылка (https://...)");
+    if (!url) return;
+    wrapSelectionRef.current?.("[", `](${url})`, "текст ссылки", savedRange);
+  }
+
   return (
-    <div
-      ref={ref}
-      id={id}
-      contentEditable
-      suppressContentEditableWarning
-      data-placeholder={placeholder}
-      data-required={required || undefined}
-      className="scrollable-textarea"
-      style={{
-        border: "1px solid var(--border)",
-        background: "var(--surface)",
-        borderRadius: "var(--radius-md)",
-        padding: "12px 14px",
-        fontSize: 16,
-        fontFamily: "var(--font-body)",
-        color: "var(--text)",
-        outline: "none",
-        height,
-        overflowY: "auto",
-        overscrollBehavior: "contain",
-        whiteSpace: "pre-wrap",
-        wordBreak: "break-word",
-        ...style,
-      }}
-    />
+    <div>
+      {toolbar && createPortal(
+        <div
+          className="card"
+          style={{
+            position: "fixed", top: toolbar.top - 44, left: toolbar.left, transform: "translateX(-50%)",
+            zIndex: 30, display: "flex", gap: 2, padding: 4, boxShadow: "var(--shadow-float)",
+          }}
+        >
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} className="icon-btn" style={{ width: 32, height: 32 }} onClick={handleBold} aria-label="Жирный">
+            <Bold size={15} />
+          </button>
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} className="icon-btn" style={{ width: 32, height: 32 }} onClick={handleItalic} aria-label="Курсив">
+            <Italic size={15} />
+          </button>
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} className="icon-btn" style={{ width: 32, height: 32 }} onClick={handleStrike} aria-label="Зачёркнутый">
+            <Strikethrough size={15} />
+          </button>
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} className="icon-btn" style={{ width: 32, height: 32 }} onClick={handleLink} aria-label="Ссылка">
+            <Link2 size={15} />
+          </button>
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onTouchStart={(e) => e.preventDefault()} className="icon-btn" style={{ width: 32, height: 32 }} onClick={handleSpoiler} aria-label="Скрытый текст">
+            <EyeOff size={15} />
+          </button>
+        </div>,
+        document.body
+      )}
+      <div
+        ref={ref}
+        id={id}
+        contentEditable
+        suppressContentEditableWarning
+        data-placeholder={placeholder}
+        data-required={required || undefined}
+        className="scrollable-textarea"
+        style={{
+          border: "1px solid var(--border)",
+          background: "var(--surface)",
+          borderRadius: "var(--radius-md)",
+          padding: "12px 14px",
+          fontSize: 16,
+          fontFamily: "var(--font-body)",
+          color: "var(--text)",
+          outline: "none",
+          height,
+          overflowY: "auto",
+          overscrollBehavior: "contain",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+          ...style,
+        }}
+      />
+    </div>
   );
 }
