@@ -136,6 +136,17 @@ textarea {
   resize: none;
 }
 
+.scrollable-textarea:empty:before {
+  content: attr(data-placeholder);
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.scrollable-textarea:focus {
+  border-color: var(--primary-strong) !important;
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+
 * {
   box-sizing: border-box;
 }

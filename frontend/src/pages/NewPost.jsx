@@ -6,6 +6,7 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PhotoPicker from "../components/PhotoPicker";
+import ScrollableTextarea from "../components/ScrollableTextarea";
 import { useTranslation } from "react-i18next";
 
 const TYPES = [
@@ -151,14 +152,11 @@ export default function NewPost() {
 
         <div className="field">
           <label htmlFor="post-body">{t("new_post.description_label")}</label>
-          <textarea
+          <ScrollableTextarea
             id="post-body"
-            rows={5}
             value={body}
-            onChange={(e) => setBody(e.target.value)}
-            required
+            onChange={setBody}
             placeholder={t("new_post.description_placeholder")}
-            autoComplete="off"
           />
         </div>
 
