@@ -132,8 +132,8 @@ textarea:focus-visible {
 }
 
 textarea {
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  resize: none;
 }
 
 * {
