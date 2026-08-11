@@ -83,6 +83,10 @@ ERRORS: dict[str, dict[str, str]] = {
         "ru": "Пост не найден",
         "sr": "Objava nije pronađena",
     },
+    "invalid_emoji": {
+        "ru": "Такая реакция недоступна",
+        "sr": "Ta reakcija nije dostupna",
+    },
     "can_only_resolve_own_post": {
         "ru": "Можно закрыть только свой пост",
         "sr": "Možeš zatvoriti samo svoju objavu",

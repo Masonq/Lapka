@@ -11,18 +11,23 @@ from app.core.i18n import get_lang, t
 from app.core.rate_limit import post_limiter, comment_limiter, report_limiter, sighting_limiter
 from app.core.security import get_current_user, get_current_user_optional
 from app.core.ws_manager import manager
-from app.models.models import Comment, CommunityMember, Event, Follow, Notification, Post, Report, SavedPost, Sighting, PostType, User
-from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, PostUpdate, ReportCreate, SightingCreate, SightingOut
+from app.models.models import Comment, CommunityMember, Event, Follow, Notification, Post, PostReaction, Report, SavedPost, Sighting, PostType, User
+from app.schemas.schemas import CommentCreate, CommentOut, PostCreate, PostOut, PostUpdate, ReactionCreate, ReportCreate, SightingCreate, SightingOut
 
 router = APIRouter(prefix="/api/posts", tags=["posts"])
 
 
-def _to_out(post: Post, saved_ids: set[str] | None = None, comments_count: int | None = None) -> PostOut:
+def _to_out(
+    post: Post, saved_ids: set[str] | None = None, comments_count: int | None = None,
+    reactions: dict[str, int] | None = None, my_reaction: str | None = None,
+) -> PostOut:
     out = PostOut.model_validate(post)
     # comments_count передаётся батчем в list_posts (см. ниже) — без него (создание/
     # get одного поста) len(post.comments) — единичный лишний запрос, не проблема
     out.comments_count = comments_count if comments_count is not None else len(post.comments)
     out.is_saved = post.id in saved_ids if saved_ids is not None else False
+    out.reactions = reactions or {}
+    out.my_reaction = my_reaction
     return out
 
 
@@ -90,7 +95,41 @@ def list_posts(
         )
         comment_counts = dict(rows)
 
-    return [_to_out(p, saved_ids, comment_counts.get(p.id, 0)) for p in posts]
+    reactions_by_post, my_reaction_by_post = _load_reactions(db, [p.id for p in posts] if posts else [], user)
+
+    return [
+        _to_out(p, saved_ids, comment_counts.get(p.id, 0), reactions_by_post.get(p.id), my_reaction_by_post.get(p.id))
+        for p in posts
+    ]
+
+
+def _load_reactions(
+    db: Session, post_ids: list[str], user: Optional[User]
+) -> tuple[dict[str, dict[str, int]], dict[str, str]]:
+    """Батч-загрузка реакций на несколько постов разом — тот же принцип, что
+    и comment_counts выше, не N+1 запросов по одному на пост."""
+    if not post_ids:
+        return {}, {}
+    rows = (
+        db.query(PostReaction.post_id, PostReaction.emoji, func.count(PostReaction.id))
+        .filter(PostReaction.post_id.in_(post_ids))
+        .group_by(PostReaction.post_id, PostReaction.emoji)
+        .all()
+    )
+    reactions_by_post: dict[str, dict[str, int]] = {}
+    for post_id, emoji, count in rows:
+        reactions_by_post.setdefault(post_id, {})[emoji] = count
+
+    my_reaction_by_post: dict[str, str] = {}
+    if user:
+        my_rows = (
+            db.query(PostReaction.post_id, PostReaction.emoji)
+            .filter(PostReaction.post_id.in_(post_ids), PostReaction.user_id == user.id)
+            .all()
+        )
+        my_reaction_by_post = dict(my_rows)
+
+    return reactions_by_post, my_reaction_by_post
 
 
 @router.post("", response_model=PostOut)
@@ -157,7 +196,11 @@ def list_saved_posts(db: Session = Depends(get_db), user: User = Depends(get_cur
     )
     # сохраняем порядок "сохранено недавно — выше", а не порядок публикации
     ordered = [posts_by_id[pid] for pid in saved_post_ids if pid in posts_by_id]
-    return [_to_out(p, saved_set, comment_counts.get(p.id, 0)) for p in ordered]
+    reactions_by_post, my_reaction_by_post = _load_reactions(db, saved_post_ids, user)
+    return [
+        _to_out(p, saved_set, comment_counts.get(p.id, 0), reactions_by_post.get(p.id), my_reaction_by_post.get(p.id))
+        for p in ordered
+    ]
 
 
 @router.get("/local-pulse")
@@ -188,7 +231,8 @@ def get_post(
         exists = db.query(SavedPost).filter(SavedPost.user_id == user.id, SavedPost.post_id == post_id).first()
         if exists:
             saved_ids.add(post_id)
-    return _to_out(post, saved_ids)
+    reactions_by_post, my_reaction_by_post = _load_reactions(db, [post_id], user)
+    return _to_out(post, saved_ids, None, reactions_by_post.get(post_id), my_reaction_by_post.get(post_id))
 
 
 @router.patch("/{post_id}/resolve", response_model=PostOut)
@@ -317,6 +361,58 @@ def unsave_post(post_id: str, db: Session = Depends(get_db), user: User = Depend
     db.query(SavedPost).filter(SavedPost.user_id == user.id, SavedPost.post_id == post_id).delete()
     db.commit()
     return {"ok": True}
+
+
+ALLOWED_REACTION_EMOJIS = {"👍", "❤️", "😂", "😮", "😢", "🐾"}
+
+
+@router.put("/{post_id}/reaction", response_model=PostOut)
+def react_to_post(
+    post_id: str, data: ReactionCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
+    if data.emoji not in ALLOWED_REACTION_EMOJIS:
+        raise HTTPException(status_code=400, detail=t("invalid_emoji", lang))
+
+    existing = db.query(PostReaction).filter(
+        PostReaction.post_id == post_id, PostReaction.user_id == user.id
+    ).first()
+    if existing:
+        existing.emoji = data.emoji
+    else:
+        db.add(PostReaction(post_id=post_id, user_id=user.id, emoji=data.emoji))
+    try:
+        db.commit()
+    except IntegrityError:
+        # параллельный тап успел вставить между проверкой и коммитом — тот же
+        # паттерн гонки, что уже обрабатывается в save_post выше
+        db.rollback()
+        existing = db.query(PostReaction).filter(
+            PostReaction.post_id == post_id, PostReaction.user_id == user.id
+        ).first()
+        if existing:
+            existing.emoji = data.emoji
+            db.commit()
+
+    reactions_by_post, my_reaction_by_post = _load_reactions(db, [post_id], user)
+    return _to_out(post, None, None, reactions_by_post.get(post_id), my_reaction_by_post.get(post_id))
+
+
+@router.delete("/{post_id}/reaction", response_model=PostOut)
+def remove_reaction(
+    post_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user),
+    lang: str = Depends(get_lang),
+):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail=t("post_not_found", lang))
+    db.query(PostReaction).filter(PostReaction.post_id == post_id, PostReaction.user_id == user.id).delete()
+    db.commit()
+    reactions_by_post, my_reaction_by_post = _load_reactions(db, [post_id], user)
+    return _to_out(post, None, None, reactions_by_post.get(post_id), my_reaction_by_post.get(post_id))
 
 
 @router.post("/{post_id}/report")

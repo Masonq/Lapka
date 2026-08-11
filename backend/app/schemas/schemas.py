@@ -154,6 +154,8 @@ class PostOut(BaseModel):
     comments_count: int = 0
     is_saved: bool = False
     community_id: Optional[str] = None
+    reactions: dict[str, int] = {}
+    my_reaction: Optional[str] = None
 
     @field_validator("show_staff_badge", mode="before")
     @classmethod
@@ -161,6 +163,10 @@ class PostOut(BaseModel):
         return True if v is None else v
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ReactionCreate(BaseModel):
+    emoji: str = Field(..., max_length=8)
 
 
 class CommentCreate(BaseModel):

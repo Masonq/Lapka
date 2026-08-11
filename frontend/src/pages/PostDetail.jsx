@@ -7,6 +7,7 @@ import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import ConfirmDialog from "../components/ConfirmDialog";
+import PostReactions from "../components/PostReactions";
 import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
 
@@ -122,6 +123,24 @@ export default function PostDetail() {
       if (post.is_saved) await api.unsavePost(id);
       else await api.savePost(id);
       setPost((p) => ({ ...p, is_saved: !p.is_saved }));
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  async function handleReact(emoji) {
+    try {
+      const updated = await api.reactToPost(id, emoji);
+      setPost((p) => ({ ...p, reactions: updated.reactions, my_reaction: updated.my_reaction }));
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  async function handleRemoveReaction() {
+    try {
+      const updated = await api.removeReaction(id);
+      setPost((p) => ({ ...p, reactions: updated.reactions, my_reaction: updated.my_reaction }));
     } catch (err) {
       showToast(err.message, "error");
     }
@@ -287,6 +306,17 @@ export default function PostDetail() {
               </span>
             )}
           </div>
+
+          {isAuthed && (
+            <div style={{ marginTop: 10 }}>
+              <PostReactions
+                reactions={post.reactions}
+                myReaction={post.my_reaction}
+                onReact={handleReact}
+                onRemove={handleRemoveReaction}
+              />
+            </div>
+          )}
 
           {showReportForm && (
             <form onSubmit={submitReport} style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>

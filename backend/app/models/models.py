@@ -127,6 +127,25 @@ class Comment(Base):
     author = relationship("User")
 
 
+class PostReaction(Base):
+    """Реакция на пост (эмодзи) — одна на пользователя на пост, тап по той же
+    эмодзи убирает её, по другой — меняет (как реакции Facebook, не как в
+    Slack, где можно ставить сразу несколько разных реакций одному посту)."""
+
+    __tablename__ = "post_reactions"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    post_id = Column(UUID(as_uuid=False), ForeignKey("posts.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    emoji = Column(String(8), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    post = relationship("Post")
+    user = relationship("User")
+
+    __table_args__ = (UniqueConstraint("post_id", "user_id", name="uq_post_reaction_user"),)
+
+
 class ServiceProvider(Base):
     __tablename__ = "service_providers"
 
