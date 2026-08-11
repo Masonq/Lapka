@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, ShieldAlert, Flag, Trash2, X, BadgeCheck, Wrench, Users } from "lucide-react";
 import { api } from "../api/client";
+import { useDelayedLoading } from "../useDelayedLoading";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useSearchContext } from "../SearchContext";
 import PawLoader from "../components/PawLoader";
+import ListItemSkeleton from "../components/ListItemSkeleton";
 import { useTranslation } from "react-i18next";
 
 export default function Admin() {
@@ -17,11 +19,17 @@ export default function Admin() {
   const { isAuthed } = useAuth();
   const { setSearchConfig } = useSearchContext();
   const [me, setMe] = useState(null);
+  const showSkeleton = useDelayedLoading(me === null);
   const [overview, setOverview] = useState(null);
+  const showOverviewSkeleton = useDelayedLoading(overview === null);
   const [reports, setReports] = useState(null);
+  const showReportsSkeleton = useDelayedLoading(reports === null);
   const [providers, setProviders] = useState(null);
+  const showProvidersSkeleton = useDelayedLoading(providers === null);
   const [users, setUsers] = useState(null);
+  const showUsersSkeleton = useDelayedLoading(users === null);
   const [communities, setCommunities] = useState(null);
+  const showCommunitiesSkeleton = useDelayedLoading(communities === null);
   const [userQuery, setUserQuery] = useState("");
 
   useEffect(() => {
@@ -99,6 +107,7 @@ export default function Admin() {
   }
 
   if (!isAuthed || me === null) {
+    if (!showSkeleton) return null;
     return (
       <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
         <PawLoader size={40} />
@@ -126,6 +135,17 @@ export default function Admin() {
         <span style={{ width: 44 }} />
       </div>
 
+      {showOverviewSkeleton && (
+        <div className="card-grid" style={{ marginBottom: 20 }}>
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="card" style={{ borderRadius: 16, padding: "14px 16px" }}>
+              <span className="skeleton" style={{ width: 40, height: 22, display: "block", marginBottom: 6 }} />
+              <span className="skeleton" style={{ width: 70, height: 12, display: "block" }} />
+            </div>
+          ))}
+        </div>
+      )}
+
       {overview && (
         <div className="card-grid" style={{ marginBottom: 20 }}>
           {[
@@ -146,11 +166,13 @@ export default function Admin() {
         <Flag size={16} /> {t("admin.reports_queue_title")}
       </h3>
 
-      {reports?.length === 0 && (
+      {showReportsSkeleton && <ListItemSkeleton count={2} />}
+
+      {!showReportsSkeleton && reports?.length === 0 && (
         <div className="empty-state" style={{ padding: "24px 20px" }}>{t("admin.no_reports")}</div>
       )}
 
-      {reports?.map((r) => (
+      {!showReportsSkeleton && reports?.map((r) => (
         <div key={r.id} className="card" style={{ borderRadius: 16, padding: 14, marginBottom: 8 }}>
           {r.post && (
             <Link to={`/posts/${r.post.id}`} className="subhead" style={{ fontSize: 14 }}>
@@ -198,11 +220,13 @@ export default function Admin() {
         <Wrench size={16} /> {t("admin.providers_title")}
       </h3>
 
-      {providers?.length === 0 && (
+      {showProvidersSkeleton && <ListItemSkeleton count={2} />}
+
+      {!showProvidersSkeleton && providers?.length === 0 && (
         <div className="empty-state" style={{ padding: "24px 20px" }}>{t("admin.no_providers")}</div>
       )}
 
-      {providers?.map((p) => (
+      {!showProvidersSkeleton && providers?.map((p) => (
         <div key={p.id} className="card" style={{
           borderRadius: 16, padding: 14, marginBottom: 8, display: "flex", alignItems: "center", gap: 10,
         }}>
@@ -230,11 +254,13 @@ export default function Admin() {
       </h3>
 
 
-      {users?.length === 0 && (
+      {showUsersSkeleton && <ListItemSkeleton count={2} />}
+
+      {!showUsersSkeleton && users?.length === 0 && (
         <div className="empty-state" style={{ padding: "24px 20px" }}>{t("admin.no_users")}</div>
       )}
 
-      {users?.map((u) => (
+      {!showUsersSkeleton && users?.map((u) => (
         <div key={u.id} className="card" style={{
           borderRadius: 16, padding: 14, marginBottom: 8, display: "flex", alignItems: "center", gap: 10,
         }}>
@@ -272,11 +298,13 @@ export default function Admin() {
         <Users size={16} /> {t("admin.communities_title")}
       </h3>
 
-      {communities?.length === 0 && (
+      {showCommunitiesSkeleton && <ListItemSkeleton count={2} />}
+
+      {!showCommunitiesSkeleton && communities?.length === 0 && (
         <div className="empty-state" style={{ padding: "24px 20px" }}>{t("admin.no_communities")}</div>
       )}
 
-      {communities?.map((c) => (
+      {!showCommunitiesSkeleton && communities?.map((c) => (
         <div key={c.id} className="card" style={{
           borderRadius: 16, padding: 14, marginBottom: 8, display: "flex", alignItems: "center", gap: 10,
         }}>

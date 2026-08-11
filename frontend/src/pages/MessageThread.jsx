@@ -5,7 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
-import PawLoader from "../components/PawLoader";
+import { useDelayedLoading } from "../useDelayedLoading";
 import { useRealtimeEvent } from "../RealtimeContext";
 import { useTranslation } from "react-i18next";
 
@@ -16,7 +16,9 @@ export default function MessageThread() {
   const { userId: myId } = useAuth();
   const { showToast } = useToast();
   const [partner, setPartner] = useState(null);
+  const showPartnerSkeleton = useDelayedLoading(partner === null);
   const [messages, setMessages] = useState(null);
+  const showSkeleton = useDelayedLoading(messages === null);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
@@ -67,7 +69,11 @@ export default function MessageThread() {
         <button className="icon-btn" onClick={() => navigate("/messages")} aria-label={t("message_thread.back_aria")}>
           <ArrowLeft size={17} strokeWidth={2.2} />
         </button>
-        <span className="page-title">{partner ? partner.display_name : "…"}</span>
+        <span className="page-title">
+          {partner ? partner.display_name : showPartnerSkeleton && (
+            <span className="skeleton" style={{ display: "inline-block", width: 100, height: 16, verticalAlign: "middle" }} />
+          )}
+        </span>
         <span style={{ width: 44 }} />
       </div>
 
@@ -75,19 +81,32 @@ export default function MessageThread() {
         display: "flex", flexDirection: "column", gap: 8,
         paddingBottom: "calc(80px + env(safe-area-inset-bottom, 0px))",
       }}>
-        {messages === null && (
-          <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
-            <PawLoader size={48} />
-          </div>
+        {showSkeleton && (
+          <>
+            {[
+              { mine: false, width: "58%" },
+              { mine: true, width: "42%" },
+              { mine: false, width: "68%" },
+              { mine: false, width: "35%" },
+              { mine: true, width: "50%" },
+            ].map((b, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: b.mine ? "flex-end" : "flex-start" }}>
+                <span
+                  className="skeleton"
+                  style={{ width: b.width, height: 36, borderRadius: 16, maxWidth: "78%" }}
+                />
+              </div>
+            ))}
+          </>
         )}
 
-        {messages?.length === 0 && (
+        {!showSkeleton && messages?.length === 0 && (
           <p style={{ fontSize: 13, color: "var(--text-faint)", textAlign: "center", marginTop: 20 }}>
             {t("message_thread.empty")}
           </p>
         )}
 
-        {messages?.map((m) => {
+        {!showSkeleton && messages?.map((m) => {
           const isMine = m.sender.id === myId;
           return (
             <div key={m.id} style={{ display: "flex", justifyContent: isMine ? "flex-end" : "flex-start" }}>
