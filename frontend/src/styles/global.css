@@ -107,7 +107,6 @@ a, button, [role="button"] {
 .post-card:active,
 a.card:active {
   opacity: 0.92;
-  transform: scale(0.985);
 }
 
 .chip:active,
@@ -177,14 +176,15 @@ a {
   transition: box-shadow 0.2s ease, transform 0.2s ease, opacity 0.12s ease;
 }
 
-.card:hover {
-  box-shadow: var(--shadow-card-hover);
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+  }
 }
 
 .card:active {
   opacity: 0.92;
-  transform: scale(0.985);
 }
 
 .card-strong {
@@ -605,9 +605,11 @@ a {
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.block:hover {
-  box-shadow: var(--shadow-card-hover);
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .block:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+  }
 }
 
 .block-header {
