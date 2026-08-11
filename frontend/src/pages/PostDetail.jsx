@@ -6,6 +6,7 @@ import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
 
@@ -86,11 +87,8 @@ export default function PostDetail() {
     load();
   }
 
-  async function handleDelete() {
-    if (!confirmingDelete) {
-      setConfirmingDelete(true);
-      return;
-    }
+  async function confirmDelete() {
+    setConfirmingDelete(false);
     await api.deletePost(id);
     showToast(t("post_detail.deleted_toast"));
     navigate("/");
@@ -199,7 +197,7 @@ export default function PostDetail() {
       <div className="detail-shell">
         <div className="post-card card" style={{ marginBottom: 20 }}>
           {post.photo_url && (
-            <img src={post.photo_url} alt={post.title} className="post-card-photo" />
+            <img src={post.photo_url} alt={post.title} className="post-detail-photo" />
           )}
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
             <span className={`post-badge ${post.type}`}>
@@ -211,6 +209,9 @@ export default function PostDetail() {
                 <ShieldCheck size={11} /> {t("post.staff_badge")}
               </span>
             )}
+            <Link to={`/users/${post.author.id}`} className="post-meta-author" style={{ marginLeft: "auto", fontSize: 13 }}>
+              {post.author.display_name}
+            </Link>
           </div>
           {editing ? (
             <form onSubmit={saveEdit} style={{ marginTop: 4 }}>
@@ -248,9 +249,6 @@ export default function PostDetail() {
               </Suspense>
             </div>
           )}
-          <div className="post-meta">
-            <Link to={`/users/${post.author.id}`} className="post-meta-author">{post.author.display_name}</Link>
-          </div>
 
           <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap", alignItems: "center" }}>
             {isAuthed && !post.is_resolved && (post.type === "lost" || post.type === "found") && (
@@ -271,11 +269,9 @@ export default function PostDetail() {
             {post.author.id === userId && (
               <button
                 className="icon-btn"
-                style={confirmingDelete ? { background: "var(--red-tint)", color: "var(--red)" } : undefined}
-                onClick={handleDelete}
-                onBlur={() => setConfirmingDelete(false)}
-                aria-label={confirmingDelete ? t("post_detail.confirm_delete") : t("post_detail.delete_post")}
-                title={confirmingDelete ? t("post_detail.confirm_delete") : t("post_detail.delete_post")}
+                onClick={() => setConfirmingDelete(true)}
+                aria-label={t("post_detail.delete_post")}
+                title={t("post_detail.delete_post")}
               >
                 <Trash2 size={18} />
               </button>
@@ -432,6 +428,16 @@ export default function PostDetail() {
           </p>
         )}
       </div>
+
+      {confirmingDelete && (
+        <ConfirmDialog
+          title={t("post_detail.confirm_delete_title")}
+          message={t("post_detail.confirm_delete_message")}
+          confirmLabel={t("post_detail.delete_post")}
+          onConfirm={confirmDelete}
+          onCancel={() => setConfirmingDelete(false)}
+        />
+      )}
     </div>
   );
 }

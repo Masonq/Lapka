@@ -265,7 +265,9 @@
     "comments": "Komentari",
     "no_comments": "Još nema komentara — budi prvi",
     "comment_placeholder": "Napiši komentar…",
-    "login_to_comment": "Prijavi se da ostaviš komentar"
+    "login_to_comment": "Prijavi se da ostaviš komentar",
+    "confirm_delete_title": "Obrisati objavu?",
+    "confirm_delete_message": "Ova radnja se ne može poništiti."
   },
   "not_found": {
     "title": "Ova stranica ne postoji",
@@ -770,5 +772,9 @@
     "back_aria": "Nazad",
     "empty_title": "Još je prazno",
     "empty_hint": "Sačuvaj oglase na pijaci da ih brzo pronađeš ovde kasnije"
+  },
+  "confirm_dialog": {
+    "cancel": "Otkaži",
+    "confirm": "Potvrdi"
   }
 }
