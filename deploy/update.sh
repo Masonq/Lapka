@@ -21,13 +21,19 @@ echo "→ Проверяю расхождение nginx-конфига с сер
 # ожидаемо и не является проблемой) — точечная сверка: каждый location-блок
 # из шаблона должен реально присутствовать в активной конфигурации nginx.
 # Именно отсутствие одного такого блока (location /api/ws) вызвало
-# WebSocket-инцидент — этот шаг предупреждает о подобном заранее, а не
-# оставляет расхождение незамеченным до следующего похожего сбоя.
-if command -v nginx >/dev/null 2>&1; then
-    active_conf="$(nginx -T 2>/dev/null)"
+# WebSocket-инцидент — этот шаг предупреждает о подобном заранее.
+#
+# Сверяем именно файл этого сайта (не весь `nginx -T`) — на сервере
+# несколько сайтов в sites-enabled/ (imamesta, pokerzone и т.д.), все они
+# попадают в общий вывод `nginx -T`. Короткие location-пути вроде "= /"
+# могут случайно совпасть с несвязанным кодом другого сайта (например,
+# его собственным "location = /favicon.ico"), давая ложноотрицательный
+# результат — проверка скажет "всё в порядке", хотя блока реально нет.
+SITE_CONF="/etc/nginx/sites-enabled/lapabg.conf"
+if command -v nginx >/dev/null 2>&1 && [ -f "$SITE_CONF" ]; then
     missing=""
     while IFS= read -r loc; do
-        if ! grep -qF "$loc" <<< "$active_conf"; then
+        if ! grep -qF "$loc" "$SITE_CONF"; then
             missing="$missing\n  location $loc"
         fi
     done < <(grep -oP '^\s*location\s+\K[^{]+' deploy/nginx.conf | sed 's/\s*$//')
@@ -35,12 +41,12 @@ if command -v nginx >/dev/null 2>&1; then
     if [ -n "$missing" ]; then
         echo ""
         echo "⚠️  ВНИМАНИЕ: в deploy/nginx.conf есть location-блоки, которых нет"
-        echo "   в активной конфигурации nginx на сервере (deploy НЕ копирует"
+        echo "   в $SITE_CONF (deploy НЕ копирует"
         echo "   nginx.conf автоматически — правки конфига всегда ручные):"
         echo -e "$missing"
         echo ""
         echo "   Если это осознанно — игнорируй. Если нет — сверь"
-        echo "   /etc/nginx/sites-enabled/*.conf с deploy/nginx.conf вручную."
+        echo "   $SITE_CONF с deploy/nginx.conf вручную."
         echo ""
     else
         echo "   Расхождений не найдено"
