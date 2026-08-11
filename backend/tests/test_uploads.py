@@ -86,3 +86,23 @@ def test_wrong_file_type_error_translated_to_serbian(client, register_user):
     )
     assert r.status_code == 400
     assert r.json()["detail"] == "Možeš učitati samo JPEG, PNG ili WebP"
+
+
+def _small_jpeg():
+    img = Image.new("RGB", (10, 10), (100, 100, 100))
+    buf = io.BytesIO()
+    img.save(buf, "JPEG")
+    return buf.getvalue()
+
+
+def test_upload_rate_limit(client, register_user):
+    headers = register_user()
+    statuses = []
+    for _ in range(31):
+        r = client.post(
+            "/api/uploads", files={"file": ("photo.jpg", _small_jpeg(), "image/jpeg")}, headers=headers
+        )
+        statuses.append(r.status_code)
+    # 30 загрузок проходят, 31-я блокируется лимитом (30 за 10 минут на пользователя)
+    assert statuses[:30] == [200] * 30
+    assert statuses[30] == 429

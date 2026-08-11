@@ -108,21 +108,24 @@ def test_register_rate_limited_after_repeated_attempts(client):
     assert statuses == [200, 200, 200, 200, 200, 429]
 
 
-def test_client_ip_prefers_x_forwarded_for(client):
-    # Разные X-Forwarded-For должны считаться разными клиентами для rate limiting —
-    # иначе все пользователи за одним nginx делили бы общий лимит
+def test_client_ip_prefers_x_real_ip(client):
+    # Разные X-Real-IP должны считаться разными клиентами для rate limiting —
+    # иначе все пользователи за одним nginx делили бы общий лимит. X-Real-IP,
+    # не X-Forwarded-For — nginx полностью перезаписывает первый своим
+    # $remote_addr, а второй только добавляет к присланному клиентом значению
+    # ($proxy_add_x_forwarded_for), позволяя подделать и обойти лимит
     for i in range(10):
         client.post(
             "/api/auth/login",
             json={"email": "nobody@example.com", "password": "wrong"},
-            headers={"X-Forwarded-For": "10.0.0.1"},
+            headers={"X-Real-IP": "10.0.0.1"},
         )
 
     # 11-я попытка с того же IP — должна быть заблокирована
     r_blocked = client.post(
         "/api/auth/login",
         json={"email": "nobody@example.com", "password": "wrong"},
-        headers={"X-Forwarded-For": "10.0.0.1"},
+        headers={"X-Real-IP": "10.0.0.1"},
     )
     assert r_blocked.status_code == 429
 
@@ -130,9 +133,36 @@ def test_client_ip_prefers_x_forwarded_for(client):
     r_other_ip = client.post(
         "/api/auth/login",
         json={"email": "nobody@example.com", "password": "wrong"},
-        headers={"X-Forwarded-For": "10.0.0.2"},
+        headers={"X-Real-IP": "10.0.0.2"},
     )
     assert r_other_ip.status_code == 401
+
+
+def test_client_ip_ignores_spoofed_x_forwarded_for(client):
+    # Ключевая регрессия для фикса безопасности: X-Forwarded-For контролируется
+    # клиентом (nginx добавляет реальный IP, не заменяет), значит доверять
+    # ему напрямую для rate limiting нельзя — иначе атакующий обходит лимит,
+    # просто меняя это значение на каждый запрос. Без X-Real-IP используется
+    # request.client.host (все запросы в тестовом клиенте — один и тот же IP),
+    # значит разные поддельные X-Forwarded-For НЕ должны создавать отдельные
+    # "корзины" лимита
+    for i in range(10):
+        client.post(
+            "/api/auth/login",
+            json={"email": "nobody2@example.com", "password": "wrong"},
+            headers={"X-Forwarded-For": f"1.2.3.{i}"},  # каждый раз новое значение
+        )
+
+    # 11-я попытка — с ЕЩЁ одним новым поддельным X-Forwarded-For — раньше это
+    # обошло бы лимит (каждый IP считался новым клиентом), теперь должно
+    # блокироваться, поскольку реальный IP (одинаковый для всех этих запросов)
+    # использован корректно
+    r = client.post(
+        "/api/auth/login",
+        json={"email": "nobody2@example.com", "password": "wrong"},
+        headers={"X-Forwarded-For": "1.2.3.999"},
+    )
+    assert r.status_code == 429
 
 
 def test_change_password(client):

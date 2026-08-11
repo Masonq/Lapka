@@ -7,6 +7,7 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 
 from app.core.security import get_current_user
 from app.core.i18n import get_lang, t
+from app.core.rate_limit import upload_limiter
 from app.models.models import User
 
 router = APIRouter(prefix="/api/uploads", tags=["uploads"])
@@ -22,6 +23,8 @@ ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
 async def upload_image(
     file: UploadFile = File(...), user: User = Depends(get_current_user), lang: str = Depends(get_lang)
 ):
+    upload_limiter.check(user.id)
+
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=400, detail=t("only_jpeg_png_webp", lang))
 

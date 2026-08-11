@@ -14,7 +14,17 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.models.models import User
 
-SECRET_KEY = os.getenv("JWT_SECRET", "change-me-in-production")
+SECRET_KEY = os.getenv("JWT_SECRET")
+if not SECRET_KEY or SECRET_KEY == "change-me-in-production":
+    # Не даём тихо запуститься с публично известным секретом (он виден в этом
+    # же открытом репозитории) — иначе любой сможет подделать JWT-токен для
+    # любого пользователя, включая администратора. Лучше явный сбой при
+    # старте, чем незаметная уязвимость в проде.
+    raise RuntimeError(
+        "JWT_SECRET не задан или равен небезопасному значению по умолчанию. "
+        "Сгенерируй: python3 -c \"import secrets; print(secrets.token_hex(32))\" "
+        "и добавь в .env на сервере."
+    )
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30  # 30 дней
 

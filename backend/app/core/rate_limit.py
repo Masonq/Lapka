@@ -5,11 +5,17 @@ from fastapi import HTTPException, Request
 
 
 def client_ip(request: Request) -> str:
-    """IP клиента с учётом прокси. nginx подставляет реальный IP в X-Forwarded-For
-    (см. deploy/nginx.conf); без него увидели бы только адрес самого nginx."""
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    """IP клиента с учётом прокси. nginx подставляет реальный IP в X-Real-IP
+    (см. deploy/nginx.conf, proxy_set_header X-Real-IP $remote_addr) — этот
+    заголовок nginx ПОЛНОСТЬЮ ПЕРЕЗАПИСЫВАЕТ, не добавляет к присланному
+    клиентом значению. X-Forwarded-For нельзя использовать так же напрямую:
+    nginx добавляет реальный IP через $proxy_add_x_forwarded_for, не заменяет —
+    если клиент сам пришлёт X-Forwarded-For: <подделка>, итоговый заголовок
+    станет "<подделка>, <реальный_IP>", и наивное .split(",")[0] взяло бы
+    именно подделку, позволяя полностью обойти лимиты на login/register."""
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip.strip()
     return request.client.host if request.client else "unknown"
 
 
@@ -72,3 +78,4 @@ event_limiter = RateLimiter(max_actions=5, window_seconds=3600)     # 5 собы
 listing_limiter = RateLimiter(max_actions=10, window_seconds=3600)  # 10 объявлений в час на пользователя
 sighting_limiter = RateLimiter(max_actions=15, window_seconds=3600)  # 15 sighting-репортов в час на пользователя
 story_limiter = RateLimiter(max_actions=10, window_seconds=3600)     # 10 историй в час на пользователя
+upload_limiter = RateLimiter(max_actions=30, window_seconds=600)     # 30 загрузок файлов за 10 минут на пользователя
