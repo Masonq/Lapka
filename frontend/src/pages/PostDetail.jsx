@@ -240,31 +240,32 @@ export default function PostDetail() {
             <Link to={`/users/${post.author.id}`} className="post-meta-author">{post.author.display_name}</Link>
           </div>
 
-          <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap", alignItems: "center" }}>
             {isAuthed && !post.is_resolved && (post.type === "lost" || post.type === "found") && (
-              <button className="btn btn-ghost" onClick={markResolved}>
-                <CheckCircle2 size={16} /> {t("post_detail.mark_resolved")}
+              <button className="icon-btn" onClick={markResolved} aria-label={t("post_detail.mark_resolved")} title={t("post_detail.mark_resolved")}>
+                <CheckCircle2 size={18} />
               </button>
             )}
             {isAuthed && (
-              <button className="btn btn-ghost" onClick={toggleSave}>
-                <Bookmark size={16} fill={post.is_saved ? "currentColor" : "none"} />
-                {post.is_saved ? t("post_detail.saved") : t("post_detail.save_action")}
+              <button className="icon-btn" onClick={toggleSave} aria-label={post.is_saved ? t("post_detail.saved") : t("post_detail.save_action")} title={post.is_saved ? t("post_detail.saved") : t("post_detail.save_action")}>
+                <Bookmark size={18} fill={post.is_saved ? "currentColor" : "none"} style={post.is_saved ? { color: "var(--primary-strong)" } : undefined} />
               </button>
             )}
             {post.author.id === userId && (
-              <button className="btn btn-ghost" onClick={openEdit}>
-                <Pencil size={16} /> {t("post_detail.edit")}
+              <button className="icon-btn" onClick={openEdit} aria-label={t("post_detail.edit")} title={t("post_detail.edit")}>
+                <Pencil size={18} />
               </button>
             )}
             {post.author.id === userId && (
               <button
-                className="btn btn-ghost"
+                className="icon-btn"
                 style={confirmingDelete ? { background: "var(--red-tint)", color: "var(--red)" } : undefined}
                 onClick={handleDelete}
                 onBlur={() => setConfirmingDelete(false)}
+                aria-label={confirmingDelete ? t("post_detail.confirm_delete") : t("post_detail.delete_post")}
+                title={confirmingDelete ? t("post_detail.confirm_delete") : t("post_detail.delete_post")}
               >
-                <Trash2 size={16} /> {confirmingDelete ? t("post_detail.confirm_delete") : t("post_detail.delete_post")}
+                <Trash2 size={18} />
               </button>
             )}
             {isAuthed && post.author.id !== userId && !reported && (
@@ -351,13 +352,22 @@ export default function PostDetail() {
             )}
 
             {sightings.map((s) => (
-              <div key={s.id} className="card" style={{ borderRadius: 16, padding: "10px 14px", marginBottom: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, fontWeight: 700 }}>
-                  <MapPin size={13} /> {s.location}
+              <div key={s.id} className="card" style={{
+                borderRadius: 16, padding: "12px 14px", marginBottom: 8,
+                display: "flex", gap: 10, background: "var(--red-tint)", border: "1px solid transparent",
+              }}>
+                <div style={{
+                  width: 30, height: 30, borderRadius: "50%", background: "var(--red)", color: "#fff",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1,
+                }}>
+                  <MapPin size={15} strokeWidth={2.4} />
                 </div>
-                {s.note && <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>{s.note}</div>}
-                <div style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 4 }}>
-                  {s.reporter.display_name} · {timeAgo(s.created_at)}
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: "var(--red)" }}>{s.location}</div>
+                  {s.note && <div style={{ fontSize: 13, color: "var(--text)", marginTop: 3 }}>{s.note}</div>}
+                  <div style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 4 }}>
+                    {s.reporter.display_name} · {timeAgo(s.created_at)}
+                  </div>
                 </div>
               </div>
             ))}
