@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useTranslation } from "react-i18next";
+import FormattedText from "./FormattedText";
 
 const TYPE_LABELS = {
   lost: "post_type.lost",
@@ -78,9 +79,11 @@ export default function PostCard({ post }) {
         </div>
 
         <h3 className="post-title">{post.title}</h3>
-        <p className="post-body">
-          {post.body.length > 140 ? `${post.body.slice(0, 140)}…` : post.body}
-        </p>
+        <FormattedText
+          as="p"
+          className="post-body"
+          text={post.body.length > 140 ? `${post.body.slice(0, 140)}…` : post.body}
+        />
       </Link>
 
       <div className="post-meta">
