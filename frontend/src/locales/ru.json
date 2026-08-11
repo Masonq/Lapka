@@ -225,7 +225,8 @@
     "new_password_label": "Новый пароль",
     "reset_password_button": "Сбросить пароль",
     "back_to_login": "Назад ко входу",
-    "or_divider": "или"
+    "or_divider": "или",
+    "saved_listings": "Сохранённые объявления"
   },
   "post_detail": {
     "title": "Пост",
@@ -367,7 +368,9 @@
     "join": "Вступить",
     "write_to_community": "Написать в сообщество",
     "community_posts": "Посты сообщества",
-    "empty_posts": "Пока никто не писал сюда — будь первым"
+    "empty_posts": "Пока никто не писал сюда — будь первым",
+    "members_title": "Участники",
+    "show_all_members": "Показать всех ({{count}})"
   },
   "create": {
     "title": "Создать",
@@ -676,7 +679,18 @@
     "communities_title": "Сообщества",
     "no_communities": "Сообществ пока нет",
     "members_suffix": "участников",
-    "delete": "Удалить"
+    "delete": "Удалить",
+    "audit_log_title": "Журнал действий",
+    "no_audit_log": "Пока пусто",
+    "audit_unknown_admin": "Неизвестный админ",
+    "audit_dismiss_report": "отклонил(а) жалобу",
+    "audit_delete_post": "удалил(а) пост",
+    "audit_delete_listing": "удалил(а) объявление",
+    "audit_delete_story": "удалил(а) историю",
+    "audit_delete_community": "удалил(а) сообщество",
+    "audit_set_role": "изменил(а) роль пользователя",
+    "audit_verify_provider": "подтвердил(а) исполнителя",
+    "audit_unverify_provider": "снял(а) подтверждение исполнителя"
   },
   "data_labels": {
     "species_dog": "Собака",
@@ -750,5 +764,11 @@
     "himalayan": "Гималайская",
     "british_longhair": "Британская длинношёрстная",
     "chartreux": "Шартрез"
+  },
+  "saved_listings": {
+    "title": "Сохранённые объявления",
+    "back_aria": "Назад",
+    "empty_title": "Пока пусто",
+    "empty_hint": "Сохраняй объявления на барахолке, чтобы быстро найти их здесь позже"
   }
 }

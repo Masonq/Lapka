@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Plus, MapPin } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import PostCardSkeleton from "../components/PostCardSkeleton";
+import ListingCard from "../components/ListingCard";
 import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ErrorState from "../components/ErrorState";
@@ -16,10 +17,6 @@ const TYPES = [
   { value: "wanted", label: "marketplace.filter_wanted" },
   { value: "give_away", label: "marketplace.filter_give_away" },
 ];
-
-const TYPE_LABELS = {
-  sell: "marketplace.type_sell", wanted: "marketplace.type_wanted", give_away: "marketplace.type_give_away",
-};
 
 export default function Marketplace() {
   const { t } = useTranslation();
@@ -77,22 +74,7 @@ export default function Marketplace() {
       {!showSkeleton && !loadError && listings?.length > 0 && (
         <div className="card-grid">
           {listings.map((l) => (
-            <Link key={l.id} to={`/marketplace/${l.id}`} className="card" style={{ borderRadius: 20, padding: 16, display: "flex", flexDirection: "column", height: "100%" }}>
-              {l.photo_url && (
-                <img src={l.photo_url} alt={l.title} className="post-card-photo" />
-              )}
-              <span className="post-badge" style={{ background: "var(--gray-tint)", color: "var(--text-muted)" }}>
-                {t(TYPE_LABELS[l.type])}
-              </span>
-              <h3 className="post-title" style={{ marginTop: 8 }}>{l.title}</h3>
-              {l.price != null && (
-                <div style={{ fontWeight: 800, fontSize: 16, margin: "4px 0" }}>{t("marketplace.price_din", { price: l.price })}</div>
-              )}
-              <div className="post-meta">
-                {l.city && <span className="post-meta-item" style={{ minWidth: 0 }}><MapPin size={13} /> <span className="post-meta-text" title={l.city}>{l.city}</span></span>}
-                <span className="post-meta-text" style={{ marginLeft: "auto" }} title={l.seller.display_name}>{l.seller.display_name}</span>
-              </div>
-            </Link>
+            <ListingCard key={l.id} listing={l} />
           ))}
         </div>
       )}

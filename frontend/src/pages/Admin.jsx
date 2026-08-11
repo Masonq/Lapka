@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, ShieldAlert, Flag, Trash2, X, BadgeCheck, Wrench, Users } from "lucide-react";
+import { ArrowLeft, ShieldAlert, Flag, Trash2, X, BadgeCheck, Wrench, Users, ScrollText } from "lucide-react";
 import { api } from "../api/client";
 import { useDelayedLoading } from "../useDelayedLoading";
 import { useAuth } from "../AuthContext";
@@ -11,8 +11,19 @@ import PawLoader from "../components/PawLoader";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { useTranslation } from "react-i18next";
 
+const ACTION_LABELS = {
+  dismiss_report: "admin.audit_dismiss_report",
+  delete_post: "admin.audit_delete_post",
+  delete_listing: "admin.audit_delete_listing",
+  delete_story: "admin.audit_delete_story",
+  delete_community: "admin.audit_delete_community",
+  set_role: "admin.audit_set_role",
+  verify_provider: "admin.audit_verify_provider",
+  unverify_provider: "admin.audit_unverify_provider",
+};
+
 export default function Admin() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   useDocumentTitle(t("admin.title"));
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -30,6 +41,8 @@ export default function Admin() {
   const showUsersSkeleton = useDelayedLoading(users === null);
   const [communities, setCommunities] = useState(null);
   const showCommunitiesSkeleton = useDelayedLoading(communities === null);
+  const [auditLog, setAuditLog] = useState(null);
+  const showAuditLogSkeleton = useDelayedLoading(auditLog === null);
   const [userQuery, setUserQuery] = useState("");
 
   useEffect(() => {
@@ -66,6 +79,7 @@ export default function Admin() {
     api.adminReports(false).then(setReports).catch(() => setReports([]));
     api.adminServiceProviders().then(setProviders).catch(() => setProviders([]));
     api.communities().then(setCommunities).catch(() => setCommunities([]));
+    api.adminAuditLog().then(setAuditLog).catch(() => setAuditLog([]));
   }
 
   async function deleteCommunity(id) {
@@ -317,6 +331,30 @@ export default function Admin() {
           <button className="btn" style={{ background: "var(--red-tint)", color: "var(--red)" }} onClick={() => deleteCommunity(c.id)}>
             <Trash2 size={14} /> {t("admin.delete")}
           </button>
+        </div>
+      ))}
+
+      <h3 className="subhead" style={{ margin: "24px 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+        <ScrollText size={16} /> {t("admin.audit_log_title")}
+      </h3>
+
+      {showAuditLogSkeleton && <ListItemSkeleton count={3} />}
+
+      {!showAuditLogSkeleton && auditLog?.length === 0 && (
+        <div className="empty-state" style={{ padding: "24px 20px" }}>{t("admin.no_audit_log")}</div>
+      )}
+
+      {!showAuditLogSkeleton && auditLog?.map((a) => (
+        <div key={a.id} className="card" style={{ borderRadius: 16, padding: 14, marginBottom: 8 }}>
+          <div style={{ fontSize: 13 }}>
+            <b>{a.admin ? a.admin.display_name : t("admin.audit_unknown_admin")}</b>
+            {" — "}
+            {t(ACTION_LABELS[a.action] || a.action)}
+            {a.note ? ` «${a.note}»` : ""}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 2 }}>
+            {new Date(a.created_at).toLocaleString(i18n.language === "sr" ? "sr-Latn-RS" : "ru-RU")}
+          </div>
         </div>
       ))}
     </div>

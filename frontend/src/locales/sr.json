@@ -225,7 +225,8 @@
     "new_password_label": "Nova lozinka",
     "reset_password_button": "Resetuj lozinku",
     "back_to_login": "Nazad na prijavu",
-    "or_divider": "ili"
+    "or_divider": "ili",
+    "saved_listings": "Sačuvani oglasi"
   },
   "post_detail": {
     "title": "Objava",
@@ -367,7 +368,9 @@
     "join": "Pridruži se",
     "write_to_community": "Piši u zajednicu",
     "community_posts": "Objave zajednice",
-    "empty_posts": "Još niko nije pisao ovde — budi prvi"
+    "empty_posts": "Još niko nije pisao ovde — budi prvi",
+    "members_title": "Članovi",
+    "show_all_members": "Prikaži sve ({{count}})"
   },
   "create": {
     "title": "Kreiraj",
@@ -676,7 +679,18 @@
     "communities_title": "Zajednice",
     "no_communities": "Još nema zajednica",
     "members_suffix": "članova",
-    "delete": "Obriši"
+    "delete": "Obriši",
+    "audit_log_title": "Dnevnik radnji",
+    "no_audit_log": "Još je prazno",
+    "audit_unknown_admin": "Nepoznat admin",
+    "audit_dismiss_report": "odbacio(la) je prijavu",
+    "audit_delete_post": "obrisao(la) je objavu",
+    "audit_delete_listing": "obrisao(la) je oglas",
+    "audit_delete_story": "obrisao(la) je priču",
+    "audit_delete_community": "obrisao(la) je zajednicu",
+    "audit_set_role": "promenio(la) je ulogu korisnika",
+    "audit_verify_provider": "potvrdio(la) je pružaoca usluga",
+    "audit_unverify_provider": "uklonio(la) je potvrdu pružaoca usluga"
   },
   "data_labels": {
     "species_dog": "Pas",
@@ -750,5 +764,11 @@
     "himalayan": "Himalajska",
     "british_longhair": "Britanska dugodlaka",
     "chartreux": "Šartro"
+  },
+  "saved_listings": {
+    "title": "Sačuvani oglasi",
+    "back_aria": "Nazad",
+    "empty_title": "Još je prazno",
+    "empty_hint": "Sačuvaj oglase na pijaci da ih brzo pronađeš ovde kasnije"
   }
 }

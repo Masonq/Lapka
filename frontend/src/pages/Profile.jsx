@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, PawPrint, Bookmark, Settings as SettingsIcon, ShieldAlert, ChevronRight } from "lucide-react";
+import { LogOut, PawPrint, Bookmark, ShoppingBag, Settings as SettingsIcon, ShieldAlert, ChevronRight } from "lucide-react";
 import { api } from "../api/client";
 import { useDelayedLoading } from "../useDelayedLoading";
 import { useAuth } from "../AuthContext";
@@ -120,6 +120,21 @@ export default function Profile() {
           </div>
           <div style={{ flex: 1 }}>
             <div className="subhead" style={{ fontSize: 14 }}>{t("profile.saved")}</div>
+          </div>
+          <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
+        </Link>
+
+        <Link to="/saved-listings" className="card" style={{
+          borderRadius: 20, padding: 16, marginBottom: 10, display: "flex", alignItems: "center", gap: 12,
+        }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: "50%", background: "var(--gray-tint)", color: "var(--text-muted)",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            <ShoppingBag size={17} strokeWidth={2.2} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div className="subhead" style={{ fontSize: 14 }}>{t("profile.saved_listings")}</div>
           </div>
           <ChevronRight size={17} style={{ color: "var(--text-faint)" }} />
         </Link>

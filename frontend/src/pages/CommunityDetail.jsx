@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Users, MapPin, UserPlus, UserMinus, PlusCircle } from "lucide-react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, Users, MapPin, UserPlus, UserMinus, PlusCircle, ShieldCheck } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import PostCard from "../components/PostCard";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
+import ListItemSkeleton from "../components/ListItemSkeleton";
 import { useDelayedLoading } from "../useDelayedLoading";
 
 export default function CommunityDetail() {
@@ -21,6 +22,9 @@ export default function CommunityDetail() {
   const showSkeleton = useDelayedLoading(!community);
   const [posts, setPosts] = useState(null);
   const showPostsSkeleton = useDelayedLoading(posts === null);
+  const [members, setMembers] = useState(null);
+  const showMembersSkeleton = useDelayedLoading(members === null);
+  const [showAllMembers, setShowAllMembers] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [busy, setBusy] = useState(false);
   useDocumentTitle(community ? community.name : t("community_detail.title"));
@@ -28,6 +32,7 @@ export default function CommunityDetail() {
   function load() {
     api.community(id).then(setCommunity).catch(() => setNotFound(true));
     api.posts({ community_id: id, limit: 30 }).then(setPosts).catch(() => setPosts([]));
+    api.communityMembers(id).then(setMembers).catch(() => setMembers([]));
   }
 
   useEffect(load, [id]);
@@ -136,6 +141,46 @@ export default function CommunityDetail() {
           >
             <PlusCircle size={16} /> {t("community_detail.write_to_community")}
           </button>
+        )}
+
+        <h3 className="subhead" style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+          <Users size={16} /> {t("community_detail.members_title")} {members?.length > 0 ? `(${members.length})` : ""}
+        </h3>
+
+        {showMembersSkeleton && <ListItemSkeleton count={2} />}
+
+        {!showMembersSkeleton && members?.length > 0 && (
+          <>
+            <div className="card-grid" style={{ marginBottom: (members.length > 12 && !showAllMembers) ? 10 : 20 }}>
+              {(showAllMembers ? members : members.slice(0, 12)).map((m) => (
+                <Link key={m.user.id} to={`/users/${m.user.id}`} className="card" style={{
+                  borderRadius: 16, padding: "10px 14px", display: "flex", alignItems: "center", gap: 10,
+                }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: "50%", background: "var(--primary-tint)", color: "#95491B",
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontWeight: 800, fontSize: 12, overflow: "hidden",
+                  }}>
+                    {m.user.avatar_url ? (
+                      <img src={m.user.avatar_url} alt={m.user.display_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      m.user.display_name[0]?.toUpperCase()
+                    )}
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 700, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {m.user.display_name}
+                  </span>
+                  {m.role === "admin" && (
+                    <ShieldCheck size={14} style={{ color: "var(--primary-strong)", flexShrink: 0, marginLeft: "auto" }} />
+                  )}
+                </Link>
+              ))}
+            </div>
+            {members.length > 12 && !showAllMembers && (
+              <button className="btn btn-ghost btn-block" style={{ marginBottom: 20 }} onClick={() => setShowAllMembers(true)}>
+                {t("community_detail.show_all_members", { count: members.length })}
+              </button>
+            )}
+          </>
         )}
 
         <h3 className="subhead" style={{ marginBottom: 10 }}>{t("community_detail.community_posts")}</h3>

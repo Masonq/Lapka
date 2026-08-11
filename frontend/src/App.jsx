@@ -44,6 +44,7 @@ const PostDetail = lazy(() => import("./pages/PostDetail"));
 const Pets = lazy(() => import("./pages/Pets"));
 const PetProfile = lazy(() => import("./pages/PetProfile"));
 const SavedPosts = lazy(() => import("./pages/SavedPosts"));
+const SavedListings = lazy(() => import("./pages/SavedListings"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Admin = lazy(() => import("./pages/Admin"));
@@ -205,6 +206,7 @@ export default function App() {
           <Route path="/pets" element={<Pets />} />
           <Route path="/pets/:id" element={<PetProfile />} />
           <Route path="/saved" element={<SavedPosts />} />
+          <Route path="/saved-listings" element={<SavedListings />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/admin" element={<Admin />} />
