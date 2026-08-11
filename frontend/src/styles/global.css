@@ -131,6 +131,10 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
+textarea {
+  -webkit-overflow-scrolling: touch;
+}
+
 * {
   box-sizing: border-box;
 }
