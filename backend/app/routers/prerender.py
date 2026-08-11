@@ -15,7 +15,6 @@ SPA как обычно. nginx определяет ботов по User-Agent �
 с автоэкранированием, значит без escape был бы classic stored XSS.
 """
 import html
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse

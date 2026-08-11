@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
@@ -15,7 +15,7 @@ from app.core.ws_manager import manager
 from app.models.models import AuthProvider, EmailVerificationCode, Notification, User
 from app.schemas.schemas import (
     ChangePassword, DeleteAccount, ForgotPassword, LoginEmail, MeOut, RegisterEmail, RequestPasswordChangeCode,
-    ResetPassword, TelegramAuth, Token, UserOut, VerifyRegisterCode
+    ResetPassword, TelegramAuth, Token, VerifyRegisterCode
 )
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
