@@ -146,8 +146,30 @@ export default function ScrollableTextarea({
       touchState.current.active = false;
     }
 
+    function handlePaste(e) {
+      // contenteditable по умолчанию сохраняет форматирование источника
+      // при вставке (цвет фона/текста, шрифт и т.д. из скопированного
+      // HTML) — реальный баг, найденный при вставке текста из другого
+      // приложения: вставленный кусок сохранял голубую подсветку
+      // выделения оригинала. Блокируем родное поведение, вставляем
+      // только чистый текст.
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+      if (!text) return;
+      // Построчная вставка через уже проверенные, надёжные примитивы —
+      // insertText для самого текста, insertLineBreak между строками
+      // (та же команда, что и для Enter выше, там же объяснение, почему
+      // именно она, не ручная Range-манипуляция)
+      const lines = text.split("\n");
+      lines.forEach((line, i) => {
+        if (line) document.execCommand("insertText", false, line);
+        if (i < lines.length - 1) document.execCommand("insertLineBreak");
+      });
+    }
+
     el.addEventListener("input", handleInput);
     el.addEventListener("keydown", handleKeyDown);
+    el.addEventListener("paste", handlePaste);
     // passive:false обязателен — иначе preventDefault в touchmove
     // молча игнорируется браузером (частый источник багов именно в
     // этом классе задач)
@@ -158,6 +180,7 @@ export default function ScrollableTextarea({
     return () => {
       el.removeEventListener("input", handleInput);
       el.removeEventListener("keydown", handleKeyDown);
+      el.removeEventListener("paste", handlePaste);
       el.removeEventListener("touchstart", handleTouchStart);
       el.removeEventListener("touchmove", handleTouchMove);
       el.removeEventListener("touchend", handleTouchEnd);
