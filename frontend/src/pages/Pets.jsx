@@ -3,7 +3,6 @@ import EmptyStateImage from "../components/EmptyStateImage";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, PawPrint, Plus, Trash2 } from "lucide-react";
 import { api } from "../api/client";
-import { useAutoResizeTextarea } from "../useAutoResizeTextarea";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -31,7 +30,6 @@ export default function Pets() {
   const [pets, setPets] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
-  const aboutRef = useAutoResizeTextarea(form.about);
   const [error, setError] = useState("");
 
   function load() {
@@ -159,7 +157,7 @@ export default function Pets() {
           </div>
           <div className="field">
             <label htmlFor="pet-about">{t("pets.about_label")}</label>
-            <textarea id="pet-about" ref={aboutRef} rows={2} value={form.about} onChange={(e) => setForm({ ...form, about: e.target.value })} placeholder={t("pets.about_placeholder")} autoComplete="off" style={{ overflow: "hidden", resize: "none" }} />
+            <textarea id="pet-about" rows={2} value={form.about} onChange={(e) => setForm({ ...form, about: e.target.value })} placeholder={t("pets.about_placeholder")} autoComplete="off" />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
           <button className="btn btn-primary btn-block">{t("pets.save")}</button>

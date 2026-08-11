@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api } from "../api/client";
 import { useToast } from "../ToastContext";
-import { useAutoResizeTextarea } from "../useAutoResizeTextarea";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PhotoPicker from "../components/PhotoPicker";
 import { useTranslation } from "react-i18next";
@@ -33,7 +32,6 @@ export default function NewListing() {
   const [type, setType] = useState("sell");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const descriptionRef = useAutoResizeTextarea(description);
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [city, setCity] = useState("");
@@ -113,7 +111,7 @@ export default function NewListing() {
 
         <div className="field">
           <label htmlFor="listing-description">{t("new_listing.description_label")}</label>
-          <textarea id="listing-description" ref={descriptionRef} rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("new_listing.description_placeholder")} autoComplete="off" style={{ overflow: "hidden", resize: "none" }} />
+          <textarea id="listing-description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("new_listing.description_placeholder")} autoComplete="off" />
         </div>
 
         <div className="field">

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, KeyRound, Trash2, UserX, ShieldCheck, Wrench, Sparkles, Sun, Moon, Languages } from "lucide-react";
 import ListItemSkeleton from "../components/ListItemSkeleton";
-import { useAutoResizeTextarea } from "../useAutoResizeTextarea";
 import { api } from "../api/client";
 import { useDelayedLoading } from "../useDelayedLoading";
 import { useAuth } from "../AuthContext";
@@ -42,7 +41,6 @@ export default function Settings() {
   const [isProvider, setIsProvider] = useState(null);
   const [showProviderForm, setShowProviderForm] = useState(false);
   const [providerForm, setProviderForm] = useState({ service_type: "sitter", description: "", price_from: "", contact: "" });
-  const providerDescriptionRef = useAutoResizeTextarea(providerForm.description);
   const [providerError, setProviderError] = useState("");
   const [submittingProvider, setSubmittingProvider] = useState(false);
 
@@ -273,12 +271,11 @@ export default function Settings() {
             <div className="field">
               <label htmlFor="settings-service-description">{t("settings.description_label")}</label>
               <textarea
-                id="settings-service-description" ref={providerDescriptionRef} rows={3} required
+                id="settings-service-description" rows={3} required
                 value={providerForm.description}
                 onChange={(e) => setProviderForm({ ...providerForm, description: e.target.value })}
                 placeholder={t("settings.description_placeholder")}
                 autoComplete="off"
-                style={{ overflow: "hidden", resize: "none" }}
               />
             </div>
             <div className="field">
