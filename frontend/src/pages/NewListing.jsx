@@ -6,6 +6,7 @@ import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PhotoPicker from "../components/PhotoPicker";
 import { useTranslation } from "react-i18next";
+import ScrollableTextarea from "../components/ScrollableTextarea";
 
 const TYPES = [
   { value: "sell", labelKey: "new_listing.type_sell" },
@@ -111,7 +112,7 @@ export default function NewListing() {
 
         <div className="field">
           <label htmlFor="listing-description">{t("new_listing.description_label")}</label>
-          <textarea id="listing-description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("new_listing.description_placeholder")} autoComplete="off" />
+          <ScrollableTextarea id="listing-description" height={90} value={description} onChange={setDescription} placeholder={t("new_listing.description_placeholder")} />
         </div>
 
         <div className="field">

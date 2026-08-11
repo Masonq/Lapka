@@ -8,6 +8,7 @@ import { useAuth } from "../AuthContext";
 import { useTheme } from "../ThemeContext";
 import { useTranslation } from "react-i18next";
 import { setLanguage } from "../i18n";
+import ScrollableTextarea from "../components/ScrollableTextarea";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 
@@ -270,12 +271,11 @@ export default function Settings() {
             </div>
             <div className="field">
               <label htmlFor="settings-service-description">{t("settings.description_label")}</label>
-              <textarea
-                id="settings-service-description" rows={3} required
+              <ScrollableTextarea
+                id="settings-service-description" height={90}
                 value={providerForm.description}
-                onChange={(e) => setProviderForm({ ...providerForm, description: e.target.value })}
+                onChange={(v) => setProviderForm({ ...providerForm, description: v })}
                 placeholder={t("settings.description_placeholder")}
-                autoComplete="off"
               />
             </div>
             <div className="field">

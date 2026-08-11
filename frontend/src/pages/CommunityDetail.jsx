@@ -7,6 +7,7 @@ import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useTranslation } from "react-i18next";
 import PostCard from "../components/PostCard";
+import ScrollableTextarea from "../components/ScrollableTextarea";
 import PostCardSkeleton from "../components/PostCardSkeleton";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import ListItemSkeleton from "../components/ListItemSkeleton";
@@ -129,7 +130,7 @@ export default function CommunityDetail() {
               </div>
               <div className="field">
                 <label htmlFor="community-edit-description">{t("communities.description_label")}</label>
-                <textarea id="community-edit-description" rows={3} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} autoComplete="off" />
+                <ScrollableTextarea id="community-edit-description" height={90} value={editDescription} onChange={setEditDescription} />
               </div>
               <div className="field">
                 <label htmlFor="community-edit-city">{t("communities.city_label")}</label>

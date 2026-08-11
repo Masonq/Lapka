@@ -8,6 +8,7 @@ import { useDocumentTitle } from "../useDocumentTitle";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
+import ScrollableTextarea from "../components/ScrollableTextarea";
 
 const TYPE_LABELS = { sell: "marketplace.type_sell", wanted: "marketplace.type_wanted", give_away: "marketplace.filter_give_away" };
 
@@ -184,16 +185,12 @@ export default function ListingDetail() {
 
           {showReportForm && (
             <form onSubmit={submitReport} style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
-              <textarea
-                rows={2}
+              <ScrollableTextarea
+                height={60}
                 value={reportReason}
-                onChange={(e) => setReportReason(e.target.value)}
+                onChange={setReportReason}
                 placeholder={t("listing_detail.report_placeholder")}
-                autoComplete="off"
-                style={{
-                  width: "100%", border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", color: "var(--text)",
-                  padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
-                }}
+                style={{ width: "100%", marginBottom: 8 }}
               />
               <div style={{ display: "flex", gap: 8 }}>
                 <button className="btn btn-primary">{t("listing_detail.send_report")}</button>

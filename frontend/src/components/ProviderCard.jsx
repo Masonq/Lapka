@@ -5,6 +5,7 @@ import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
 import { useTranslation } from "react-i18next";
+import ScrollableTextarea from "./ScrollableTextarea";
 
 // Переиспользую те же ключи, что уже есть у типов услуг в Settings.jsx —
 // один и тот же смысл (Ситтер/Передержка/Кинолог/Ветеринар/Грумер), не дублирую
@@ -160,16 +161,12 @@ export default function ProviderCard({ provider, onReviewed }) {
                   </button>
                 ))}
               </div>
-              <textarea
-                rows={2}
+              <ScrollableTextarea
+                height={60}
                 value={body}
-                onChange={(e) => setBody(e.target.value)}
+                onChange={setBody}
                 placeholder={t("provider_card.review_placeholder")}
-                autoComplete="off"
-                style={{
-                  width: "100%", border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", color: "var(--text)",
-                  padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
-                }}
+                style={{ width: "100%", marginBottom: 8 }}
               />
               <div style={{ display: "flex", gap: 8 }}>
                 <button className="btn btn-primary" disabled={submitting}>

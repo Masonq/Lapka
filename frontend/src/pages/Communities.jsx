@@ -8,6 +8,7 @@ import ErrorState from "../components/ErrorState";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
+import ScrollableTextarea from "../components/ScrollableTextarea";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useSearchContext } from "../SearchContext";
 import { pluralize } from "../pluralize";
@@ -91,13 +92,12 @@ export default function Communities() {
           </div>
           <div className="field">
             <label htmlFor="community-description">{t("communities.description_label")}</label>
-            <textarea
+            <ScrollableTextarea
               id="community-description"
-              rows={3}
+              height={90}
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(v) => setForm({ ...form, description: v })}
               placeholder={t("communities.description_placeholder")}
-              autoComplete="off"
             />
           </div>
           <div className="field">

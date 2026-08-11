@@ -190,7 +190,7 @@ class CommentOut(BaseModel):
 
 class ServiceProviderCreate(BaseModel):
     service_type: str
-    description: str = Field(..., max_length=1000)
+    description: str = Field(..., min_length=1, max_length=1000)
     price_from: Optional[int] = Field(None, ge=0, le=1_000_000)
     contact: Optional[str] = Field(None, max_length=200)
 

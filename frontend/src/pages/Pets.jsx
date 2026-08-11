@@ -8,6 +8,7 @@ import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import PhotoPicker from "../components/PhotoPicker";
 import { useTranslation } from "react-i18next";
+import ScrollableTextarea from "../components/ScrollableTextarea";
 import { translateSpecies, translateGender, translateActivity } from "../dataLabels";
 import { translateBreed } from "../breeds";
 import BreedPicker from "../components/BreedPicker";
@@ -157,7 +158,7 @@ export default function Pets() {
           </div>
           <div className="field">
             <label htmlFor="pet-about">{t("pets.about_label")}</label>
-            <textarea id="pet-about" rows={2} value={form.about} onChange={(e) => setForm({ ...form, about: e.target.value })} placeholder={t("pets.about_placeholder")} autoComplete="off" />
+            <ScrollableTextarea id="pet-about" height={60} value={form.about} onChange={(v) => setForm({ ...form, about: v })} placeholder={t("pets.about_placeholder")} />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
           <button className="btn btn-primary btn-block">{t("pets.save")}</button>
