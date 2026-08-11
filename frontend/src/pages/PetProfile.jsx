@@ -216,6 +216,7 @@ export default function PetProfile() {
                     onChange={(e) => setHealthForm({ ...healthForm, title: e.target.value })}
                     required
                     placeholder={healthForm.category === "weight" ? t("pet_profile.record_name_placeholder_weight") : t("pet_profile.record_name_placeholder_default")}
+                    autoComplete="off"
                   />
                 </div>
                 {healthForm.category === "weight" && (
@@ -228,6 +229,7 @@ export default function PetProfile() {
                       min="0"
                       value={healthForm.value}
                       onChange={(e) => setHealthForm({ ...healthForm, value: e.target.value })}
+                      autoComplete="off"
                     />
                   </div>
                 )}
@@ -239,6 +241,7 @@ export default function PetProfile() {
                     value={healthForm.date}
                     onChange={(e) => setHealthForm({ ...healthForm, date: e.target.value })}
                     required
+                    autoComplete="off"
                   />
                 </div>
                 {(healthForm.category === "vaccination" || healthForm.category === "parasite") && (
@@ -249,6 +252,7 @@ export default function PetProfile() {
                       type="date"
                       value={healthForm.next_due_date}
                       onChange={(e) => setHealthForm({ ...healthForm, next_due_date: e.target.value })}
+                      autoComplete="off"
                     />
                   </div>
                 )}

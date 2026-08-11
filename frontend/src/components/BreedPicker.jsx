@@ -65,6 +65,7 @@ export default function BreedPicker({ species, value, onChange }) {
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        autoComplete="off"
         placeholder={t("pets.breed_placeholder")}
       />
     );

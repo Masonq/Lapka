@@ -96,7 +96,7 @@ export default function Pets() {
           />
           <div className="field">
             <label htmlFor="pet-name">{t("pets.name_label")}</label>
-            <input id="pet-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder={t("pets.name_placeholder")} />
+            <input id="pet-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder={t("pets.name_placeholder")} autoComplete="off" />
           </div>
           <div className="field">
             <label id="pet-species-label">{t("pets.species_label")}</label>
@@ -134,11 +134,11 @@ export default function Pets() {
           </div>
           <div className="field">
             <label htmlFor="pet-age">{t("pets.age_label")}</label>
-            <input id="pet-age" type="number" min="0" value={form.age_years} onChange={(e) => setForm({ ...form, age_years: e.target.value })} placeholder={t("pets.optional_placeholder")} />
+            <input id="pet-age" type="number" min="0" value={form.age_years} onChange={(e) => setForm({ ...form, age_years: e.target.value })} placeholder={t("pets.optional_placeholder")} autoComplete="off" />
           </div>
           <div className="field">
             <label htmlFor="pet-city">{t("pets.city_label")}</label>
-            <input id="pet-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder={t("pets.optional_placeholder")} />
+            <input id="pet-city" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder={t("pets.optional_placeholder")} autoComplete="off" />
           </div>
           <div className="field">
             <label id="pet-activity-label">{t("pets.activity_label")}</label>
@@ -157,7 +157,7 @@ export default function Pets() {
           </div>
           <div className="field">
             <label htmlFor="pet-about">{t("pets.about_label")}</label>
-            <textarea id="pet-about" rows={2} value={form.about} onChange={(e) => setForm({ ...form, about: e.target.value })} placeholder={t("pets.about_placeholder")} />
+            <textarea id="pet-about" rows={2} value={form.about} onChange={(e) => setForm({ ...form, about: e.target.value })} placeholder={t("pets.about_placeholder")} autoComplete="off" />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
           <button className="btn btn-primary btn-block">{t("pets.save")}</button>

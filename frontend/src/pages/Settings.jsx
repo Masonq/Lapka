@@ -275,6 +275,7 @@ export default function Settings() {
                 value={providerForm.description}
                 onChange={(e) => setProviderForm({ ...providerForm, description: e.target.value })}
                 placeholder={t("settings.description_placeholder")}
+                autoComplete="off"
               />
             </div>
             <div className="field">
@@ -284,6 +285,7 @@ export default function Settings() {
                 value={providerForm.price_from}
                 onChange={(e) => setProviderForm({ ...providerForm, price_from: e.target.value })}
                 placeholder="800"
+                autoComplete="off"
               />
             </div>
             <div className="field">
@@ -293,6 +295,7 @@ export default function Settings() {
                 value={providerForm.contact}
                 onChange={(e) => setProviderForm({ ...providerForm, contact: e.target.value })}
                 placeholder={t("settings.contact_placeholder")}
+                autoComplete="off"
               />
             </div>
             {providerError && <p style={{ color: "var(--red)", fontSize: 13 }}>{providerError}</p>}
@@ -348,6 +351,7 @@ export default function Settings() {
                   inputMode="numeric"
                   maxLength={6}
                   placeholder="123456"
+                  autoComplete="off"
                   style={{ fontSize: 18, letterSpacing: 3, textAlign: "center" }}
                 />
               </div>

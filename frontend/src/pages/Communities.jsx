@@ -86,6 +86,7 @@ export default function Communities() {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
               placeholder={t("communities.name_placeholder")}
+              autoComplete="off"
             />
           </div>
           <div className="field">
@@ -96,6 +97,7 @@ export default function Communities() {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder={t("communities.description_placeholder")}
+              autoComplete="off"
             />
           </div>
           <div className="field">
@@ -105,6 +107,7 @@ export default function Communities() {
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
               placeholder={t("communities.city_placeholder")}
+              autoComplete="off"
             />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}

@@ -145,6 +145,7 @@ export default function NewPost() {
             required
             maxLength={200}
             placeholder={t("new_post.title_placeholder")}
+            autoComplete="off"
           />
         </div>
 
@@ -157,13 +158,14 @@ export default function NewPost() {
             onChange={(e) => setBody(e.target.value)}
             required
             placeholder={t("new_post.description_placeholder")}
+            autoComplete="off"
           />
         </div>
 
         {needsLocation && (
           <div className="field">
             <label htmlFor="post-location">{t("new_post.location_label")}</label>
-            <input id="post-location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder={t("new_post.location_placeholder")} />
+            <input id="post-location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder={t("new_post.location_placeholder")} autoComplete="off" />
             <button
               type="button"
               onClick={useMyLocation}

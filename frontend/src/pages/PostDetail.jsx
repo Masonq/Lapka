@@ -211,11 +211,11 @@ export default function PostDetail() {
             <form onSubmit={saveEdit} style={{ marginTop: 4 }}>
               <div className="field">
                 <label htmlFor="edit-title">{t("post_detail.title_label")}</label>
-                <input id="edit-title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} required maxLength={200} />
+                <input id="edit-title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} required maxLength={200} autoComplete="off" />
               </div>
               <div className="field">
                 <label htmlFor="edit-body">{t("post_detail.description_label")}</label>
-                <textarea id="edit-body" rows={5} value={editBody} onChange={(e) => setEditBody(e.target.value)} required />
+                <textarea id="edit-body" rows={5} value={editBody} onChange={(e) => setEditBody(e.target.value)} required autoComplete="off" />
               </div>
               {editError && <p style={{ color: "var(--red)", fontSize: 13 }}>{editError}</p>}
               <div style={{ display: "flex", gap: 8 }}>
@@ -286,6 +286,7 @@ export default function PostDetail() {
                 value={reportReason}
                 onChange={(e) => setReportReason(e.target.value)}
                 placeholder={t("post_detail.report_placeholder")}
+                autoComplete="off"
                 style={{
                   width: "100%", border: "1px solid var(--border)", borderRadius: 12,
                   padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
@@ -322,6 +323,7 @@ export default function PostDetail() {
                     onChange={(e) => setSightingLocation(e.target.value)}
                     required
                     placeholder={t("post_detail.where_seen_placeholder")}
+                    autoComplete="off"
                   />
                 </div>
                 <div className="field">
@@ -332,6 +334,7 @@ export default function PostDetail() {
                     value={sightingNote}
                     onChange={(e) => setSightingNote(e.target.value)}
                     placeholder={t("post_detail.details_placeholder")}
+                    autoComplete="off"
                   />
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
@@ -395,6 +398,7 @@ export default function PostDetail() {
                 padding: "10px 16px", fontSize: 16, background: "var(--surface)",
               }}
               placeholder={t("post_detail.comment_placeholder")}
+              autoComplete="off"
               value={text}
               onChange={(e) => setText(e.target.value)}
             />

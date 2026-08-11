@@ -241,6 +241,7 @@ export default function Profile() {
             <input
               id="auth-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
               required inputMode="numeric" pattern="\d{6}" maxLength={6} placeholder="123456"
+              autoComplete="off"
               style={{ fontSize: 20, letterSpacing: 4, textAlign: "center" }}
             />
           </div>
@@ -280,6 +281,7 @@ export default function Profile() {
             <input
               id="reset-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
               required inputMode="numeric" pattern="\d{6}" maxLength={6} placeholder="123456"
+              autoComplete="off"
               style={{ fontSize: 20, letterSpacing: 4, textAlign: "center" }}
             />
           </div>

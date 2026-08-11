@@ -165,6 +165,7 @@ export default function ProviderCard({ provider, onReviewed }) {
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder={t("provider_card.review_placeholder")}
+                autoComplete="off"
                 style={{
                   width: "100%", border: "1px solid var(--border)", borderRadius: 12,
                   padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",

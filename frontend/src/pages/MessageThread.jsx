@@ -118,6 +118,7 @@ export default function MessageThread() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={t("message_thread.placeholder")}
+          autoComplete="off"
           style={{
             flex: 1, border: "1px solid var(--border)", borderRadius: 999, padding: "12px 18px",
             fontSize: 16, background: "var(--surface)", boxShadow: "var(--shadow-card)",

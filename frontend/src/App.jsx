@@ -5,6 +5,30 @@ import ScrollToTop from "./ScrollToTop";
 import { useSearchContext } from "./SearchContext";
 import OnboardingModal from "./components/OnboardingModal";
 import TabBar from "./components/TabBar";
+
+/**
+ * Suspense-фолбэк с задержкой — раньше спиннер появлялся мгновенно при
+ * любой, даже незаметно короткой, загрузке JS-чанка страницы, что выглядело
+ * как лишнее мигание (та же причина, что и у задержки скелетов). React сам
+ * корректно убирает Suspense-фолбэк, как только реальный контент готов —
+ * риска "застревания" в отличие от обычных скелетов нет, поэтому здесь
+ * достаточно простой задержки перед показом, без сложной логики
+ * минимального времени показа.
+ */
+function DelayedSuspenseFallback() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
+  if (!show) return null;
+  return (
+    <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
+      <Loader2 size={28} className="spin" style={{ color: "var(--text-faint)" }} />
+    </div>
+  );
+}
+
 // Feed — единственная страница с обычным (не ленивым) импортом: это то, что
 // видит почти каждый пользователь на самом первом экране, лениво грузить её
 // означало бы добавить мигание загрузки на самый частый сценарий из всех.
@@ -169,13 +193,7 @@ export default function App() {
         </div>
       )}
 
-      <Suspense
-        fallback={
-          <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
-            <Loader2 size={28} className="spin" style={{ color: "var(--text-faint)" }} />
-          </div>
-        }
-      >
+      <Suspense fallback={<DelayedSuspenseFallback />}>
         <div key={location.pathname} className="page-transition">
         <Routes>
           <Route path="/" element={<Feed />} />

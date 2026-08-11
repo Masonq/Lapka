@@ -88,13 +88,13 @@ export default function NewListing() {
 
         <div className="field">
           <label htmlFor="listing-title">{t("new_listing.name_label")}</label>
-          <input id="listing-title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder={t("new_listing.name_placeholder")} />
+          <input id="listing-title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder={t("new_listing.name_placeholder")} autoComplete="off" />
         </div>
 
         {type === "sell" && (
           <div className="field">
             <label htmlFor="listing-price">{t("new_listing.price_label")}</label>
-            <input id="listing-price" type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} required />
+            <input id="listing-price" type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} required autoComplete="off" />
           </div>
         )}
 
@@ -111,12 +111,12 @@ export default function NewListing() {
 
         <div className="field">
           <label htmlFor="listing-description">{t("new_listing.description_label")}</label>
-          <textarea id="listing-description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("new_listing.description_placeholder")} />
+          <textarea id="listing-description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("new_listing.description_placeholder")} autoComplete="off" />
         </div>
 
         <div className="field">
           <label htmlFor="listing-city">{t("new_listing.city_label")}</label>
-          <input id="listing-city" value={city} onChange={(e) => setCity(e.target.value)} placeholder={t("new_listing.city_placeholder")} />
+          <input id="listing-city" value={city} onChange={(e) => setCity(e.target.value)} placeholder={t("new_listing.city_placeholder")} autoComplete="off" />
         </div>
 
         {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}

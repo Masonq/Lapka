@@ -109,6 +109,7 @@ export default function Events() {
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               required
               placeholder={t("events.name_placeholder")}
+              autoComplete="off"
             />
           </div>
           <div className="field">
@@ -128,6 +129,7 @@ export default function Events() {
               value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })}
               placeholder={t("events.location_placeholder")}
+              autoComplete="off"
             />
           </div>
           {form.type === "walk" && myPets.length > 0 && (
@@ -156,6 +158,7 @@ export default function Events() {
               value={form.capacity}
               onChange={(e) => setForm({ ...form, capacity: e.target.value })}
               placeholder={t("events.capacity_placeholder")}
+              autoComplete="off"
             />
           </div>
           {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
