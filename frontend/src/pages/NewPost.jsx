@@ -157,6 +157,7 @@ export default function NewPost() {
             value={body}
             onChange={setBody}
             placeholder={t("new_post.description_placeholder")}
+            height={170}
           />
         </div>
 
