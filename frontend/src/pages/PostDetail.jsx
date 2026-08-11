@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag, Eye, Plus, ShieldCheck, Pencil } from "lucide-react";
 import { api } from "../api/client";
@@ -8,6 +8,11 @@ import { useDocumentTitle } from "../useDocumentTitle";
 import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
+
+// Ленивая загрузка — тянет react-leaflet/leaflet (тяжёлые библиотеки),
+// не должны попадать в основной чанк страницы поста, которую открывают
+// гораздо чаще, чем у постов реально есть отметка на карте
+const PostLocationMap = lazy(() => import("../components/PostLocationMap"));
 
 const TYPE_LABELS = {
   lost: "post_type.lost",
@@ -234,6 +239,13 @@ export default function PostDetail() {
           {post.last_seen_location && (
             <div className="post-meta" style={{ marginBottom: 8 }}>
               <span className="post-meta-item"><MapPin size={13} /> {post.last_seen_location}</span>
+            </div>
+          )}
+          {post.last_seen_lat != null && post.last_seen_lng != null && (
+            <div style={{ marginBottom: 12 }}>
+              <Suspense fallback={<div style={{ height: 180, borderRadius: 16 }} className="skeleton" />}>
+                <PostLocationMap lat={post.last_seen_lat} lng={post.last_seen_lng} type={post.type} />
+              </Suspense>
             </div>
           )}
           <div className="post-meta">
