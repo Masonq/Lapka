@@ -22,7 +22,7 @@ const ICONS = {
 
 export default function PostLocationMap({ lat, lng, type }) {
   return (
-    <div style={{ height: 180, borderRadius: 16, overflow: "hidden", border: "1px solid var(--border)" }}>
+    <div className="post-location-map" style={{ height: 180, borderRadius: 16, overflow: "hidden", border: "1px solid var(--border)" }}>
       <MapContainer
         center={[lat, lng]}
         zoom={14}
