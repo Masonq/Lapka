@@ -9,6 +9,7 @@ import DetailCardSkeleton from "../components/DetailCardSkeleton";
 import ConfirmDialog from "../components/ConfirmDialog";
 import PostReactions from "../components/PostReactions";
 import FormattedText from "../components/FormattedText";
+import ScrollableTextarea from "../components/ScrollableTextarea";
 import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
 
@@ -241,7 +242,7 @@ export default function PostDetail() {
               </div>
               <div className="field">
                 <label htmlFor="edit-body">{t("post_detail.description_label")}</label>
-                <textarea id="edit-body" rows={5} value={editBody} onChange={(e) => setEditBody(e.target.value)} required autoComplete="off" />
+                <ScrollableTextarea id="edit-body" value={editBody} onChange={setEditBody} height={170} />
               </div>
               {editError && <p style={{ color: "var(--red)", fontSize: 13 }}>{editError}</p>}
               <div style={{ display: "flex", gap: 8 }}>
