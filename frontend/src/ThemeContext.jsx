@@ -9,7 +9,7 @@ function getInitialTheme() {
 }
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState(getInitialTheme);
+  const [theme] = useState(getInitialTheme);
 
   useEffect(() => {
     if (theme === "dark") {

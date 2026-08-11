@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, CalendarDays, ShoppingBag, Heart, ChevronRight, PawPrint, Map } from "lucide-react";
 import { api } from "../api/client";
-import { useAuth } from "../AuthContext";
 import ServiceCardSkeleton from "../components/ServiceCardSkeleton";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { useDelayedLoading } from "../useDelayedLoading";
 import EmptyStateImage from "../components/EmptyStateImage";
 import ProviderCard from "../components/ProviderCard";
+import ErrorState from "../components/ErrorState";
 import PostCard from "../components/PostCard";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useSearchContext } from "../SearchContext";
@@ -36,7 +36,6 @@ const SEARCH_TABS = [
 export default function Explore() {
   const { t } = useTranslation();
   useDocumentTitle(t("explore.title"));
-  const { isAuthed } = useAuth();
   const { setSearchConfig } = useSearchContext();
 
   const [query, setQuery] = useState("");
@@ -52,8 +51,8 @@ export default function Explore() {
   const [servicesError, setServicesError] = useState(false);
 
   const [communities, setCommunities] = useState(null);
-  const showCommunitiesSkeleton = useDelayedLoading(communities === null);
   const [communitiesError, setCommunitiesError] = useState(false);
+  const showCommunitiesSkeleton = useDelayedLoading(communities === null && !communitiesError);
 
   function loadCommunities() {
     setCommunitiesError(false);
@@ -93,9 +92,10 @@ export default function Explore() {
 
   function loadServices() {
     setLoadingServices(true);
+    setServicesError(false);
     api.services(serviceFilter ? { type: serviceFilter } : {})
       .then(setProviders)
-      .catch(() => setProviders([]))
+      .catch(() => setServicesError(true))
       .finally(() => setLoadingServices(false));
   }
 
@@ -319,7 +319,11 @@ export default function Explore() {
 
           {showCommunitiesSkeleton && <ListItemSkeleton count={2} />}
 
-          {!showCommunitiesSkeleton && communities?.length > 0 && (
+          {!showCommunitiesSkeleton && communitiesError && (
+            <ErrorState onRetry={loadCommunities} />
+          )}
+
+          {!showCommunitiesSkeleton && !communitiesError && communities?.length > 0 && (
             <div className="card-grid" style={{ marginBottom: 24 }}>
                 {communities.map((c) => (
                   <Link key={c.id} to={`/communities/${c.id}`} className="card" style={{
@@ -361,13 +365,17 @@ export default function Explore() {
             </div>
           )}
 
-          {!showServicesSkeleton && providers.length === 0 && (
+          {!showServicesSkeleton && servicesError && (
+            <ErrorState onRetry={loadServices} />
+          )}
+
+          {!showServicesSkeleton && !servicesError && providers.length === 0 && (
             <div className="empty-state" style={{ padding: "24px 20px" }}>
               {t("explore.no_providers")}
             </div>
           )}
 
-          {!showServicesSkeleton && providers.length > 0 && (
+          {!showServicesSkeleton && !servicesError && providers.length > 0 && (
             <div className="card-grid" style={{ marginBottom: 24 }}>
               {providers.map((p) => <ProviderCard key={p.id} provider={p} onReviewed={loadServices} />)}
             </div>
