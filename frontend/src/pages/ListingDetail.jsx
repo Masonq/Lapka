@@ -191,7 +191,7 @@ export default function ListingDetail() {
                 placeholder={t("listing_detail.report_placeholder")}
                 autoComplete="off"
                 style={{
-                  width: "100%", border: "1px solid var(--border)", borderRadius: 12,
+                  width: "100%", border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", color: "var(--text)",
                   padding: "8px 12px", fontSize: 16, fontFamily: "var(--font-body)", marginBottom: 8, resize: "vertical",
                 }}
               />

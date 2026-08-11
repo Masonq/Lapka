@@ -140,7 +140,7 @@ export default function MessageThread() {
           autoComplete="off"
           style={{
             flex: 1, border: "1px solid var(--border)", borderRadius: 999, padding: "12px 18px",
-            fontSize: 16, background: "var(--surface)", boxShadow: "var(--shadow-card)",
+            fontSize: 16, background: "var(--surface)", color: "var(--text)", boxShadow: "var(--shadow-card)",
           }}
         />
         <button className="btn btn-primary" disabled={sending} aria-label={t("message_thread.send_aria")} style={{ padding: "0 16px" }}>
