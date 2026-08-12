@@ -20,6 +20,12 @@ const ACTION_LABELS = {
   unverify_provider: "admin.audit_unverify_provider",
 };
 
+const ROLE_LABELS = {
+  user: "admin.role_user",
+  editor: "admin.role_editor",
+  moderator: "admin.role_moderator",
+};
+
 export default function AdminAuditLog() {
   const { t, i18n } = useTranslation();
   useDocumentTitle(t("admin.audit_log_title"));
@@ -58,7 +64,7 @@ export default function AdminAuditLog() {
               <b>{a.admin ? a.admin.display_name : t("admin.audit_unknown_admin")}</b>
               {" — "}
               {t(ACTION_LABELS[a.action] || a.action)}
-              {a.note ? ` «${a.note}»` : ""}
+              {a.note ? ` «${a.action === "set_role" ? t(ROLE_LABELS[a.note] || a.note) : a.note}»` : ""}
             </div>
             <div style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 2 }}>
               {new Date(a.created_at).toLocaleString(i18n.language === "sr" ? "sr-Latn-RS" : "ru-RU")}

@@ -689,6 +689,8 @@
     "role_moderator": "Moderator",
     "role_moderator_badge": "moderator",
     "role_editor_badge": "urednik",
+    "service_provider_badge": "pružalac usluga",
+    "registered_on": "Registracija:",
     "communities_title": "Zajednice",
     "no_communities": "Još nema zajednica",
     "members_suffix": "članova",

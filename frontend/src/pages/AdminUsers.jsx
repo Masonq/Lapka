@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Users } from "lucide-react";
+import { ArrowLeft, Users, Wrench } from "lucide-react";
 import { api } from "../api/client";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
@@ -12,7 +12,7 @@ import { useDelayedLoading } from "../useDelayedLoading";
 import { useTranslation } from "react-i18next";
 
 export default function AdminUsers() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   useDocumentTitle(t("admin.users_title"));
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -77,9 +77,17 @@ export default function AdminUsers() {
                 {!u.is_admin && u.role && u.role !== "user" && (
                   <span className="badge badge-primary badge-sm">{u.role === "moderator" ? t("admin.role_moderator_badge") : t("admin.role_editor_badge")}</span>
                 )}
+                {u.is_service_provider && (
+                  <span className="badge badge-sm" style={{ background: "var(--green-tint)", color: "var(--green-strong)" }}>
+                    <Wrench size={10} /> {t("admin.service_provider_badge")}
+                  </span>
+                )}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
                 {u.email || t("admin.telegram_label")} · {u.city} · {u.posts_count} {t("admin.posts_count_suffix")} · {u.pets_count} {t("admin.pets_count_suffix")}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 1 }}>
+                {t("admin.registered_on")} {new Date(u.created_at).toLocaleDateString(i18n.language === "sr" ? "sr-Latn-RS" : "ru-RU")}
               </div>
             </div>
             {!u.is_admin && (

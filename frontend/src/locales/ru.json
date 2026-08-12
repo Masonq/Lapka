@@ -689,6 +689,8 @@
     "role_moderator": "Модератор",
     "role_moderator_badge": "модератор",
     "role_editor_badge": "редактор",
+    "service_provider_badge": "исполнитель",
+    "registered_on": "Регистрация:",
     "communities_title": "Сообщества",
     "no_communities": "Сообществ пока нет",
     "members_suffix": "участников",
