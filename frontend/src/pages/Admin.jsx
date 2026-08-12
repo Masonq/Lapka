@@ -296,7 +296,8 @@ export default function Admin() {
               onChange={(e) => changeRole(u.id, e.target.value)}
               style={{
                 border: "1px solid var(--border)", borderRadius: 10, padding: "6px 8px",
-                fontSize: 12, fontFamily: "var(--font-body)", background: "var(--surface)", flexShrink: 0,
+                fontSize: 12, fontFamily: "var(--font-body)", background: "var(--surface)",
+                color: "var(--text)", flexShrink: 0,
               }}
               aria-label={t("admin.role_aria", { name: u.display_name })}
             >
