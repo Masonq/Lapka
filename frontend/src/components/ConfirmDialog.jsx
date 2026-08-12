@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
  * тап по тому же месту экрана (где была исходная кнопка) попадает в
  * оверлей, не в кнопку подтверждения.
  */
-export default function ConfirmDialog({ title, message, confirmLabel, danger = true, onConfirm, onCancel }) {
+export default function ConfirmDialog({ title, message, confirmLabel, danger = true, onConfirm, onCancel, children }) {
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -38,6 +38,7 @@ export default function ConfirmDialog({ title, message, confirmLabel, danger = t
       >
         <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 6 }}>{title}</div>
         {message && <div style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 18 }}>{message}</div>}
+        {children}
         <div style={{ display: "flex", gap: 8 }}>
           <button className="btn btn-ghost" style={{ flex: 1 }} onClick={onCancel}>
             {t("confirm_dialog.cancel")}

@@ -190,6 +190,7 @@ export const api = {
     return request(`/admin/users${qs ? `?${qs}` : ""}`, { auth: true });
   },
   adminSetUserRole: (id, role) => request(`/admin/users/${id}/role`, { method: "PATCH", body: { role }, auth: true }),
+  adminBanUser: (id, banned, reason) => request(`/admin/users/${id}/ban`, { method: "PATCH", body: { banned, reason }, auth: true }),
   adminDeleteCommunity: (id) => request(`/admin/communities/${id}`, { method: "DELETE", auth: true }),
   adminToggleVerifyProvider: (id) => request(`/admin/service-providers/${id}/verify`, { method: "PATCH", auth: true }),
 

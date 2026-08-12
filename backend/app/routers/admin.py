@@ -11,8 +11,8 @@ from app.core.security import get_current_admin, get_current_editor, get_current
 from app.models.models import AuditLog, Comment, Community, Listing, Pet, Post, Report, ServiceProvider, Story, User
 from app.routers.auth import SYSTEM_ACCOUNT_EMAIL
 from app.schemas.schemas import (
-    AdminActionResult, AdminOverview, AdminUserOut, AuditLogOut, ReportQueueItem, RoleUpdate, ServiceProviderOut,
-    StoryOut
+    AdminActionResult, AdminOverview, AdminUserOut, AuditLogOut, BanUpdate, ReportQueueItem, RoleUpdate,
+    ServiceProviderOut, StoryOut
 )
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -252,6 +252,33 @@ def set_user_role(
 
     target.role = data.role
     _log(db, admin, "set_role", "user", user_id, note=data.role)
+    db.commit()
+    db.refresh(target)
+
+    item = AdminUserOut.model_validate(target)
+    item.posts_count = db.query(Post).filter(Post.author_id == user_id).count()
+    item.pets_count = db.query(Pet).filter(Pet.owner_id == user_id).count()
+    return item
+
+
+@router.patch("/users/{user_id}/ban", response_model=AdminUserOut)
+def set_user_ban(
+    user_id: str, data: BanUpdate, db: Session = Depends(get_db), admin: User = Depends(get_current_admin),
+    lang: str = Depends(get_lang),
+):
+    """Строго для is_admin, как и set_user_role — иначе модератор мог бы
+    заблокировать администратора. Забаненный теряет доступ немедленно на
+    следующий же запрос (проверка в get_current_user), не только при
+    следующем входе — не нужен отдельный механизм отзыва токена."""
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail=t("user_not_found", lang))
+    if target.is_admin:
+        raise HTTPException(status_code=400, detail=t("cannot_ban_admin", lang))
+
+    target.is_banned = data.banned
+    target.ban_reason = data.reason if data.banned else None
+    _log(db, admin, "ban_user" if data.banned else "unban_user", "user", user_id, note=data.reason if data.banned else None)
     db.commit()
     db.refresh(target)
 

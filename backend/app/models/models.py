@@ -56,6 +56,8 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     has_completed_onboarding = Column(Boolean, default=False)
     role = Column(String(20), default="user")  # "user" / "editor" / "moderator" — admin отдельно, через is_admin
+    is_banned = Column(Boolean, default=False)
+    ban_reason = Column(String(300), nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     @property

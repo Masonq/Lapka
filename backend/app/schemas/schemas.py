@@ -475,6 +475,8 @@ class AdminUserOut(BaseModel):
     is_admin: bool
     role: str = "user"
     is_service_provider: bool
+    is_banned: bool = False
+    ban_reason: Optional[str] = None
     created_at: datetime
     posts_count: int = 0
     pets_count: int = 0
@@ -489,6 +491,11 @@ class AdminUserOut(BaseModel):
 
 class RoleUpdate(BaseModel):
     role: str
+
+
+class BanUpdate(BaseModel):
+    banned: bool
+    reason: Optional[str] = Field(None, max_length=300)
 
 
 # ---------- Stories ----------

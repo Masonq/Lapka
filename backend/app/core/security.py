@@ -12,6 +12,7 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.i18n import get_lang, t
 from app.models.models import User
 
 SECRET_KEY = os.getenv("JWT_SECRET")
@@ -64,7 +65,9 @@ def verify_telegram_auth(data: dict) -> bool:
     return hmac.compare_digest(computed_hash, check_hash)
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db), lang: str = Depends(get_lang)
+) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Не удалось подтвердить пользователя",
@@ -83,6 +86,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
         raise credentials_exception
+    if user.is_banned:
+        # 403, не 401 — токен валиден, дело не в авторизации, а в том, что
+        # аккаунту явно запрещён доступ. Проверяется на каждый запрос (user
+        # уже загружен из БД выше), не только при входе — значит действует
+        # немедленно, даже если у пользователя уже был токен, выданный до
+        # бана (JWT сам по себе stateless, отозвать его напрямую нельзя,
+        # но эта проверка даёт тот же эффект без блэклиста токенов)
+        detail = t("account_banned", lang)
+        if user.ban_reason:
+            detail += f": {user.ban_reason}"
+        raise HTTPException(status_code=403, detail=detail)
     return user
 
 
@@ -101,7 +115,10 @@ def get_current_user_optional(
             return None
     except JWTError:
         return None
-    return db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.id == user_id).first()
+    if user and user.is_banned:
+        return None
+    return user
 
 
 def get_current_admin(user: User = Depends(get_current_user)) -> User:

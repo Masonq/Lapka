@@ -199,6 +199,11 @@ def login(data: LoginEmail, request: Request, db: Session = Depends(get_db), lan
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not user.password_hash or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail=t("wrong_email_or_password", lang))
+    if user.is_banned:
+        detail = t("account_banned", lang)
+        if user.ban_reason:
+            detail += f": {user.ban_reason}"
+        raise HTTPException(status_code=403, detail=detail)
     return Token(access_token=create_access_token(user.id))
 
 
@@ -225,6 +230,11 @@ def telegram_auth(data: TelegramAuth, request: Request, db: Session = Depends(ge
         db.commit()
         db.refresh(user)
         _send_welcome_notification(db, user)
+    elif user.is_banned:
+        detail = t("account_banned", lang)
+        if user.ban_reason:
+            detail += f": {user.ban_reason}"
+        raise HTTPException(status_code=403, detail=detail)
 
     return Token(access_token=create_access_token(user.id))
 

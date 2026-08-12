@@ -191,6 +191,121 @@ def test_admin_delete_story(client, register_user, register_admin):
     assert log[0]["action"] == "delete_story"
 
 
+def test_admin_can_ban_user(client, register_user_with_id, register_admin):
+    headers_admin, _ = register_admin()
+    headers_target, target_id = register_user_with_id()
+
+    r = client.patch(
+        f"/api/admin/users/{target_id}/ban", json={"banned": True, "reason": "Спам"}, headers=headers_admin
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["is_banned"] is True
+    assert body["ban_reason"] == "Спам"
+
+    # Журнал действий записал бан с причиной
+    log = client.get("/api/admin/audit-log", headers=headers_admin).json()
+    assert log[0]["action"] == "ban_user"
+    assert log[0]["note"] == "Спам"
+
+
+def test_banned_user_cannot_login(client, register_user_with_id, register_admin):
+    """Бан должен блокировать сразу на входе — не просто на следующем запросе
+    после успешного логина (плохой UX иначе)."""
+    headers_admin, _ = register_admin()
+    headers_target, target_id = register_user_with_id(password="password123")
+
+    # Узнаём email забаненного пользователя через admin-список (у /auth/me
+    # в схеме MeOut email не возвращается вообще)
+    target_before_ban = next(
+        u for u in client.get("/api/admin/users", headers=headers_admin).json() if u["id"] == target_id
+    )
+    email = target_before_ban["email"]
+
+    client.patch(f"/api/admin/users/{target_id}/ban", json={"banned": True}, headers=headers_admin)
+
+    r = client.post("/api/auth/login", json={"email": email, "password": "password123"})
+    assert r.status_code == 403
+    assert "заблокирован" in r.json()["detail"].lower()
+
+
+def test_banned_user_loses_access_immediately_with_existing_token(client, register_user_with_id, register_admin):
+    """Ключевая проверка дизайна: токен, выданный ДО бана, должен перестать
+    работать сразу после бана — не только новый вход должен быть заблокирован.
+    JWT сам по себе stateless (нет блэклиста токенов), эффект достигается
+    проверкой is_banned в get_current_user на каждый запрос."""
+    headers_admin, _ = register_admin()
+    headers_target, target_id = register_user_with_id()
+
+    # Токен уже на руках, работает нормально до бана
+    r = client.get("/api/auth/me", headers=headers_target)
+    assert r.status_code == 200
+
+    client.patch(f"/api/admin/users/{target_id}/ban", json={"banned": True, "reason": "Нарушение правил"}, headers=headers_admin)
+
+    # Тот же самый, уже выданный токен — теперь отклоняется
+    r = client.get("/api/auth/me", headers=headers_target)
+    assert r.status_code == 403
+    assert "Нарушение правил" in r.json()["detail"]
+
+
+def test_banned_user_treated_as_guest_in_optional_auth(client, register_user_with_id, register_admin):
+    """get_current_user_optional не должен ломать публичные эндпоинты для
+    забаненного — он должен просто выглядеть неавторизованным (None),
+    не получать 403 там, где авторизация не обязательна."""
+    headers_admin, _ = register_admin()
+    headers_target, target_id = register_user_with_id()
+
+    client.patch(f"/api/admin/users/{target_id}/ban", json={"banned": True}, headers=headers_admin)
+
+    # Лента постов доступна без авторизации — с токеном забаненного она
+    # должна вести себя так же, как без токена вообще (не 403)
+    r = client.get("/api/posts", headers=headers_target)
+    assert r.status_code == 200
+
+
+def test_admin_can_unban_user(client, register_user_with_id, register_admin):
+    headers_admin, _ = register_admin()
+    headers_target, target_id = register_user_with_id()
+
+    client.patch(f"/api/admin/users/{target_id}/ban", json={"banned": True, "reason": "Тест"}, headers=headers_admin)
+    r = client.get("/api/auth/me", headers=headers_target)
+    assert r.status_code == 403
+
+    unban = client.patch(f"/api/admin/users/{target_id}/ban", json={"banned": False}, headers=headers_admin)
+    assert unban.status_code == 200
+    assert unban.json()["is_banned"] is False
+    assert unban.json()["ban_reason"] is None
+
+    # Доступ восстановлен тем же самым токеном
+    r = client.get("/api/auth/me", headers=headers_target)
+    assert r.status_code == 200
+
+    log = client.get("/api/admin/audit-log", headers=headers_admin).json()
+    assert log[0]["action"] == "unban_user"
+
+
+def test_cannot_ban_admin(client, register_admin):
+    headers_admin1, _ = register_admin(display_name="Админ 1")
+    headers_admin2, admin2_id = register_admin(display_name="Админ 2")
+
+    r = client.patch(f"/api/admin/users/{admin2_id}/ban", json={"banned": True}, headers=headers_admin1)
+    assert r.status_code == 400
+
+
+def test_moderator_cannot_ban_users(client, register_user_with_id, register_admin):
+    """Бан — строго для is_admin, как и смена роли. Модератор не должен мочь
+    заблокировать кого угодно в обход иерархии."""
+    headers_admin, admin_id = register_admin()
+    headers_target, target_id = register_user_with_id()
+
+    client.patch(f"/api/admin/users/{target_id}/role", json={"role": "moderator"}, headers=headers_admin)
+    headers_moderator = headers_target  # у target_id теперь роль moderator
+
+    r = client.patch(f"/api/admin/users/{admin_id}/ban", json={"banned": True}, headers=headers_moderator)
+    assert r.status_code == 403
+
+
 def test_list_reports_query_count_does_not_scale_with_result_size(client, register_user, register_admin):
     """Тот же класс N+1, что уже находил в posts.py/communities.py/events.py/messages.py/
     services.py — reporter/post через ленивую связь плюс len(post.comments) в цикле."""

@@ -43,6 +43,10 @@ ERRORS: dict[str, dict[str, str]] = {
         "ru": "Неверный email или пароль",
         "sr": "Netačan email ili lozinka",
     },
+    "account_banned": {
+        "ru": "Аккаунт заблокирован",
+        "sr": "Nalog je blokiran",
+    },
     "telegram_signature_invalid": {
         "ru": "Подпись Telegram не подтверждена",
         "sr": "Telegram potpis nije potvrđen",
@@ -182,6 +186,10 @@ ERRORS: dict[str, dict[str, str]] = {
     "user_not_found": {
         "ru": "Пользователь не найден",
         "sr": "Korisnik nije pronađen",
+    },
+    "cannot_ban_admin": {
+        "ru": "Нельзя заблокировать администратора",
+        "sr": "Nije moguće blokirati administratora",
     },
     "provider_profile_not_found": {
         "ru": "Анкета исполнителя не найдена",

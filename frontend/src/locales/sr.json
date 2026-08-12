@@ -711,7 +711,18 @@
     "audit_delete_community": "obrisao(la) je zajednicu",
     "audit_set_role": "promenio(la) je ulogu korisnika",
     "audit_verify_provider": "potvrdio(la) je pružaoca usluga",
-    "audit_unverify_provider": "uklonio(la) je potvrdu pružaoca usluga"
+    "audit_unverify_provider": "uklonio(la) je potvrdu pružaoca usluga",
+    "audit_ban_user": "blokirao(la) je korisnika",
+    "audit_unban_user": "odblokirao(la) je korisnika",
+    "banned_badge": "blokiran",
+    "ban_reason_label": "Razlog:",
+    "ban": "Blokiraj",
+    "unban": "Odblokiraj",
+    "ban_confirm_title": "Blokirati {{name}}?",
+    "ban_confirm_message": "Korisnik odmah gubi pristup, uključujući već otvorene sesije. Razlog nije obavezan, ali biće vidljiv korisniku.",
+    "ban_reason_placeholder": "Razlog blokiranja (opciono)",
+    "user_banned_toast": "Korisnik je blokiran",
+    "user_unbanned_toast": "Korisnik je odblokiran"
   },
   "data_labels": {
     "species_dog": "Pas",

@@ -18,6 +18,8 @@ const ACTION_LABELS = {
   set_role: "admin.audit_set_role",
   verify_provider: "admin.audit_verify_provider",
   unverify_provider: "admin.audit_unverify_provider",
+  ban_user: "admin.audit_ban_user",
+  unban_user: "admin.audit_unban_user",
 };
 
 const ROLE_LABELS = {
