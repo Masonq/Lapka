@@ -339,6 +339,14 @@ export default function Profile() {
             </a>
           </p>
         )}
+        {mode === "register" && (
+          <p style={{ fontSize: 12, color: "var(--text-faint)", margin: "-6px 0 14px" }}>
+            {t("profile.terms_agree_prefix")}{" "}
+            <Link to="/terms" style={{ color: "var(--text-muted)" }}>{t("profile.terms_link")}</Link>
+            {" "}{t("profile.and_word")}{" "}
+            <Link to="/privacy" style={{ color: "var(--text-muted)" }}>{t("profile.privacy_link")}</Link>
+          </p>
+        )}
         {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
         <button className="btn btn-primary btn-block" disabled={busy}>
           {busy ? t("profile.just_a_sec") : mode === "login" ? t("profile.login_button") : t("profile.get_code_button")}

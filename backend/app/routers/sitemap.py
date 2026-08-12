@@ -24,6 +24,7 @@ SITE_URL = "https://lapki.info"
 MAX_ITEMS_PER_TYPE = 5000
 
 STATIC_PAGES = ["/", "/explore", "/marketplace", "/events", "/communities", "/adoption"]
+LEGAL_PAGES = ["/terms", "/privacy", "/guidelines"]
 
 
 def _url_entry(loc: str, lastmod: "datetime | None" = None, priority: str = "0.5") -> str:
@@ -34,6 +35,7 @@ def _url_entry(loc: str, lastmod: "datetime | None" = None, priority: str = "0.5
 @router.get("/sitemap.xml")
 def sitemap(db: Session = Depends(get_db)):
     entries = [_url_entry(f"{SITE_URL}{path}", priority="0.8") for path in STATIC_PAGES]
+    entries += [_url_entry(f"{SITE_URL}{path}", priority="0.3") for path in LEGAL_PAGES]
 
     posts = db.query(Post.id, Post.created_at).order_by(desc(Post.created_at)).limit(MAX_ITEMS_PER_TYPE).all()
     entries += [_url_entry(f"{SITE_URL}/posts/{p.id}", p.created_at) for p in posts]

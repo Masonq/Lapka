@@ -421,6 +421,15 @@ export default function Settings() {
           ))}
         </div>
 
+        <div className="card" style={{ borderRadius: 20, padding: 18 }}>
+          <h3 className="subhead" style={{ fontSize: 15, marginBottom: 10 }}>{t("settings.legal_title")}</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Link to="/terms" style={{ fontSize: 14, color: "var(--text-muted)" }}>{t("settings.terms_link_standalone")}</Link>
+            <Link to="/privacy" style={{ fontSize: 14, color: "var(--text-muted)" }}>{t("settings.privacy_link_standalone")}</Link>
+            <Link to="/guidelines" style={{ fontSize: 14, color: "var(--text-muted)" }}>{t("settings.guidelines_link")}</Link>
+          </div>
+        </div>
+
         <div className="card" style={{ borderRadius: 20, padding: 18, border: "1px solid var(--red-tint)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
             <Trash2 size={17} color="var(--red)" />

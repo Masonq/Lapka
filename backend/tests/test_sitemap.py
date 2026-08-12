@@ -18,6 +18,9 @@ def test_sitemap_is_valid_xml_with_static_pages(client):
     assert "https://lapki.info/marketplace" in locs
     assert "https://lapki.info/events" in locs
     assert "https://lapki.info/communities" in locs
+    assert "https://lapki.info/terms" in locs
+    assert "https://lapki.info/privacy" in locs
+    assert "https://lapki.info/guidelines" in locs
 
 
 def test_sitemap_does_not_require_auth(client):
