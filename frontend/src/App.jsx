@@ -48,6 +48,11 @@ const SavedListings = lazy(() => import("./pages/SavedListings"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminReports = lazy(() => import("./pages/AdminReports"));
+const AdminProviders = lazy(() => import("./pages/AdminProviders"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const AdminCommunities = lazy(() => import("./pages/AdminCommunities"));
+const AdminAuditLog = lazy(() => import("./pages/AdminAuditLog"));
 const Communities = lazy(() => import("./pages/Communities"));
 const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
 const Nearby = lazy(() => import("./pages/Nearby"));
@@ -210,6 +215,11 @@ export default function App() {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin/providers" element={<AdminProviders />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/communities" element={<AdminCommunities />} />
+          <Route path="/admin/audit-log" element={<AdminAuditLog />} />
           <Route path="/communities" element={<Communities />} />
           <Route path="/communities/:id" element={<CommunityDetail />} />
           <Route path="/nearby" element={<Nearby />} />
