@@ -1,6 +1,6 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag, Eye, Plus, ShieldCheck, Pencil } from "lucide-react";
+import { ArrowLeft, MapPin, CheckCircle2, Trash2, Bookmark, Flag, Eye, Plus, ShieldCheck, Pencil, Share2 } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -127,6 +127,28 @@ export default function PostDetail() {
       setPost((p) => ({ ...p, is_saved: !p.is_saved }));
     } catch (err) {
       showToast(err.message, "error");
+    }
+  }
+
+  async function handleShare() {
+    const url = window.location.href;
+    // Web Share API — открывает нативный системный лист "Поделиться" на
+    // iOS/Android (в другие приложения, сообщения и т.д.). Недоступен на
+    // части десктопных браузеров — тогда просто копируем ссылку
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: post.title, url });
+      } catch (err) {
+        // AbortError — пользователь сам закрыл системный лист, не ошибка
+        if (err.name !== "AbortError") showToast(t("post_detail.share_failed"), "error");
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast(t("post_detail.link_copied"));
+      } catch {
+        showToast(t("post_detail.share_failed"), "error");
+      }
     }
   }
 
@@ -297,6 +319,17 @@ export default function PostDetail() {
                 <Trash2 size={18} />
               </button>
             )}
+            <button className="icon-btn" onClick={handleShare} aria-label={t("post_detail.share")} title={t("post_detail.share")}>
+              <Share2 size={18} />
+            </button>
+            {isAuthed && (
+              <PostReactions
+                reactions={post.reactions}
+                myReaction={post.my_reaction}
+                onReact={handleReact}
+                onRemove={handleRemoveReaction}
+              />
+            )}
             {isAuthed && post.author.id !== userId && !reported && (
               <button className="btn btn-ghost" onClick={() => setShowReportForm((v) => !v)}>
                 <Flag size={16} /> {t("post_detail.report")}
@@ -308,17 +341,6 @@ export default function PostDetail() {
               </span>
             )}
           </div>
-
-          {isAuthed && (
-            <div style={{ marginTop: 10 }}>
-              <PostReactions
-                reactions={post.reactions}
-                myReaction={post.my_reaction}
-                onReact={handleReact}
-                onRemove={handleRemoveReaction}
-              />
-            </div>
-          )}
 
           {showReportForm && (
             <form onSubmit={submitReport} style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>

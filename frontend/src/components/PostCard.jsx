@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { MapPin, MessageCircle, CheckCircle2, Bookmark, ShieldCheck } from "lucide-react";
+import { useRef, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { MapPin, MessageCircle, CheckCircle2, Bookmark, ShieldCheck, Heart } from "lucide-react";
 import { api } from "../api/client";
 import { useAuth } from "../AuthContext";
 import { useToast } from "../ToastContext";
@@ -29,8 +29,17 @@ export default function PostCard({ post }) {
   const { t } = useTranslation();
   const { isAuthed } = useAuth();
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [saved, setSaved] = useState(post.is_saved);
   const [busy, setBusy] = useState(false);
+  const [myReaction, setMyReaction] = useState(post.my_reaction);
+  const [showHeart, setShowHeart] = useState(false);
+  // Различаем одинарный тап (открыть пост) от двойного (лайк, как в
+  // Instagram) вручную — второй клик за <300мс от первого считается
+  // двойным. lastTapRef хранит время без вызова re-render, navTimerRef —
+  // отложенную навигацию, которую двойной тап должен успеть отменить
+  const lastTapRef = useRef(0);
+  const navTimerRef = useRef(null);
 
   async function toggleSave(e) {
     e.preventDefault(); // не даём сработать вложенной ссылке на пост
@@ -49,6 +58,46 @@ export default function PostCard({ post }) {
     }
   }
 
+  async function likeByDoubleTap() {
+    setShowHeart(true);
+    setTimeout(() => setShowHeart(false), 800);
+    // Instagram никогда не снимает лайк двойным тапом, только ставит —
+    // если реакция уже стоит, просто показываем анимацию без запроса
+    if (myReaction === "❤️") return;
+    setMyReaction("❤️"); // оптимистично
+    try {
+      await api.reactToPost(post.id, "❤️");
+    } catch (err) {
+      setMyReaction(post.my_reaction); // откатываем к тому, что было
+      showToast(err.message, "error");
+    }
+  }
+
+  function handleCardClick(e) {
+    if (!isAuthed) return; // неавторизованным — обычное поведение ссылки
+    const now = Date.now();
+    const isDoubleTap = now - lastTapRef.current < 300;
+    lastTapRef.current = now;
+
+    if (isDoubleTap) {
+      e.preventDefault();
+      if (navTimerRef.current) {
+        clearTimeout(navTimerRef.current);
+        navTimerRef.current = null;
+      }
+      likeByDoubleTap();
+      return;
+    }
+
+    // Первый тап — не переходим сразу, ждём короткое окно на случай
+    // второго тапа. Если он не пришёл, переходим сами через navigate()
+    e.preventDefault();
+    navTimerRef.current = setTimeout(() => {
+      navigate(`/posts/${post.id}`);
+      navTimerRef.current = null;
+    }, 280);
+  }
+
   return (
     <div className="post-card card">
       {isAuthed && (
@@ -62,7 +111,8 @@ export default function PostCard({ post }) {
         </button>
       )}
 
-      <Link to={`/posts/${post.id}`} className="post-card-link">
+      <Link to={`/posts/${post.id}`} className="post-card-link" onClick={handleCardClick}>
+        {showHeart && <Heart size={84} className="double-tap-heart" fill="white" />}
         {post.photo_url && (
           <img src={post.photo_url} alt={post.title} className="post-card-photo" />
         )}

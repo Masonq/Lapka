@@ -55,11 +55,10 @@ export default function PostReactions({ reactions, myReaction, onReact, onRemove
       <button
         type="button"
         className="icon-btn"
-        style={{ width: 32, height: 32 }}
         onClick={() => setPickerOpen((v) => !v)}
         aria-label="Реакция"
       >
-        <SmilePlus size={16} />
+        <SmilePlus size={18} />
       </button>
 
       {pickerOpen && (
