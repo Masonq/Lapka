@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /settings
+Disallow: /messages
+Disallow: /notifications
+Disallow: /new-post
+Disallow: /marketplace/new
+Disallow: /saved
+Disallow: /saved-listings
+Disallow: /profile
+Disallow: /admin
+
+Sitemap: https://lapki.info/sitemap.xml

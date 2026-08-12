@@ -15,14 +15,15 @@ SPA как обычно. nginx определяет ботов по User-Agent �
 с автоэкранированием, значит без escape был бы classic stored XSS.
 """
 import html
+import json
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.db import get_db
-from app.models.models import Event, Listing, Post
+from app.models.models import Community, CommunityMember, Event, Listing, Post
 
 router = APIRouter(prefix="/api/prerender", tags=["prerender"])
 
@@ -35,7 +36,21 @@ TYPE_LABELS = {
 }
 
 
-def _page(title: str, description: str, url: str, image: str, body_html: str) -> str:
+def _jsonld_script(data: dict) -> str:
+    """JSON.dumps безопасно экранирует кавычки/спецсимволы сам по себе — но
+    НЕ экранирует "</", а внутри <script> тега буквальная подстрока
+    "</script" закрывает тег раньше времени независимо от того, что было
+    задумано как данные. Пользовательский текст поста/объявления мог бы
+    содержать "</script><script>alert(1)</script>" и вырваться в реальный
+    исполняемый HTML — classic script-injection через JSON-LD, не редкость
+    в реальных багбаунти отчётах. "<\\/" внутри JSON-строки эквивалентен
+    "</" при парсинге (JSON разрешает экранировать "/", хоть это и не
+    обязательно), но защищает от такого разрыва тега."""
+    safe = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    return f'<script type="application/ld+json">{safe}</script>'
+
+
+def _page(title: str, description: str, url: str, image: str, body_html: str, jsonld: str = "") -> str:
     """Общий каркас HTML-страницы — заголовок/описание/картинка уже экранированы вызывающей стороной."""
     return f"""<!doctype html>
 <html lang="ru">
@@ -55,6 +70,7 @@ def _page(title: str, description: str, url: str, image: str, body_html: str) ->
 <meta name="twitter:description" content="{description}" />
 <meta name="twitter:image" content="{image}" />
 <link rel="canonical" href="{url}" />
+{jsonld}
 </head>
 <body>
 {body_html}
@@ -88,7 +104,17 @@ def prerender_post(post_id: str, db: Session = Depends(get_db)):
 {f'<p>Место: {html.escape(post.last_seen_location)}</p>' if post.last_seen_location else ""}
 <p><a href="{url}">Открыть на Lapki</a></p>
 """
-    return HTMLResponse(_page(title, description, url, image, body_html))
+    jsonld = _jsonld_script({
+        "@context": "https://schema.org",
+        "@type": "SocialMediaPosting",
+        "headline": post.title,
+        "articleBody": post.body,
+        "author": {"@type": "Person", "name": post.author.display_name},
+        "datePublished": post.created_at.isoformat(),
+        "image": post.photo_url if post.photo_url and post.photo_url.startswith("http") else f"{SITE_URL}{post.photo_url}" if post.photo_url else DEFAULT_IMAGE,
+        "url": f"{SITE_URL}/posts/{post.id}",
+    })
+    return HTMLResponse(_page(title, description, url, image, body_html, jsonld))
 
 
 @router.get("/marketplace/{listing_id}", response_class=HTMLResponse)
@@ -112,7 +138,23 @@ def prerender_listing(listing_id: str, db: Session = Depends(get_db)):
 <p>Продавец: {html.escape(listing.seller.display_name)}</p>
 <p><a href="{url}">Открыть на Lapki</a></p>
 """
-    return HTMLResponse(_page(title, description, url, image, body_html))
+    listing_data = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": listing.title,
+        "description": listing.description or listing.title,
+        "image": listing.photo_url if listing.photo_url and listing.photo_url.startswith("http") else f"{SITE_URL}{listing.photo_url}" if listing.photo_url else DEFAULT_IMAGE,
+        "url": f"{SITE_URL}/marketplace/{listing.id}",
+    }
+    if listing.price is not None:
+        listing_data["offers"] = {
+            "@type": "Offer",
+            "price": listing.price,
+            "priceCurrency": "RSD",
+            "availability": "https://schema.org/SoldOut" if listing.is_sold else "https://schema.org/InStock",
+        }
+    jsonld = _jsonld_script(listing_data)
+    return HTMLResponse(_page(title, description, url, image, body_html, jsonld))
 
 
 @router.get("/events/{event_id}", response_class=HTMLResponse)
@@ -134,7 +176,56 @@ def prerender_event(event_id: str, db: Session = Depends(get_db)):
 <p>Организатор: {html.escape(event.organizer.display_name)}</p>
 <p><a href="{url}">Открыть на Lapki</a></p>
 """
-    return HTMLResponse(_page(title, description, url, DEFAULT_IMAGE, body_html))
+    event_data = {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        "name": event.title,
+        "description": event.description or event.title,
+        "startDate": event.starts_at.isoformat(),
+        "organizer": {"@type": "Person", "name": event.organizer.display_name},
+        "url": f"{SITE_URL}/events/{event.id}",
+    }
+    if event.location:
+        event_data["location"] = {"@type": "Place", "name": event.location}
+    jsonld = _jsonld_script(event_data)
+    return HTMLResponse(_page(title, description, url, DEFAULT_IMAGE, body_html, jsonld))
+
+
+@router.get("/communities/{community_id}", response_class=HTMLResponse)
+def prerender_community(community_id: str, db: Session = Depends(get_db)):
+    community = db.query(Community).options(joinedload(Community.creator)).filter(Community.id == community_id).first()
+    if not community:
+        return HTMLResponse("<!doctype html><title>Не найдено</title>", status_code=404)
+
+    members_count = db.query(func.count()).select_from(CommunityMember).filter(
+        CommunityMember.community_id == community.id
+    ).scalar()
+
+    title = html.escape(f"{community.name} — Lapki")
+    description = html.escape(_excerpt(community.description or community.name))
+    url = html.escape(f"{SITE_URL}/communities/{community.id}")
+    image = DEFAULT_IMAGE
+    if community.avatar_url:
+        image = html.escape(community.avatar_url if community.avatar_url.startswith("http") else f"{SITE_URL}{community.avatar_url}")
+
+    body_html = f"""
+<h1>{html.escape(community.name)}</h1>
+<p>{html.escape(community.description or "")}</p>
+{f'<p>Город: {html.escape(community.city)}</p>' if community.city else ""}
+<p>{members_count} участников</p>
+<p><a href="{url}">Открыть на Lapki</a></p>
+"""
+    community_data = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": community.name,
+        "description": community.description or community.name,
+        "url": f"{SITE_URL}/communities/{community.id}",
+    }
+    if community.avatar_url:
+        community_data["logo"] = community.avatar_url if community.avatar_url.startswith("http") else f"{SITE_URL}{community.avatar_url}"
+    jsonld = _jsonld_script(community_data)
+    return HTMLResponse(_page(title, description, url, image, body_html, jsonld))
 
 
 @router.get("", response_class=HTMLResponse)

@@ -75,6 +75,7 @@ import { useAuth } from "./AuthContext";
 import { api } from "./api/client";
 import { useRealtimeEvent } from "./RealtimeContext";
 import { initAnalytics, trackPageview } from "./analytics";
+import { useCanonical } from "./useCanonical";
 
 export default function App() {
   const { t } = useTranslation();
@@ -86,6 +87,7 @@ export default function App() {
   const { config: searchConfig } = useSearchContext();
   const location = useLocation();
   const isThreadPage = /^\/messages\/[^/]+$/.test(location.pathname);
+  useCanonical();
 
   useEffect(() => { initAnalytics(); }, []);
   useEffect(() => { trackPageview(location.pathname); }, [location.pathname]);
