@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Flag, X, Trash2 } from "lucide-react";
 import { api } from "../api/client";
 import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useAdminGuard } from "../useAdminGuard";
+import { usePaginatedAdminList } from "../usePaginatedAdminList";
 import AdminGuard from "../components/AdminGuard";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { useDelayedLoading } from "../useDelayedLoading";
@@ -16,33 +16,29 @@ export default function AdminReports() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { isAdmin, showSkeleton } = useAdminGuard();
-  const [reports, setReports] = useState(null);
+
+  const { items: reports, hasMore, loadingMore, loadMore, reload } = usePaginatedAdminList(
+    (offset, limit) => api.adminReports(false, limit, offset),
+    [isAdmin]
+  );
   const showReportsSkeleton = useDelayedLoading(reports === null);
-
-  function load() {
-    api.adminReports(false).then(setReports).catch(() => setReports([]));
-  }
-
-  useEffect(() => {
-    if (isAdmin) load();
-  }, [isAdmin]);
 
   async function dismiss(id) {
     await api.adminDismissReport(id);
     showToast(t("admin.report_dismissed_toast"));
-    load();
+    reload();
   }
 
   async function removePost(id) {
     await api.adminDeletePost(id);
     showToast(t("admin.post_deleted_toast"));
-    load();
+    reload();
   }
 
   async function removeListing(id) {
     await api.adminDeleteListing(id);
     showToast(t("admin.listing_deleted_toast"));
-    load();
+    reload();
   }
 
   return (
@@ -108,6 +104,12 @@ export default function AdminReports() {
             </div>
           </div>
         ))}
+
+        {!showReportsSkeleton && hasMore && (
+          <button className="btn btn-ghost btn-block" onClick={loadMore} disabled={loadingMore} style={{ marginTop: 8 }}>
+            {loadingMore ? t("admin.loading_more") : t("admin.load_more")}
+          </button>
+        )}
       </AdminGuard>
     </div>
   );

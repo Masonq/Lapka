@@ -668,6 +668,8 @@
     "report_word_few": "жалобы",
     "report_word_many": "жалоб",
     "no_reports": "Нерассмотренных жалоб нет",
+    "load_more": "Загрузить ещё",
+    "loading_more": "Загрузка…",
     "listing_suffix": "(объявление)",
     "content_deleted": "Контент уже удалён",
     "report_from": "Жалоба от",

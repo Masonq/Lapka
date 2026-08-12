@@ -6,6 +6,7 @@ import { useToast } from "../ToastContext";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useSearchContext } from "../SearchContext";
 import { useAdminGuard } from "../useAdminGuard";
+import { usePaginatedAdminList } from "../usePaginatedAdminList";
 import AdminGuard from "../components/AdminGuard";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { useDelayedLoading } from "../useDelayedLoading";
@@ -18,17 +19,23 @@ export default function AdminUsers() {
   const { showToast } = useToast();
   const { setSearchConfig } = useSearchContext();
   const { isAdmin, showSkeleton } = useAdminGuard();
-  const [users, setUsers] = useState(null);
-  const showUsersSkeleton = useDelayedLoading(users === null);
   const [userQuery, setUserQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
+  // Debounce отдельно от самой пагинации — управляет только КОГДА начинать
+  // новый поиск (не дёргать API на каждое нажатие клавиши), а
+  // usePaginatedAdminList ниже реагирует на смену debouncedQuery как на
+  // обычный сброс списка (deps)
   useEffect(() => {
-    if (!isAdmin) return;
-    const timer = setTimeout(() => {
-      api.adminUsers(userQuery).then(setUsers).catch(() => setUsers([]));
-    }, 350);
+    const timer = setTimeout(() => setDebouncedQuery(userQuery), 350);
     return () => clearTimeout(timer);
-  }, [isAdmin, userQuery]);
+  }, [userQuery]);
+
+  const { items: users, hasMore, loadingMore, loadMore, reload } = usePaginatedAdminList(
+    (offset, limit) => api.adminUsers(debouncedQuery, limit, offset),
+    [isAdmin, debouncedQuery]
+  );
+  const showUsersSkeleton = useDelayedLoading(users === null);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -40,7 +47,7 @@ export default function AdminUsers() {
     try {
       await api.adminSetUserRole(userId, role);
       showToast(t("admin.role_updated_toast"));
-      api.adminUsers(userQuery).then(setUsers).catch(() => {});
+      reload();
     } catch (err) {
       showToast(err.message, "error");
     }
@@ -108,6 +115,12 @@ export default function AdminUsers() {
             )}
           </div>
         ))}
+
+        {!showUsersSkeleton && hasMore && (
+          <button className="btn btn-ghost btn-block" onClick={loadMore} disabled={loadingMore} style={{ marginTop: 8 }}>
+            {loadingMore ? t("admin.loading_more") : t("admin.load_more")}
+          </button>
+        )}
       </AdminGuard>
     </div>
   );

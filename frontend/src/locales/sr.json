@@ -668,6 +668,8 @@
     "report_word_few": "prijave",
     "report_word_many": "prijava",
     "no_reports": "Nema nerešenih prijava",
+    "load_more": "Učitaj još",
+    "loading_more": "Učitavanje…",
     "listing_suffix": "(oglas)",
     "content_deleted": "Sadržaj je već obrisan",
     "report_from": "Prijava od",

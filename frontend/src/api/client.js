@@ -154,13 +154,33 @@ export const api = {
   markNotificationRead: (id) => request(`/notifications/${id}/read`, { method: "PATCH", auth: true }),
 
   adminOverview: () => request("/admin/overview", { auth: true }),
-  adminReports: (resolved) => request(`/admin/reports${resolved !== undefined ? `?resolved=${resolved}` : ""}`, { auth: true }),
+  adminReports: (resolved, limit, offset) => {
+    const params = new URLSearchParams();
+    if (resolved !== undefined) params.set("resolved", resolved);
+    if (limit !== undefined) params.set("limit", limit);
+    if (offset !== undefined) params.set("offset", offset);
+    const qs = params.toString();
+    return request(`/admin/reports${qs ? `?${qs}` : ""}`, { auth: true });
+  },
   adminDismissReport: (id) => request(`/admin/reports/${id}/dismiss`, { method: "PATCH", auth: true }),
   adminDeletePost: (id) => request(`/admin/posts/${id}`, { method: "DELETE", auth: true }),
   adminDeleteListing: (id) => request(`/admin/listings/${id}`, { method: "DELETE", auth: true }),
-  adminAuditLog: () => request("/admin/audit-log", { auth: true }),
+  adminAuditLog: (limit, offset) => {
+    const params = new URLSearchParams();
+    if (limit !== undefined) params.set("limit", limit);
+    if (offset !== undefined) params.set("offset", offset);
+    const qs = params.toString();
+    return request(`/admin/audit-log${qs ? `?${qs}` : ""}`, { auth: true });
+  },
   adminServiceProviders: () => request("/admin/service-providers", { auth: true }),
-  adminUsers: (q) => request(`/admin/users${q ? `?q=${encodeURIComponent(q)}` : ""}`, { auth: true }),
+  adminUsers: (q, limit, offset) => {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (limit !== undefined) params.set("limit", limit);
+    if (offset !== undefined) params.set("offset", offset);
+    const qs = params.toString();
+    return request(`/admin/users${qs ? `?${qs}` : ""}`, { auth: true });
+  },
   adminSetUserRole: (id, role) => request(`/admin/users/${id}/role`, { method: "PATCH", body: { role }, auth: true }),
   adminDeleteCommunity: (id) => request(`/admin/communities/${id}`, { method: "DELETE", auth: true }),
   adminToggleVerifyProvider: (id) => request(`/admin/service-providers/${id}/verify`, { method: "PATCH", auth: true }),

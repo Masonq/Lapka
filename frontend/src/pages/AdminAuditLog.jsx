@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ScrollText } from "lucide-react";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useAdminGuard } from "../useAdminGuard";
+import { usePaginatedAdminList } from "../usePaginatedAdminList";
 import AdminGuard from "../components/AdminGuard";
 import ListItemSkeleton from "../components/ListItemSkeleton";
 import { useDelayedLoading } from "../useDelayedLoading";
@@ -31,12 +31,11 @@ export default function AdminAuditLog() {
   useDocumentTitle(t("admin.audit_log_title"));
   const navigate = useNavigate();
   const { isAdmin, showSkeleton } = useAdminGuard();
-  const [auditLog, setAuditLog] = useState(null);
+  const { items: auditLog, hasMore, loadingMore, loadMore } = usePaginatedAdminList(
+    (offset, limit) => api.adminAuditLog(limit, offset),
+    [isAdmin]
+  );
   const showAuditLogSkeleton = useDelayedLoading(auditLog === null);
-
-  useEffect(() => {
-    if (isAdmin) api.adminAuditLog().then(setAuditLog).catch(() => setAuditLog([]));
-  }, [isAdmin]);
 
   return (
     <div>
@@ -71,6 +70,12 @@ export default function AdminAuditLog() {
             </div>
           </div>
         ))}
+
+        {!showAuditLogSkeleton && hasMore && (
+          <button className="btn btn-ghost btn-block" onClick={loadMore} disabled={loadingMore} style={{ marginTop: 8 }}>
+            {loadingMore ? t("admin.loading_more") : t("admin.load_more")}
+          </button>
+        )}
       </AdminGuard>
     </div>
   );

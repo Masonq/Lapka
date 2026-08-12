@@ -122,6 +122,33 @@ def test_audit_log_records_admin_actions(client, register_user, register_admin):
     assert entries[0]["admin"]["display_name"] == "Админ"
 
 
+def test_audit_log_pagination(client, register_user_with_id, register_admin):
+    headers_admin, _ = register_admin()
+    _, target_id = register_user_with_id()
+
+    # 5 действий подряд над одним пользователем — 5 записей в журнале,
+    # каждая с разной ролью, чтобы отличать их друг от друга по порядку
+    roles = ["moderator", "user", "editor", "user", "moderator"]
+    for role in roles:
+        client.patch(f"/api/admin/users/{target_id}/role", json={"role": role}, headers=headers_admin)
+
+    # Первая страница — 2 самые свежие записи (limit=2, offset=0)
+    page1 = client.get("/api/admin/audit-log?limit=2&offset=0", headers=headers_admin).json()
+    assert len(page1) == 2
+    assert [e["note"] for e in page1] == ["moderator", "user"]  # порядок new->old, последние 2 действия
+
+    # Вторая страница — следующие 2 записи, без пересечения с первой
+    page2 = client.get("/api/admin/audit-log?limit=2&offset=2", headers=headers_admin).json()
+    assert len(page2) == 2
+    assert [e["note"] for e in page2] == ["editor", "user"]
+    assert {e["id"] for e in page1}.isdisjoint({e["id"] for e in page2})
+
+    # Третья страница — последняя оставшаяся запись
+    page3 = client.get("/api/admin/audit-log?limit=2&offset=4", headers=headers_admin).json()
+    assert len(page3) == 1
+    assert page3[0]["note"] == "moderator"
+
+
 def test_list_reports_query_count_does_not_scale_with_result_size(client, register_user, register_admin):
     """Тот же класс N+1, что уже находил в posts.py/communities.py/events.py/messages.py/
     services.py — reporter/post через ленивую связь плюс len(post.comments) в цикле."""

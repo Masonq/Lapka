@@ -34,6 +34,8 @@ def overview(db: Session = Depends(get_db), admin: User = Depends(get_current_mo
 @router.get("/reports", response_model=list[ReportQueueItem])
 def list_reports(
     resolved: Optional[bool] = None,
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_moderator),
 ):
@@ -42,7 +44,7 @@ def list_reports(
     )
     if resolved is not None:
         query = query.filter(Report.is_resolved.is_(resolved))
-    reports = query.order_by(desc(Report.created_at)).all()
+    reports = query.order_by(desc(Report.created_at)).offset(offset).limit(limit).all()
 
     post_ids = [r.post_id for r in reports if r.post_id]
     comment_counts = {}
@@ -159,12 +161,18 @@ def admin_delete_community(
 
 
 @router.get("/audit-log", response_model=list[AuditLogOut])
-def audit_log(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def audit_log(
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+):
     rows = (
         db.query(AuditLog)
         .options(joinedload(AuditLog.admin))
         .order_by(desc(AuditLog.created_at))
-        .limit(200)
+        .offset(offset)
+        .limit(limit)
         .all()
     )
     return rows
