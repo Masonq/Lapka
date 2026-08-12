@@ -52,6 +52,7 @@ const AdminReports = lazy(() => import("./pages/AdminReports"));
 const AdminProviders = lazy(() => import("./pages/AdminProviders"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminCommunities = lazy(() => import("./pages/AdminCommunities"));
+const AdminStories = lazy(() => import("./pages/AdminStories"));
 const AdminAuditLog = lazy(() => import("./pages/AdminAuditLog"));
 const Communities = lazy(() => import("./pages/Communities"));
 const CommunityDetail = lazy(() => import("./pages/CommunityDetail"));
@@ -219,6 +220,7 @@ export default function App() {
           <Route path="/admin/providers" element={<AdminProviders />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/communities" element={<AdminCommunities />} />
+          <Route path="/admin/stories" element={<AdminStories />} />
           <Route path="/admin/audit-log" element={<AdminAuditLog />} />
           <Route path="/communities" element={<Communities />} />
           <Route path="/communities/:id" element={<CommunityDetail />} />

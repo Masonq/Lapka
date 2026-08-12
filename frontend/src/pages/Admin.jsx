@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Flag, Wrench, Users, ScrollText, ChevronRight } from "lucide-react";
+import { ArrowLeft, Flag, Wrench, Users, ScrollText, ChevronRight, Image } from "lucide-react";
 import { api } from "../api/client";
 import { useDocumentTitle } from "../useDocumentTitle";
 import { useAdminGuard } from "../useAdminGuard";
@@ -90,6 +90,7 @@ export default function Admin() {
         <SectionLink to="/admin/providers" icon={<Wrench size={19} />} title={t("admin.providers_title")} />
         <SectionLink to="/admin/users" icon={<Users size={19} />} title={t("admin.users_title")} />
         <SectionLink to="/admin/communities" icon={<Users size={19} />} title={t("admin.communities_title")} />
+        <SectionLink to="/admin/stories" icon={<Image size={19} />} title={t("admin.stories_title")} />
         <SectionLink to="/admin/audit-log" icon={<ScrollText size={19} />} title={t("admin.audit_log_title")} />
       </AdminGuard>
     </div>

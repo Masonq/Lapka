@@ -149,6 +149,48 @@ def test_audit_log_pagination(client, register_user_with_id, register_admin):
     assert page3[0]["note"] == "moderator"
 
 
+def test_admin_list_stories_shows_only_active(client, register_user, register_admin):
+    headers_admin, _ = register_admin()
+    headers_author = register_user()
+
+    story = client.post(
+        "/api/stories", json={"photo_url": "/uploads/test.jpg"}, headers=headers_author
+    ).json()
+
+    r = client.get("/api/admin/stories", headers=headers_admin)
+    assert r.status_code == 200
+    stories = r.json()
+    assert len(stories) == 1
+    assert stories[0]["id"] == story["id"]
+
+
+def test_admin_list_stories_requires_moderator(client, register_user):
+    headers = register_user()
+    r = client.get("/api/admin/stories", headers=headers)
+    assert r.status_code == 403
+
+
+def test_admin_delete_story(client, register_user, register_admin):
+    headers_admin, _ = register_admin()
+    headers_author = register_user()
+
+    story = client.post(
+        "/api/stories", json={"photo_url": "/uploads/test.jpg"}, headers=headers_author
+    ).json()
+
+    r = client.delete(f"/api/admin/stories/{story['id']}", headers=headers_admin)
+    assert r.status_code == 200
+
+    # После удаления история больше не появляется в списке (ни у админа, ни в
+    # обычной ленте историй — здесь проверяем именно admin-список)
+    remaining = client.get("/api/admin/stories", headers=headers_admin).json()
+    assert remaining == []
+
+    # Журнал действий записал удаление
+    log = client.get("/api/admin/audit-log", headers=headers_admin).json()
+    assert log[0]["action"] == "delete_story"
+
+
 def test_list_reports_query_count_does_not_scale_with_result_size(client, register_user, register_admin):
     """Тот же класс N+1, что уже находил в posts.py/communities.py/events.py/messages.py/
     services.py — reporter/post через ленивую связь плюс len(post.comments) в цикле."""

@@ -173,6 +173,14 @@ export const api = {
     return request(`/admin/audit-log${qs ? `?${qs}` : ""}`, { auth: true });
   },
   adminServiceProviders: () => request("/admin/service-providers", { auth: true }),
+  adminStories: (limit, offset) => {
+    const params = new URLSearchParams();
+    if (limit !== undefined) params.set("limit", limit);
+    if (offset !== undefined) params.set("offset", offset);
+    const qs = params.toString();
+    return request(`/admin/stories${qs ? `?${qs}` : ""}`, { auth: true });
+  },
+  adminDeleteStory: (id) => request(`/admin/stories/${id}`, { method: "DELETE", auth: true }),
   adminUsers: (q, limit, offset) => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);

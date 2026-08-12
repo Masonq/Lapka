@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -10,7 +11,8 @@ from app.core.security import get_current_admin, get_current_editor, get_current
 from app.models.models import AuditLog, Comment, Community, Listing, Pet, Post, Report, ServiceProvider, Story, User
 from app.routers.auth import SYSTEM_ACCOUNT_EMAIL
 from app.schemas.schemas import (
-    AdminActionResult, AdminOverview, AdminUserOut, AuditLogOut, ReportQueueItem, RoleUpdate, ServiceProviderOut
+    AdminActionResult, AdminOverview, AdminUserOut, AuditLogOut, ReportQueueItem, RoleUpdate, ServiceProviderOut,
+    StoryOut
 )
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -122,6 +124,28 @@ def admin_delete_listing(
     db.delete(listing)
     db.commit()
     return AdminActionResult()
+
+
+@router.get("/stories", response_model=list[StoryOut])
+def admin_list_stories(
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_moderator),
+):
+    """Только активные (не истёкшие) истории — раз просроченные уже не видны
+    никому из пользователей, модерировать их незачем."""
+    now = datetime.now(timezone.utc)
+    stories = (
+        db.query(Story)
+        .options(joinedload(Story.author))
+        .filter(Story.expires_at > now)
+        .order_by(desc(Story.created_at))
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+    return stories
 
 
 @router.delete("/stories/{story_id}", response_model=AdminActionResult)
