@@ -13,6 +13,9 @@ function timeAgo(iso, t) {
   return t("stories.hours_ago", { hours });
 }
 
+// Как в Instagram — каждая история сама переходит к следующей через 5с
+const STORY_DURATION_MS = 5000;
+
 export default function StoriesRow() {
   const { t } = useTranslation();
   const { isAuthed, userId } = useAuth();
@@ -77,6 +80,22 @@ export default function StoriesRow() {
       setViewerAuthorId(null);
     }
   }
+
+  function prevStory() {
+    setViewerIndex((i) => Math.max(0, i - 1));
+  }
+
+  // Автопродвижение — как в Instagram: каждая история сама переходит к
+  // следующей через STORY_DURATION_MS, ручной тап (nextStory/prevStory
+  // меняют viewerIndex) сбрасывает и перезапускает таймер для новой
+  // текущей истории. Явная очистка — иначе при быстрой ручной перемотке
+  // старый таймер сработал бы поверх уже другой истории
+  useEffect(() => {
+    if (!viewerAuthorId) return;
+    const timer = setTimeout(nextStory, STORY_DURATION_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewerAuthorId, viewerIndex]);
 
   async function removeStory(id) {
     try {
@@ -184,9 +203,20 @@ export default function StoriesRow() {
           <div style={{ display: "flex", gap: 4, padding: "10px 12px 0" }}>
             {activeStories.map((_, i) => (
               <div key={i} style={{
-                flex: 1, height: 3, borderRadius: 2,
-                background: i <= viewerIndex ? "#fff" : "rgba(255,255,255,0.35)",
-              }} />
+                flex: 1, height: 3, borderRadius: 2, overflow: "hidden",
+                background: "rgba(255,255,255,0.35)",
+              }}>
+                {i < viewerIndex && (
+                  <div style={{ width: "100%", height: "100%", background: "#fff" }} />
+                )}
+                {i === viewerIndex && (
+                  <div
+                    key={viewerIndex}
+                    className="story-progress-fill"
+                    style={{ height: "100%", background: "#fff", animationDuration: `${STORY_DURATION_MS}ms` }}
+                  />
+                )}
+              </div>
             ))}
           </div>
 
@@ -230,7 +260,7 @@ export default function StoriesRow() {
             <img src={activeStories[viewerIndex].photo_url} alt={t("stories.story_of_aria", { name: activeStories[viewerIndex].author.display_name })} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             {viewerIndex > 0 && (
               <button
-                onClick={(e) => { e.stopPropagation(); setViewerIndex((i) => i - 1); }}
+                onClick={(e) => { e.stopPropagation(); prevStory(); }}
                 style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "35%" }}
                 aria-label={t("stories.previous_aria")}
               />

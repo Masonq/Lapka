@@ -480,6 +480,19 @@ a {
   position: relative;
 }
 
+@keyframes story-progress-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.story-progress-fill {
+  width: 100%;
+  transform-origin: left;
+  animation-name: story-progress-fill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
 @keyframes double-tap-heart {
   0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
   15% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
