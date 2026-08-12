@@ -106,34 +106,46 @@ export default function StoriesRow() {
     <>
       <div style={{ display: "flex", gap: 12, overflowX: "auto", padding: "2px 0 14px", scrollbarWidth: "none" }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0 }}>
-          <button
-            onClick={() => (myStories.length ? openViewer(userId) : fileInputRef.current?.click())}
-            style={{
-              width: 56, height: 56, borderRadius: "50%", flexShrink: 0, position: "relative",
-              border: myStories.length ? "2px solid var(--primary-strong)" : "2px dashed var(--border)",
-              background: "var(--surface)", display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-            aria-label={myStories.length ? t("stories.my_story_aria") : t("stories.add_story_aria")}
-          >
-            {uploading ? (
-              <Loader2 size={20} className="spin" style={{ color: "var(--text-faint)" }} />
-            ) : myStories.length ? (
-              <span style={{ fontSize: 18, fontWeight: 800, color: "var(--primary-strong)" }}>
-                {myStories[0].author.display_name[0]?.toUpperCase()}
-              </span>
-            ) : (
-              <Plus size={20} style={{ color: "var(--text-faint)" }} />
-            )}
-            {!myStories.length && (
-              <span style={{
-                position: "absolute", bottom: -2, right: -2, width: 18, height: 18, borderRadius: "50%",
-                background: "var(--primary-strong)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
-                border: "2px solid var(--bg)",
-              }}>
+          <div style={{ position: "relative", width: 56, height: 56, flexShrink: 0 }}>
+            <button
+              onClick={() => (myStories.length ? openViewer(userId) : fileInputRef.current?.click())}
+              style={{
+                width: 56, height: 56, borderRadius: "50%", position: "relative",
+                border: myStories.length ? "2px solid var(--primary-strong)" : "2px dashed var(--border)",
+                background: "var(--surface)", display: "flex", alignItems: "center", justifyContent: "center",
+              }}
+              aria-label={myStories.length ? t("stories.my_story_aria") : t("stories.add_story_aria")}
+            >
+              {uploading ? (
+                <Loader2 size={20} className="spin" style={{ color: "var(--text-faint)" }} />
+              ) : myStories.length ? (
+                <span style={{ fontSize: 18, fontWeight: 800, color: "var(--primary-strong)" }}>
+                  {myStories[0].author.display_name[0]?.toUpperCase()}
+                </span>
+              ) : (
+                <Plus size={20} style={{ color: "var(--text-faint)" }} />
+              )}
+            </button>
+            {/* "+" бейдж — отдельный клик-таргет, ВСЕГДА виден и всегда
+                добавляет новую историю, даже если уже есть активные (в
+                отличие от основного кружка выше, который при наличии
+                историй переключается на их просмотр). Как в Instagram —
+                иначе после первой же выложенной истории способ добавить
+                следующую исчезает из этого ряда полностью */}
+            {!uploading && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                aria-label={t("stories.add_story_aria")}
+                style={{
+                  position: "absolute", bottom: -2, right: -2, width: 18, height: 18, borderRadius: "50%",
+                  background: "var(--primary-strong)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+                  border: "2px solid var(--bg)", padding: 0, cursor: "pointer",
+                }}
+              >
                 <Plus size={11} strokeWidth={3} />
-              </span>
+              </button>
             )}
-          </button>
+          </div>
           <span style={{ fontSize: 11, color: "var(--text-faint)" }}>{myStories.length ? t("stories.you") : t("stories.add")}</span>
           <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={handleFile} />
         </div>
