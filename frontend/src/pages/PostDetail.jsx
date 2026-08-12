@@ -322,24 +322,26 @@ export default function PostDetail() {
             <button className="icon-btn" onClick={handleShare} aria-label={t("post_detail.share")} title={t("post_detail.share")}>
               <Share2 size={18} />
             </button>
-            {isAuthed && (
-              <PostReactions
-                reactions={post.reactions}
-                myReaction={post.my_reaction}
-                onReact={handleReact}
-                onRemove={handleRemoveReaction}
-              />
-            )}
-            {isAuthed && post.author.id !== userId && !reported && (
-              <button className="btn btn-ghost" onClick={() => setShowReportForm((v) => !v)}>
-                <Flag size={16} /> {t("post_detail.report")}
-              </button>
-            )}
-            {reported && (
-              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-faint)" }}>
-                <Flag size={14} /> {t("post_detail.report_sent")}
-              </span>
-            )}
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginLeft: "auto" }}>
+              {isAuthed && (
+                <PostReactions
+                  reactions={post.reactions}
+                  myReaction={post.my_reaction}
+                  onReact={handleReact}
+                  onRemove={handleRemoveReaction}
+                />
+              )}
+              {isAuthed && post.author.id !== userId && !reported && (
+                <button className="btn btn-ghost" onClick={() => setShowReportForm((v) => !v)}>
+                  <Flag size={16} /> {t("post_detail.report")}
+                </button>
+              )}
+              {reported && (
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-faint)" }}>
+                  <Flag size={14} /> {t("post_detail.report_sent")}
+                </span>
+              )}
+            </div>
           </div>
 
           {showReportForm && (

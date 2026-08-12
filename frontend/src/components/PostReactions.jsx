@@ -1,89 +1,39 @@
-import { useEffect, useRef, useState } from "react";
-import { SmilePlus } from "lucide-react";
-
-const ALL_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🐾"];
+import { Heart } from "lucide-react";
 
 /**
- * Ряд реакций на пост — компактный по умолчанию: показывает чипы только
- * для эмодзи, у которых счётчик больше нуля, плюс маленькая кнопка
- * "добавить реакцию" сбоку. Полный набор из 6 эмодзи появляется во
- * всплывающей панели по тапу на эту кнопку, не занимает место постоянно
- * (тот же принцип сдержанности, что уже применён к кнопкам действий поста
- * ранее в этой сессии — компактно, пока не нужно развернуть).
+ * Кнопка лайка на посте — сердце, консистентное с двойным тапом на
+ * карточке в ленте (та же реакция "❤️", то же визуальное решение).
+ * Раньше здесь был полный пикер из 6 эмодзи с всплывающей панелью —
+ * упростили до одной кнопки по просьбе пользователя.
  */
-export default function PostReactions({ reactions, myReaction, onReact, onRemove }) {
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const containerRef = useRef(null);
+export default function PostReactions({ reactions, myReaction, onReact, onRemove, style }) {
+  const liked = myReaction === "❤️";
+  const count = reactions?.["❤️"] || 0;
 
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setPickerOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  function handleTap(emoji) {
-    if (myReaction === emoji) onRemove();
-    else onReact(emoji);
-    setPickerOpen(false);
+  function handleTap() {
+    if (liked) onRemove();
+    else onReact("❤️");
   }
 
-  const activeEmojis = ALL_EMOJIS.filter((e) => (reactions?.[e] || 0) > 0);
-
   return (
-    <div ref={containerRef} style={{ position: "relative", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-      {activeEmojis.map((emoji) => (
-        <button
-          key={emoji}
-          type="button"
-          onClick={() => handleTap(emoji)}
-          className="chip"
-          style={{
-            padding: "5px 10px", fontSize: 13,
-            background: myReaction === emoji ? "var(--primary-tint)" : "var(--surface)",
-            borderColor: myReaction === emoji ? "var(--primary-strong)" : "var(--border)",
-            color: myReaction === emoji ? "var(--primary-strong)" : "var(--text)",
-          }}
-        >
-          {emoji} {reactions[emoji]}
-        </button>
-      ))}
-
-      <button
-        type="button"
-        className="icon-btn"
-        onClick={() => setPickerOpen((v) => !v)}
-        aria-label="Реакция"
-      >
-        <SmilePlus size={18} />
-      </button>
-
-      {pickerOpen && (
-        <div
-          className="card"
-          style={{
-            position: "absolute", bottom: "calc(100% + 6px)", left: 0, zIndex: 20,
-            display: "flex", gap: 2, padding: 6, boxShadow: "var(--shadow-float)",
-          }}
-        >
-          {ALL_EMOJIS.map((emoji) => (
-            <button
-              key={emoji}
-              type="button"
-              onClick={() => handleTap(emoji)}
-              style={{
-                width: 36, height: 36, fontSize: 19, background: myReaction === emoji ? "var(--primary-tint)" : "none",
-                border: "none", borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-            >
-              {emoji}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    <button
+      type="button"
+      onClick={handleTap}
+      aria-label="Нравится"
+      aria-pressed={liked}
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 6,
+        height: 44, padding: count > 0 ? "0 16px 0 14px" : 0,
+        width: count > 0 ? "auto" : 44, justifyContent: "center",
+        borderRadius: 22, border: "1px solid var(--border)",
+        background: liked ? "var(--primary-tint)" : "var(--surface)",
+        color: liked ? "var(--primary-strong)" : "var(--black)",
+        cursor: "pointer", transition: "transform 0.12s ease, opacity 0.12s ease",
+        ...style,
+      }}
+    >
+      <Heart size={18} fill={liked ? "currentColor" : "none"} />
+      {count > 0 && <span style={{ fontSize: 14, fontWeight: 600 }}>{count}</span>}
+    </button>
   );
 }
