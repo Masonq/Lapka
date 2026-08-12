@@ -15,6 +15,14 @@ const TYPE_LABELS = {
   general: "post_type.general",
 };
 
+// Насколько быстро должен прийти второй тап, чтобы считаться двойным
+// (лайк) — и одновременно, насколько задерживается переход по одинарному
+// тапу, пока ждём возможный второй. Меньше — отзывчивее одинарный тап,
+// но выше риск, что медленный двойной тап не распознается и просто
+// откроет пост. 200мс — короче типичного намеренного двойного тапа
+// (обычно укладывается в 150-250мс), но заметно быстрее прежних 280-300мс
+const DOUBLE_TAP_WINDOW_MS = 200;
+
 function timeAgo(iso, t) {
   const diffMs = Date.now() - new Date(iso).getTime();
   const min = Math.floor(diffMs / 60000);
@@ -76,7 +84,7 @@ export default function PostCard({ post }) {
   function handleCardClick(e) {
     if (!isAuthed) return; // неавторизованным — обычное поведение ссылки
     const now = Date.now();
-    const isDoubleTap = now - lastTapRef.current < 300;
+    const isDoubleTap = now - lastTapRef.current < DOUBLE_TAP_WINDOW_MS;
     lastTapRef.current = now;
 
     if (isDoubleTap) {
@@ -95,7 +103,7 @@ export default function PostCard({ post }) {
     navTimerRef.current = setTimeout(() => {
       navigate(`/posts/${post.id}`);
       navTimerRef.current = null;
-    }, 280);
+    }, DOUBLE_TAP_WINDOW_MS);
   }
 
   return (
